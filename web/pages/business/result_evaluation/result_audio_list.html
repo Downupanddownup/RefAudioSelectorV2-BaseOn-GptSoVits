@@ -13,15 +13,35 @@
                 this.resultAudio = null
             }
             
-            getHtml(){
+            getHtml(isInTable){
                 if (this.type == 1) {
-                    return `<div data-reference-audio-path="${this.obj.audioPath}" style="width: 350px;cursor: pointer"></div>`
+                    const maxWidth = isInTable ? '400px' : 'auto'
+                    return `
+
+<div class="limited-width" style="max-width: ${maxWidth}">
+<button type="submit" class="layui-btn layui-btn-sm" data-reference-audio="${this.obj.audioPath}" data-reference-audio-content="${this.obj.audioContent}">参考音频</button> 
+                    <span  >${this.obj.audioContent}</span>
+</div>
+
+`
                 }
                 if (this.type == 2) {
                     return `${this.obj.textContent}`
                 }
                 if (this.type == 3) {
                     return `${this.obj.getShowTxt(this.compareType)}`
+                }
+                return ''
+            }
+            getTitle(){
+                if (this.type == 1) {
+                    return `参考内容`
+                }
+                if (this.type == 2) {
+                    return `推理文本`
+                }
+                if (this.type == 3) {
+                    return `对比变量`
                 }
                 return ''
             }
@@ -101,8 +121,80 @@
                             _this.loadAudio($(this), resultId)
                         }
                     })
+
+                    obj.find('td[id^=audio-different-]').on('click', function (){
+                        const target = $(this).parent().find('td[data-audio-path]')
+                        const resultId = target.attr('data-audio-path')
+                        if (target.html().trim() === '') {
+                            _this.loadAudio(target, resultId)
+                        }
+                    })
+                    
+                    obj.find('[data-reference-audio]').on('click',function () {
+
+                        // 阻止事件冒泡到父级元素
+                        event.stopPropagation();
+                        
+                        const path = $(this).attr('data-reference-audio')
+                        const content = $(this).attr('data-reference-audio-content')
+                        _this.showReferenceAudio(path,content)
+                    })
+
+                    let currentSelectedRow = null; // 用来存储当前选中的行
+
+                    // 使用jQuery选择所有具有class为list-item的行
+                    obj.find('tr[id^=result-audio-]').on('click', function() {
+                        // 如果之前有选中的行，先移除其样式
+                        if (currentSelectedRow) {
+                            $(currentSelectedRow).removeClass('selected');
+                        }
+
+                        // 添加或移除当前行的选中样式
+                        $(this).toggleClass('selected');
+
+                        // 更新当前选中的行
+                        currentSelectedRow = this;
+
+                    });
                     
                 });
+            }
+
+            showReferenceAudio(path,content){
+                const _this = this
+
+                const dialogIndex = layer.open({
+                    type: 1,
+                    area: ['600px', '400px'],
+                    content: `
+                        <table class="table1">
+                         <tr>
+                              <td>
+                                  <audio id="referenceAudio" controls style="width: 350px;height: 30px;margin: 0 0">
+                                    <source src="${path.replace(/\\/g, '/')}" type="audio/mpeg">
+                                    您的浏览器不支持音频播放。
+                                </audio>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                ${content}
+                            </td>
+                        </tr>
+                        </table>
+                `,
+                    btn: ['关闭'],
+                    yes: function(){
+                        layui.layer.close(dialogIndex)
+                    }
+                });
+
+                const audioElement = document.getElementById(`referenceAudio`);
+
+                _this.audioController.registerEventListener(audioElement)
+
+                _this.audioController.dispatchClickEvent(audioElement);
+                
             }
 
             loadAudio(divElement, resultId){
@@ -120,12 +212,12 @@
 
                 const div = document.getElementById(`result-audio-${entry.id}`);
 
-                // const contentElement = div.querySelector(`#audioContent-${entry.id}`);
+                const contentElement = div.querySelector(`#audio-different-${entry.id}`);
                 const audioElement = div.querySelector(`#audio-${entry.id}`);
 
-               /* contentElement.addEventListener('click', function () {
-                    _this.dispatchClickEvent(audioElement);
-                });*/
+                contentElement.addEventListener('click', function () {
+                    _this.audioController.dispatchClickEvent(audioElement);
+                });
 
                 _this.audioController.registerEventListener(audioElement)
             }
@@ -301,25 +393,32 @@
                 {{# layui.each(d.getFirstLevelData(), function(index, item){ }}
         
                 <div class="layui-colla-item">
-                    <div class="layui-colla-title">{{item.getHtml()}}</div>
+                    <div class="layui-colla-title">{{- item.getHtml(false)}}</div>
                     <div class="layui-colla-content {{isTrue(item.selected,'layui-show','')}}">
                         
                         <table id="audioList" class="table2" >
-                            <tr style="height: 46px">
-                                <td>序号</td>
-                                <td>推理音频</td>
-                                <td>差异</td>
-                                <td>时长</td>
-                                <td>文本相似度</td>
-                                <td>音频相似度</td>
-                                <td>评分</td>
-                                <td>备注</td>
-                            </tr>
+
                             {{# layui.each(item.subLevelList, function(index2, item2){ }}
+                            
+                                {{# if(index2 == 0) { }}
+    
+                                    <tr style="height: 46px" class="first-row">
+                                        <td style="width: 5%">序号</td>
+                                        <td style="width: 20%;min-width: 380px">推理音频</td>
+                                        <td style="width: 20%">{{item2.getTitle()}}</td>
+                                        <td style="width: 5%;">时长</td>
+                                        <td style="width: 5%;">文本相似度</td>
+                                        <td style="width: 5%;">音频相似度</td>
+                                        <td style="width: 5%;">评分</td>
+                                        <td style="width: 5%;">备注</td>
+                                    </tr>
+                                
+                                {{# } }}
+                            
                             <tr id="result-audio-{{item2.resultAudio.id}}" style="height: 46px">
                                 <td>{{index2+1}}</td>
                                 <td data-audio-path="{{item2.resultAudio.id}}" style="width: 350px;cursor: pointer"></td>
-                                <td>{{- item2.getHtml()}}</td>
+                                <td id="audio-different-{{item2.resultAudio.id}}" style="text-align: left;" class="single-line">{{- item2.getHtml(true)}}</td>
                                 <td>{{item2.resultAudio.audioLength}}</td>
                                 <td>{{item2.resultAudio.asrSimilarScore}}</td>
                                 <td>{{item2.resultAudio.audioSimilarScore}}</td>

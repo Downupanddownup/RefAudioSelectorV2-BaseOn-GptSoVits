@@ -107,6 +107,17 @@
         
       })
 
+      $(document).keydown(function(event) {
+        // 检查是否按下了 Esc 键
+        if (event.which === 27) {
+          // 执行你需要的操作
+          // alert('Esc 键被按下！');
+
+          layui.layer.closeLast();
+          
+          return false; // 阻止默认行为
+        }
+      });
       
     });
   }

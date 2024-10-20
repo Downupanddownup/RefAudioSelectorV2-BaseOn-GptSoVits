@@ -60,6 +60,12 @@
     background-color: #BBDEFB !important; /* 指定鼠标悬停时的背景色 */
 }
 
+/* 选择带有 first-row 类的 tr 元素 */
+.table2 .first-row td {
+    white-space: nowrap; /* 禁止内容换行 */
+    /*overflow: auto;      !* 如果内容超出则显示滚动条 *!*/
+}
+
 
 /* 基本样式 */
 .customSelect {
@@ -109,4 +115,10 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.limited-width {
+    white-space: nowrap;   /* 禁止内容换行 */
+    overflow: hidden;      /* 超出部分隐藏 */
+    text-overflow: ellipsis; /* 超出部分显示省略号 */
 }
