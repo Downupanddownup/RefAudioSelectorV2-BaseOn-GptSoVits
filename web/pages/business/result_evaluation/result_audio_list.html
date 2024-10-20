@@ -2,6 +2,62 @@
 <script>
     const ResultAudioListSpace = (function () {
         
+        class C_Order {
+            constructor(data) {
+                this.launch = false;//是否已经展开
+                this.audioSort = data.audioSort || 'audioLength';// 音频排序
+                this.audioUpDown = data.audioUpDown || 'desc';// 音频排序方式
+            }
+
+            sort(resultAudioA, resultAudioB) {
+                const _this = this
+                const desc = _this.audioUpDown === 'desc' ? -1 : 1;
+                if (_this.audioSort === 'audioLength') {
+                    return desc * (resultAudioA.audioLength - resultAudioB.audioLength)
+                } else if (_this.audioSort === 'score') {
+                    return desc * (resultAudioA.score - resultAudioB.score)
+                } else if (_this.audioSort === 'audioSimilarScore') {
+                    return desc * (resultAudioA.audioSimilarScore - resultAudioB.audioSimilarScore)
+                } else if (_this.audioSort === 'asrSimilarScore') {
+                    return desc * (resultAudioA.asrSimilarScore - resultAudioB.asrSimilarScore)
+                }
+            }
+
+            launchTxt(){
+                return this.launch ? '收起' : '展开'
+            }
+            
+            getSortHtml(audioSort) {
+                if (this.audioSort === audioSort) {
+                     if (this.audioUpDown === 'desc') {
+                         return `<i class="layui-icon layui-icon-down" style="color: #1E9FFF;cursor: pointer"></i>`
+                     } else {
+                         return `<i class="layui-icon layui-icon-up" style="color: #1E9FFF;cursor: pointer"></i>`
+                     }
+                } else {
+                    return `<i class="layui-icon layui-icon-down" style="cursor: pointer"></i>`
+                }
+            }
+
+            changeLaunch() {
+                this.launch = !this.launch
+            }
+
+            changeSort(audioSort) {
+                if (this.audioSort === audioSort) {
+                    if (this.audioUpDown === 'desc') {
+                        this.audioUpDown = 'asc'
+                    } else {
+                        this.audioUpDown = 'desc'
+                    }
+                } else {
+                    this.audioSort = audioSort
+                    this.audioUpDown = 'desc'
+                }
+            }
+            
+        }
+
         class C_LevelData {
             constructor(data) {
                 this.compareType = data.compareType || '';//对比参数
@@ -53,6 +109,7 @@
                 this.task = null
                 this.taskResultAudioList = []
                 this.audioFilter = C_ObjInferenceTaskResultAudioFilter$1
+                this.order = new C_Order(C_ObjInferenceTaskResultAudioFilter$1)
                 this.levelDeep = 3
                 this.levelDatas = []
                 this.audioController= new AudioController()
@@ -92,6 +149,8 @@
                             _this.levelDeep = _this.task.compareType === 'refer_audio' ? 2 : 3
                             
                             _this.levelDatas = _this.createLevelData()
+                            
+                            _this.sortLevelData()
 
                             console.log(_this)
 
@@ -175,7 +234,53 @@
                         _this.showEditRemarkDialog(id)
                     })
                     
+                    obj.find('#launch').on('click', function(){
+                        _this.order.changeLaunch()
+                        _this.changeLevelDataLaunch(_this.order.launch)
+                        _this.render()
+                    })
+                    
+                    obj.find('#sortScore').on('click', function () {
+                        _this.order.changeSort('score')
+                        _this.sortLevelData()
+                        _this.render()
+                    })
+                    
+                    obj.find('#sortAudioLength').on('click', function () {
+                        _this.order.changeSort('audioLength')
+                        _this.sortLevelData()
+                        _this.render()
+                    })
+                    
+                    obj.find('#sortAsrSimilarScore').on('click', function () {
+                        _this.order.changeSort('asrSimilarScore')
+                        _this.sortLevelData()
+                        _this.render()
+                    })
+                    
+                    obj.find('#sortAudioSimilarScore').on('click', function () {
+                        _this.order.changeSort('audioSimilarScore')
+                        _this.sortLevelData()
+                        _this.render()
+                    })
+                    
                 });
+            }
+
+            changeLevelDataLaunch(selected){
+                const _this = this
+                if (_this.levelDeep == 2) {
+                    _this.levelDatas.forEach(first => {
+                        first.selected = selected
+                    })
+                } else if (_this.levelDeep == 3) {
+                    _this.levelDatas.forEach(first => {
+                        first.selected = selected
+                        first.subLevelList.forEach(second => {
+                            second.selected = selected
+                        })
+                    })
+                }
             }
 
             showEditRemarkDialog(id){
@@ -301,6 +406,23 @@
                 });
 
                 _this.audioController.registerEventListener(audioElement)
+            }
+            
+            sortLevelData() {
+                const _this = this
+                if (_this.levelDeep == 2) {
+
+                    _this.levelDatas.forEach(first => {
+                        first.subLevelList.sort((a, b) => _this.order.sort(a.resultAudio, b.resultAudio))
+                    })
+                    
+                } else if (_this.levelDeep == 3) {
+                    _this.levelDatas.forEach(first => {
+                        first.subLevelList.forEach(second => {
+                            second.subLevelList.sort((a, b) => _this.order.sort(a.resultAudio, b.resultAudio))
+                        })
+                    })
+                }
             }
             
             createLevelData() {
@@ -461,123 +583,135 @@
     })()
 </script>
 <script id="resultAudioListTemplate" type="text/html">
-    
-    {{# if (d.taskResultAudioList.length < 1) { }}
-    <div class="no-data">暂无数据</div>
-    {{# } else { }}
-        
-        {{# if(d.levelDeep == 2){ }}
-        
-            <div class="layui-collapse">
-        
-        
-                {{# layui.each(d.getFirstLevelData(), function(index, item){ }}
-        
-                <div class="layui-colla-item">
-                    <div class="layui-colla-title">{{- item.getHtml(false)}}</div>
-                    <div class="layui-colla-content {{isTrue(item.selected,'layui-show','')}}">
-                        
-                        <table id="audioList" class="table2" >
 
-                            {{# layui.each(item.subLevelList, function(index2, item2){ }}
-                            
-                                {{# if(index2 == 0) { }}
+    <table class="table3">
+        <tr>
+            <td style="width: 20%"><span id="launch">{{d.order.launchTxt()}}</span></td>
+            <td style="width: 20%"><span id="sortScore">评分{{-d.order.getSortHtml('score')}}</span></td>
+            <td style="width: 20%"><span id="sortAudioLength">时长{{-d.order.getSortHtml('audioLength')}}</span></td>
+            <td style="width: 20%"><span id="sortAsrSimilarScore">文本相似度{{-d.order.getSortHtml('asrSimilarScore')}}</span></td>
+            <td style="width: 20%"><span id="sortAudioSimilarScore">音频相似度{{-d.order.getSortHtml('audioSimilarScore')}}</span></td>
+        </tr>
+    </table>
     
-                                    <tr style="height: 46px" class="first-row">
-                                        <td style="width: 5%">序号</td>
-                                        <td style="width: 8%;">评分</td>
-                                        <td style="width: 20%;min-width: 380px">推理音频</td>
-                                        <td style="width: 15%">{{item2.getTitle()}}</td>
-                                        <td style="width: 5%;">时长</td>
-                                        <td style="width: 5%;">文本相似度</td>
-                                        <td style="width: 5%;">音频相似度</td>
-                                        <td style="width: 10%;">备注</td>
-                                    </tr>
+    <div>
+
+            {{# if (d.taskResultAudioList.length < 1) { }}
+                <div class="no-data">暂无数据</div>
+            {{# } else { }}
+                
+                {{# if(d.levelDeep == 2){ }}
+                
+                    <div class="layui-collapse">
+                
+                
+                        {{# layui.each(d.getFirstLevelData(), function(index, item){ }}
+                
+                        <div class="layui-colla-item">
+                            <div class="layui-colla-title">{{- item.getHtml(false)}}</div>
+                            <div class="layui-colla-content {{isTrue(item.selected,'layui-show','')}}">
                                 
-                                {{# } }}
-                            
-                            <tr id="result-audio-{{item2.resultAudio.id}}" style="height: 46px">
-                                <td>{{index2+1}}</td>
-                                <td><div id="audio-score-{{item2.resultAudio.id}}" class="no-wrap"></div></td>
-                                <td data-audio-path="{{item2.resultAudio.id}}" style="width: 350px;cursor: pointer"></td>
-                                <td id="audio-different-{{item2.resultAudio.id}}" style="text-align: left;" class="single-line">{{- item2.getHtml(true)}}</td>
-                                <td>{{item2.resultAudio.audioLength}}</td>
-                                <td>{{item2.resultAudio.asrSimilarScore}}</td>
-                                <td>{{item2.resultAudio.audioSimilarScore}}</td>
-                                <td><span id="data-audio-remark-span-{{item2.resultAudio.id}}">{{item2.resultAudio.remark}}</span><i class="layui-icon layui-icon-edit" data-audio-remark-edit="{{item2.resultAudio.id}}"></i> </td>
-                            </tr>
-                            {{# }) }}
-                        </table>
-                        
-                    </div>
-                </div>
+                                <table id="audioList" class="table2" >
         
-                {{# }) }}
-        
-            </div>
-        
-        
-        {{# } else if (d.levelDeep == 3) { }}
-    
-        <div class="layui-collapse">
-    
+                                    {{# layui.each(item.subLevelList, function(index2, item2){ }}
+                                    
+                                        {{# if(index2 == 0) { }}
             
-            {{# layui.each(d.getFirstLevelData(), function(index, item){ }}
-    
-                <div class="layui-colla-item">
-                    <div class="layui-colla-title">{{item.getHtml()}}</div>
-                    <div class="layui-colla-content {{isTrue(item.selected,'layui-show','')}}">
-        
-                        {{# layui.each(item.subLevelList, function(index2, item2){ }}
-    
-                            <div class="layui-collapse">
-                                <div class="layui-colla-item">
-                                    <div class="layui-colla-title">{{item2.getHtml()}}</div>
-                                    <div class="layui-colla-content {{isTrue(item2.selected,'layui-show','')}}">
-                                        
-                                        <table id="audioList" class="table2" >
-                                            <tr style="height: 46px">
-                                                <td>序号</td>
-                                                <td>推理音频</td>
-                                                <td>差异</td>
-                                                <td>时长</td>
-                                                <td>文本相似度</td>
-                                                <td>音频相似度</td>
-                                                <td>评分</td>
-                                                <td>备注</td>
+                                            <tr style="height: 46px" class="first-row">
+                                                <td style="width: 5%">序号</td>
+                                                <td style="width: 8%;">评分</td>
+                                                <td style="width: 20%;min-width: 380px">推理音频</td>
+                                                <td style="width: 15%">{{item2.getTitle()}}</td>
+                                                <td style="width: 5%;">时长</td>
+                                                <td style="width: 5%;">文本相似度</td>
+                                                <td style="width: 5%;">音频相似度</td>
+                                                <td style="width: 10%;">备注</td>
                                             </tr>
-                                            {{# layui.each(item2.subLevelList, function(index3, item3){ }}
-                                                <tr id="result-audio-{{item3.id}}" style="height: 46px">
-                                                    <td>{{index3+1}}</td>
-                                                    <td data-audio-path="{{item3.resultAudio.id}}" style="width: 350px;cursor: pointer"></td>
-                                                    <td>{{- item3.resultAudio.getHtml()}}</td>
-                                                    <td>{{item3.resultAudio.audioLength}}</td>
-                                                    <td>{{item3.resultAudio.asrSimilarScore}}</td>
-                                                    <td>{{item3.resultAudio.audioSimilarScore}}</td>
-                                                    <td>{{item3.resultAudio.score}}</td>
-                                                    <td>{{item3.resultAudio.remark}}</td>
-                                                </tr>
-                                            {{# }) }}
-                                        </table>
                                         
-                                    </div>
-                                </div>
+                                        {{# } }}
+                                    
+                                    <tr id="result-audio-{{item2.resultAudio.id}}" style="height: 46px">
+                                        <td>{{index2+1}}</td>
+                                        <td><div id="audio-score-{{item2.resultAudio.id}}" class="no-wrap"></div></td>
+                                        <td data-audio-path="{{item2.resultAudio.id}}" style="width: 350px;cursor: pointer"></td>
+                                        <td id="audio-different-{{item2.resultAudio.id}}" style="text-align: left;" class="single-line">{{- item2.getHtml(true)}}</td>
+                                        <td>{{item2.resultAudio.audioLength}}</td>
+                                        <td>{{item2.resultAudio.asrSimilarScore}}</td>
+                                        <td>{{item2.resultAudio.audioSimilarScore}}</td>
+                                        <td><span id="data-audio-remark-span-{{item2.resultAudio.id}}">{{item2.resultAudio.remark}}</span><i class="layui-icon layui-icon-edit" data-audio-remark-edit="{{item2.resultAudio.id}}"></i> </td>
+                                    </tr>
+                                    {{# }) }}
+                                </table>
+                                
                             </div>
-                        
+                        </div>
+                
                         {{# }) }}
-        
+                
                     </div>
+                
+                
+                {{# } else if (d.levelDeep == 3) { }}
+            
+                <div class="layui-collapse">
+            
+                    
+                    {{# layui.each(d.getFirstLevelData(), function(index, item){ }}
+            
+                        <div class="layui-colla-item">
+                            <div class="layui-colla-title">{{item.getHtml()}}</div>
+                            <div class="layui-colla-content {{isTrue(item.selected,'layui-show','')}}">
+                
+                                {{# layui.each(item.subLevelList, function(index2, item2){ }}
+            
+                                    <div class="layui-collapse">
+                                        <div class="layui-colla-item">
+                                            <div class="layui-colla-title">{{item2.getHtml()}}</div>
+                                            <div class="layui-colla-content {{isTrue(item2.selected,'layui-show','')}}">
+                                                
+                                                <table id="audioList" class="table2" >
+                                                    <tr style="height: 46px">
+                                                        <td>序号</td>
+                                                        <td>推理音频</td>
+                                                        <td>差异</td>
+                                                        <td>时长</td>
+                                                        <td>文本相似度</td>
+                                                        <td>音频相似度</td>
+                                                        <td>评分</td>
+                                                        <td>备注</td>
+                                                    </tr>
+                                                    {{# layui.each(item2.subLevelList, function(index3, item3){ }}
+                                                        <tr id="result-audio-{{item3.id}}" style="height: 46px">
+                                                            <td>{{index3+1}}</td>
+                                                            <td data-audio-path="{{item3.resultAudio.id}}" style="width: 350px;cursor: pointer"></td>
+                                                            <td>{{- item3.resultAudio.getHtml()}}</td>
+                                                            <td>{{item3.resultAudio.audioLength}}</td>
+                                                            <td>{{item3.resultAudio.asrSimilarScore}}</td>
+                                                            <td>{{item3.resultAudio.audioSimilarScore}}</td>
+                                                            <td>{{item3.resultAudio.score}}</td>
+                                                            <td>{{item3.resultAudio.remark}}</td>
+                                                        </tr>
+                                                    {{# }) }}
+                                                </table>
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                
+                                {{# }) }}
+                
+                            </div>
+                        </div>
+                    
+                    {{# }) }}
+                    
                 </div>
+                
+                
+                {{# } }}
             
-            {{# }) }}
-            
-        </div>
+            {{# } }}
         
-        
-        {{# } }}
-    
-    {{# } }}
-    
-    
-    
+    </div>
+
 </script>
