@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<script>
+    const AudioPackagingSpace = (function () {
+        class C_AudioPackaging {
+            constructor(viewId) {
+                this.viewId = viewId
+            }
+
+            render() {
+                const _this = this
+                const getTpl = $('#audioPackagingTemplate').html(); // 获取模板字符
+                // 渲染并输出结果
+                layui.laytpl(getTpl).render({}, function(html){
+                    $('#'+_this.viewId).html(html)
+                });
+                return _this
+            }
+        }
+        
+        function getAudioPackaging(viewId) {
+            return new C_AudioPackaging(viewId)
+        }
+        
+        return {
+            getAudioPackaging: getAudioPackaging
+        }
+    })()
+</script>
+
+<script id="audioPackagingTemplate" type="text/html">
+    音频打包
+</script>

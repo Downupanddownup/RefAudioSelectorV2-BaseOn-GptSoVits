@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<script>
+    const ResultEvaluationSpace = (function () {
+        class C_ResultEvaluation {
+            constructor(viewId) {
+                this.viewId = viewId
+                this.filter = new C_ObjInferenceTaskResultAudioFilter({})
+                this.taskList = []
+                this.selectedTask = null
+            }
+            
+            loadData(){
+                const _this = this
+                $.customAjax({
+                    url: BaseUrl+'task/get_inference_task_list',
+                    type: 'post',
+                    success: function(res){
+                        if (res.code == 0) {
+                            _this.taskList = res.data ? res.data.map(i => new C_ObjInferenceTask(i)) : []
+                            _this.render()
+                        } else {
+                            layui.layer.msg(res.msg)
+                        }
+                    },
+                    error: function(res, msg){
+                        layui.layer.msg(msg)
+                    }
+                })
+            }
+            
+            render() {
+                const _this = this
+                const getTpl = $('#resultEvaluationTemplate').html();
+                // 渲染并输出结果
+                layui.laytpl(getTpl).render(_this, function(html){
+                    const obj = $('#'+_this.viewId)
+                    obj.html(html)
+                    
+                    obj.find('#taskId').on('change', function () {
+                        const taskId = $(this).val()
+                        _this.changeTask(taskId)
+                    })
+                    
+                    obj.find('#searchTaskResult').on('click', function () {
+                        _this.searchTaskResult()
+                    })
+                    
+                    _this.renderSelect()
+                });
+            }
+            
+            changeTask(taskId){
+                const _this = this
+                _this.filter.taskId = taskId
+                if (taskId == 0) {
+                    _this.selectedTask = null
+                    _this.render()
+                } else {
+                    $.customAjax({
+                        url: BaseUrl+'task/load_inference_task_detail',
+                        type: 'post',
+                        data:{
+                            task_id: taskId
+                        },
+                        success: function(res){
+                            if (res.code == 0) {
+                                _this.selectedTask = new C_ObjInferenceTask(res.data.task)
+                                _this.render()
+                            } else {
+                                layui.layer.msg(res.msg)
+                            }
+                        },
+                        error: function(res, msg){
+                            layui.layer.msg(msg)
+                        }
+                    })
+                }
+                
+            }
+            
+            
+            renderSelect(){
+                const _this = this
+                if (_this.selectedTask && _this.selectedTask.compareType !== 'refer_audio') {
+                    xmSelect.render({
+                        el: '#'+_this.viewId+' #compareParamIds',
+                        data: _this.selectedTask.compareParams.map(item => {
+                            const selected = _this.filter.compareParamIds.find(id => item.id === id)
+                            return {
+                                name: item.getShowTxt(_this.selectedTask.compareType),
+                                value: item.id,
+                                selected: !!selected
+                            }
+                        })
+                    })
+                }
+            }
+            
+            getSearchParam(){
+                const _this = this
+                const obj = $('#'+_this.viewId)
+                if (_this.selectedTask.compareType !== 'refer_audio') {
+                    _this.filter.compareParamIds = xmSelect.get('#'+_this.viewId+' #compareParamIds').getValue('value')
+                }
+                _this.audioLengthStart = obj.find('#audioLengthStart').val()
+                _this.audioLengthEnd = obj.find('#audioLengthEnd').val()
+                _this.asrSimilarScoreStart = obj.find('#asrSimilarScoreStart').val()
+                _this.asrSimilarScoreEnd = obj.find('#asrSimilarScoreEnd').val()
+                _this.audioSimilarScoreStart = obj.find('#audioSimilarScoreStart').val()
+                _this.audioSimilarScoreEnd = obj.find('#audioSimilarScoreEnd').val()
+                _this.scoreStart = obj.find('#scoreStart').val()
+                _this.scoreEnd = obj.find('#scoreEnd').val()
+                _this.remark = obj.find('#remark').val()
+                _this.includeSort = obj.find('#includeSort').val()
+                _this.audioSort = obj.find('#audioSort').val()
+                _this.audioUpDown = obj.find('#audioUpDown').val()
+                return _this.filter
+            }
+
+            searchTaskResult(){
+                const _this = this
+                const filter = _this.getSearchParam()
+                const C_ResultAudioList$1 = ResultAudioListSpace.getResultAudioList('showResultAudioListView', filter)
+
+                const dialogIndex = layer.open({
+                    type: 1,
+                    area: ['95%', '95%'],
+                    content: `<div id="showResultAudioListView"></div>`,
+                    btn: ['关闭'],
+                    yes: function(){
+                        layui.layer.close(dialogIndex)
+                    }
+                });
+
+                C_ResultAudioList$1.loadData()
+            }
+        }
+        
+        function getResultEvaluation(viewId) {
+            return new C_ResultEvaluation(viewId)
+        }
+        
+        return {
+            getResultEvaluation: getResultEvaluation
+        }
+    })()
+</script>
+<script id="resultEvaluationTemplate" type="text/html">
+    <table class="table1">
+        <tr>
+            <td></td>
+            <td></td>
+            <td>选择任务：</td>
+            <td>
+                <select class="customSelect" id="taskId">
+                    <option value="0">请选择</option>
+                    {{# layui.each(d.taskList, function(index, item){ }}
+                        <option {{isTrue(item.id==d.filter.taskId,'selected','')}} value="{{item.id}}">{{item.taskName}}</option>
+                    {{# }) }}
+                </select>
+            </td>
+            <td></td>
+            <td></td>
+        </tr>
+        
+        {{# if(d.selectedTask) { }}
+    
+            <tr>
+                <td>
+                    {{# if(d.selectedTask.compareType != 'refer_audio') { }}
+                        对比参数：
+                    {{# } }}
+                </td>
+                <td>
+                    {{# if(d.selectedTask.compareType != 'refer_audio') { }}
+                        <div id="compareParamIds"></div>
+                    {{# } }}
+                </td>
+                <td>参考音频：</td>
+                <td>
+                    已选中推理音频数量：<span id="audioSelectedCount">{{d.filter.audioIds.length}}</span>
+                    <button type="button" class="layui-btn layui-btn-sm" id="audioSelect">音频筛选</button>
+                </td>
+                <td>推理文本：</td>
+                <td>
+                    已选中推理文本数量：<span id="textManagerSelectedCount">{{d.filter.textIds.length}}</span>
+                    <button type="button" class="layui-btn layui-btn-sm" id="textManager">文本筛选</button>
+                </td>
+            </tr>
+            <tr>
+                <td>时长范围：</td>
+                <td>
+                    <input type="number" id="audioLengthStart" min="0" max="100000" step="1" autocomplete="off" placeholder="开始" class="layui-input" style="width: auto;" >-
+                    <input type="number" id="audioLengthEnd" min="0" max="100000" step="1" autocomplete="off" placeholder="结束" class="layui-input" style="width: auto;" >
+                </td>
+                <td>文本相似范围：</td>
+                <td>
+                    <input type="number" id="asrSimilarScoreStart" min="0" max="1" step="0.05" autocomplete="off" placeholder="开始" class="layui-input" style="width: auto;" >-
+                    <input type="number" id="asrSimilarScoreEnd" min="0" max="1" step="0.05" autocomplete="off" placeholder="结束" class="layui-input" style="width: auto;" >
+                </td>
+                <td>音频相似范围：</td>
+                <td>
+                    <input type="number" id="audioSimilarScoreStart" min="-1" max="1" step="0.1" autocomplete="off" placeholder="开始" class="layui-input" style="width: auto;" >-
+                    <input type="number" id="audioSimilarScoreEnd" min="-1" max="1" step="0.1" autocomplete="off" placeholder="结束" class="layui-input" style="width: auto;" >
+                </td>
+            </tr>
+            <tr>
+                <td>评分范围：</td>
+                <td>
+                    <input type="number" id="scoreStart" min="0" max="5" step="1" autocomplete="off" placeholder="开始" class="layui-input" style="width: auto;" >-
+                    <input type="number" id="scoreEnd" min="0" max="5" step="1" autocomplete="off" placeholder="结束" class="layui-input" style="width: auto;" >
+                </td>
+                <td>备注：</td>
+                <td>
+                    <input type="text" id="remark" autocomplete="off" placeholder="备注" class="layui-input" style="width: auto;" >
+                </td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>包含顺序：</td>
+                <td>
+                    <select class="customSelect" id="includeSort" style="font-size: 11px">
+                        
+                        {{# if(d.selectedTask.compareType == 'refer_audio'){ }}
+                            <option value="6">推理文本->参考音频</option>
+                            <option value="7">参考音频->推理文本</option>
+                        {{# } else { }}
+                            <option value="0">参考音频->推理文本->比对参数</option>
+                            <option value="1">参考音频->比对参数->推理文本</option>
+                            <option value="2">比对参数->推理文本->参考音频</option>
+                            <option value="3">比对参数->参考音频->推理文本</option>
+                            <option value="4">推理文本->参考音频->比对参数</option>
+                            <option value="5">推理文本->比对参数->参考音频</option>
+                        {{# } }}
+    
+                    </select>
+                </td>
+                <td>音频排序字段：</td>
+                <td>
+                    <select class="customSelect" id="audioSort">
+                        <option value="audioLength">时长</option>
+                        <option value="asrSimilarScore">文本相似度</option>
+                        <option value="audioSimilarScore">音频相似度</option>
+                        <option value="score">评分</option>
+                    </select>
+                </td>
+                <td>音频升降序：</td>
+                <td>
+                    <select class="customSelect" id="audioUpDown">
+                        <option value="desc">降序</option>
+                        <option value="asc">升序</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="6">
+                    <button type="submit" class="layui-btn layui-btn-lg" id="searchTaskResult">查询推理结果</button>
+                </td>
+            </tr>
+        
+        {{# } }}
+        
+    </table>
+</script>

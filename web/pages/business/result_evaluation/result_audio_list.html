@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<script>
+    const ResultAudioListSpace = (function () {
+        
+        class C_LevelData {
+            constructor(data) {
+                this.compareType = data.compareType || '';//对比参数
+                this.obj = data.obj || null;
+                this.type = data.type || 0;//1 参考音频；2 推理文本； 3 对比参数
+                this.level = data.level || 0;// 等级
+                this.subLevelList = data.subLevelList || [];// 子级
+                this.selected = data.selected || false;
+            }
+            
+            getHtml(){
+                if (this.type == 1) {
+                    return `<div data-reference-audio-path="${this.obj.audioPath}" style="width: 350px;cursor: pointer"></div>`
+                }
+                if (this.type == 2) {
+                    return `${this.obj.textContent}`
+                }
+                if (this.type == 3) {
+                    return `${this.obj.getShowTxt(this.compareType)}`
+                }
+                return ''
+            }
+        }
+        
+        class C_ResultAudioList {
+            constructor(viewId, C_ObjInferenceTaskResultAudioFilter$1) {
+                this.viewId = viewId
+                this.task = null
+                this.taskResultAudioList = []
+                this.audioFilter = C_ObjInferenceTaskResultAudioFilter$1
+                this.levelDeep = 3
+                this.levelDatas = []
+            }
+
+            loadData(){
+                const _this = this
+
+                $.customAjax({
+                    url: BaseUrl+'evaluation/get_result_evaluation_list',
+                    type: 'post',
+                    data:{
+                        taskId: _this.audioFilter.taskId,
+                        compareParamIds: _this.audioFilter.compareParamIds.join(','),
+                        audioIds: _this.audioFilter.audioIds.join(','),
+                        textIds: _this.audioFilter.textIds.join(','),
+                        audioLengthStart: _this.audioFilter.audioLengthStart,
+                        audioLengthEnd: _this.audioFilter.audioLengthEnd,
+                        asrSimilarScoreStart: _this.audioFilter.asrSimilarScoreStart,
+                        asrSimilarScoreEnd: _this.audioFilter.asrSimilarScoreEnd,
+                        audioSimilarScoreStart: _this.audioFilter.audioSimilarScoreStart,
+                        audioSimilarScoreEnd: _this.audioFilter.audioSimilarScoreEnd,
+                        scoreStart: _this.audioFilter.scoreStart,
+                        scoreEnd: _this.audioFilter.scoreEnd,
+                        longTextScoreStart: _this.audioFilter.longTextScoreStart,
+                        longTextScoreEnd: _this.audioFilter.longTextScoreEnd,
+                        remark: _this.audioFilter.remark,
+                        order: _this.audioFilter.audioSort,
+                        desc: _this.audioFilter.audioUpDown
+                    },
+                    success: function(res){
+                        if (res.code == 0) {
+                            
+                            _this.task = new C_ObjInferenceTask(res.data.task)
+                            _this.taskResultAudioList = res.data.audioList ? res.data.audioList.map(i => new C_ObjInferenceTaskResultAudio(i)) : []
+                            _this.levelDeep = _this.task.compareType === 'refer_audio' ? 2 : 3
+                            
+                            _this.createLevelData()
+
+                            _this.render()
+                        } else {
+                            layui.layer.msg(res.msg)
+                        }
+                    },
+                    error: function(res, msg){
+                        layui.layer.msg(msg)
+                    }
+                })
+            }
+            render() {
+                const _this = this
+                const getTpl = $('#resultAudioListTemplate').html();
+                // 渲染并输出结果
+                layui.laytpl(getTpl).render({}, function(html){
+                    const obj = $('#'+_this.viewId)
+                    obj.html(html)
+                    
+                });
+            }
+            
+            createLevelData() {
+                const _this = this
+                //1 参考音频；2 推理文本； 3 对比参数
+                const textObj = {
+                    list: _this.task.taskTextList,
+                    type:2
+                }
+                const audioObj = {
+                    list: _this.taskResultAudioList,
+                    type:1
+                }
+                const compareParamObj = {
+                    list: _this.task.compareParams,
+                    type:3
+                }
+                if (_this.levelDeep == 2) {
+                    if (_this.audioFilter.includeSort == 6) {//推理文本->参考音频
+                        return _this.generateTwoLevelData(textObj, audioObj)
+                    } else if (_this.audioFilter.includeSort == 7) {//参考音频->推理文本
+                        return _this.generateTwoLevelData(audioObj, textObj)
+                    }
+                } else {
+                    if (_this.audioFilter.includeSort == 0) {//参考音频->推理文本->比对参数
+                        return _this.generateThreeLevelData(audioObj, textObj, compareParamObj)
+                    } else if (_this.audioFilter.includeSort == 1) {//参考音频->比对参数->推理文本
+                        return _this.generateThreeLevelData(audioObj, compareParamObj, textObj)
+                    } else if (_this.audioFilter.includeSort == 2) {//比对参数->推理文本->参考音频
+                        return _this.generateThreeLevelData(compareParamObj, textObj, audioObj)
+                    } else if (_this.audioFilter.includeSort == 3) {//比对参数->参考音频->推理文本
+                        return _this.generateThreeLevelData(compareParamObj, audioObj, textObj)
+                    } else if (_this.audioFilter.includeSort == 4) {//推理文本->参考音频->比对参数
+                        return _this.generateThreeLevelData(textObj, audioObj, compareParamObj)
+                    } else if (_this.audioFilter.includeSort == 5) {//推理文本->比对参数->参考音频
+                        return _this.generateThreeLevelData(textObj, compareParamObj, audioObj)
+                    }
+                }
+                return []
+            }
+            
+            generateTwoLevelData(firstRow, secondRow){
+                const _this = this
+                let levelData = firstRow.list.map(first => {
+                    const level = new C_LevelData({
+                        compareType: _this.task.compareType,
+                        obj: first,
+                        type: firstRow.type,
+                        level: 1
+                    })
+                    level.subLevelList = secondRow.list.map(second => {
+                        const twoLevel = new C_LevelData({
+                            compareType: _this.task.compareType,
+                            obj: second,
+                            type: secondRow.type,
+                            level: 2
+                        })
+                        //1 参考音频；2 推理文本； 3 对比参数
+                        let textId = 0;
+                        let audioId = 0;
+                        if (firstRow.type == 1) {
+                            audioId = first.id
+                        } else if (firstRow.type == 2) {
+                            textId = first.id
+                        }
+                        if (secondRow.type == 1) {
+                            audioId = second.id
+                        } else if (secondRow.type == 2) {
+                            textId = second.id
+                        }
+                        twoLevel.subLevelList = _this.taskResultAudioList.filter(audio => audio.textId == textId && audio.audioId == audioId)
+                        return twoLevel
+                    })
+                    return level
+                })
+                levelData.forEach(i => {
+                    i.subLevelList = i.subLevelList.filter(j => j.subLevelList.length > 0)
+                })
+                levelData = levelData.filter(i => i.subLevelList.length > 0)
+                return levelData
+            }
+            
+            generateThreeLevelData(firstRow, secondRow, threeRow){
+                const _this = this
+                let levelData = firstRow.list.map(first => {
+                    const level = new C_LevelData({
+                        compareType: _this.task.compareType,
+                        obj: first,
+                        type: firstRow.type,
+                        level: 1
+                    })
+                    level.subLevelList = secondRow.list.map(second => {
+                        const twoLevel = new C_LevelData({
+                            compareType: _this.task.compareType,
+                            obj: second,
+                            type: secondRow.type,
+                            level: 2
+                        })
+                        twoLevel.subLevelList = threeRow.list.map(three => {
+                            const threeLevel = new C_LevelData({
+                                compareType: _this.task.compareType,
+                                obj: three,
+                                type: threeRow.type,
+                                level: 3
+                            })
+                            //1 参考音频；2 推理文本； 3 对比参数
+                            let textId = 0;
+                            let audioId = 0;
+                            let compareParamId = 0;
+                            if (firstRow.type == 1) {
+                                audioId = first.id
+                            } else if (firstRow.type == 2) {
+                                textId = first.id
+                            } else if (firstRow.type == 3) {
+                                compareParamId = first.id
+                            }
+                            if (secondRow.type == 1) {
+                                audioId = second.id
+                            } else if (secondRow.type == 2) {
+                                textId = second.id
+                            } else if (secondRow.type == 3) {
+                                compareParamId = second.id
+                            }
+                            if (threeRow.type == 1) {
+                                audioId = three.id
+                            } else if (threeRow.type == 2) {
+                                textId = three.id
+                            } else if (threeRow.type == 3) {
+                                compareParamId = three.id
+                            }
+                            threeLevel.subLevelList = _this.taskResultAudioList.filter(audio => audio.textId == textId && audio.audioId == audioId && audio.compareParamId == compareParamId)
+                            return threeLevel
+                        })
+                        return twoLevel
+                    })
+                    return level
+                })
+                levelData.forEach(i => {
+                    i.subLevelList.forEach(j => {
+                        j.subLevelList = j.subLevelList.filter(k => k.subLevelList.length > 0)
+                    })
+                })
+                levelData.forEach(i => {
+                    i.subLevelList = i.subLevelList.filter(j => j.subLevelList.length > 0)
+                })
+                levelData = levelData.filter(i => i.subLevelList.length > 0)
+                return levelData
+            }
+
+            getFirstLevelData(){
+                return this.levelDatas
+            }
+            
+        }
+
+        function getResultAudioList(viewId, C_ObjInferenceTaskResultAudioFilter$1) {
+            return new C_ResultAudioList(viewId, C_ObjInferenceTaskResultAudioFilter$1)
+        }
+
+        return {
+            getResultAudioList: getResultAudioList
+        }
+    })()
+</script>
+<script id="resultAudioListTemplate" type="text/html">
+    
+    {{# if (d.taskResultAudioList.length < 1) { }}
+    <div class="no-data">暂无数据</div>
+    {{# } else { }}
+        
+        {{# if(d.levelDeep == 2){ }}
+        
+            <div class="layui-collapse">
+        
+        
+                {{# layui.each(d.getFirstLevelData(), function(index, item){ }}
+        
+                <div class="layui-colla-item">
+                    <div class="layui-colla-title">{{item.getHtml()}}</div>
+                    <div class="layui-colla-content {{isTrue(item.selected,'layui-show','')}}">
+                        
+                        <table id="audioList" class="table2" >
+                            <tr style="height: 46px">
+                                <td>序号</td>
+                                <td>推理音频</td>
+                                <td>差异</td>
+                                <td>时长</td>
+                                <td>文本相似度</td>
+                                <td>音频相似度</td>
+                                <td>评分</td>
+                                <td>备注</td>
+                            </tr>
+                            {{# layui.each(item.subLevelList, function(index2, item2){ }}
+                            <tr id="result-audio-{{item2.id}}" style="height: 46px">
+                                <td>{{index2+1}}</td>
+                                <td data-audio-path="{{item2.id}}" style="width: 350px;cursor: pointer"></td>
+                                <td>{{item2.getHtml()}}</td>
+                                <td>{{item2.audioLength.toFixed(1)}}</td>
+                                <td>{{item2.asrSimilarScore.toFixed(4)}}</td>
+                                <td>{{item2.audioSimilarScore.toFixed(4)}}</td>
+                                <td>{{item2.score}}</td>
+                                <td>{{item2.remark}}</td>
+                            </tr>
+                            {{# }) }}
+                        </table>
+                        
+                    </div>
+                </div>
+        
+                {{# }) }}
+        
+            </div>
+        
+        
+        {{# } else if (d.levelDeep == 3) { }}
+    
+        <div class="layui-collapse">
+    
+            
+            {{# layui.each(d.getFirstLevelData(), function(index, item){ }}
+    
+                <div class="layui-colla-item">
+                    <div class="layui-colla-title">{{item.getHtml()}}</div>
+                    <div class="layui-colla-content {{isTrue(item.selected,'layui-show','')}}">
+        
+                        {{# layui.each(item.subLevelList, function(index2, item2){ }}
+    
+                            <div class="layui-collapse">
+                                <div class="layui-colla-item">
+                                    <div class="layui-colla-title">{{item2.getHtml()}}</div>
+                                    <div class="layui-colla-content {{isTrue(item2.selected,'layui-show','')}}">
+                                        
+                                        <table id="audioList" class="table2" >
+                                            <tr style="height: 46px">
+                                                <td>序号</td>
+                                                <td>推理音频</td>
+                                                <td>差异</td>
+                                                <td>时长</td>
+                                                <td>文本相似度</td>
+                                                <td>音频相似度</td>
+                                                <td>评分</td>
+                                                <td>备注</td>
+                                            </tr>
+                                            {{# layui.each(item2.subLevelList, function(index3, item3){ }}
+                                                <tr id="result-audio-{{item3.id}}" style="height: 46px">
+                                                    <td>{{index3+1}}</td>
+                                                    <td data-audio-path="{{item3.id}}" style="width: 350px;cursor: pointer"></td>
+                                                    <td>{{item3.getHtml()}}</td>
+                                                    <td>{{item3.audioLength.toFixed(1)}}</td>
+                                                    <td>{{item3.asrSimilarScore.toFixed(4)}}</td>
+                                                    <td>{{item3.audioSimilarScore.toFixed(4)}}</td>
+                                                    <td>{{item3.score}}</td>
+                                                    <td>{{item3.remark}}</td>
+                                                </tr>
+                                            {{# }) }}
+                                        </table>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        
+                        {{# }) }}
+        
+                    </div>
+                </div>
+            
+            {{# }) }}
+            
+        </div>
+        
+        
+        {{# } }}
+    
+    {{# } }}
+    
+    
+    
+</script>

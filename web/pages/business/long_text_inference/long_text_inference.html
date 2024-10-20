@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<script>
+    const LongTextInferenceSpace = (function () {
+        class C_LongTextInference {
+            constructor(viewId) {
+                this.viewId = viewId
+            }
+
+            render() {
+                const _this = this
+                const getTpl = $('#longTextInferenceTemplate').html(); // 获取模板字符
+                // 渲染并输出结果
+                layui.laytpl(getTpl).render({}, function(html){
+                    $('#'+_this.viewId).html(html)
+                });
+                return _this
+            }
+
+       }
+       
+       function getLongTextInference(viewId) {
+           return new C_LongTextInference(viewId)
+       }
+       
+       return {
+           getLongTextInference: getLongTextInference
+       }
+    })()
+</script>
+
+<script id="longTextInferenceTemplate" type="text/html">
+    长文推理
+</script>

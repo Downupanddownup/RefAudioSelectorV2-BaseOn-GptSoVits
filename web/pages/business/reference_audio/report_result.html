@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<script>
+    const ReportResultSpace = (function () {
+        class C_ReportResult {
+            constructor(viewId, audioId) {
+                this.viewId = viewId
+                this.audioId = audioId
+                this.compareAudioDetailList = []
+                this.currentPlayingAudio = null; // 用于存储当前播放的音频
+            }
+            
+            loadAudios(){
+                const _this = this
+                $.customAjax({
+                    url: BaseUrl + 'audio/get_compare_audio_detail_list',
+                    type: 'POST',
+                    data: {
+                        audioId: _this.audioId
+                    },
+                    success: function (data) {
+                        if (data.code == 0) {
+                            const list = data.data ? data.data.map(i => new C_ObjReferenceAudioCompareDetail(i)) : []
+                            _this.compareAudioDetailList = list
+                            _this.render()
+                        } else {
+                            layui.layer.msg(data.msg)
+                        }
+                    }
+                })
+            }
+            
+            render() {
+                const _this = this
+                const getTpl = $('#reportResultTemplate').html();
+                // 渲染并输出结果
+                layui.laytpl(getTpl).render(_this, function(html){
+                    const obj = $('#' + _this.viewId)
+                    obj.html(html)
+                    
+                    obj.find('td[data-audio-path]').on('click', function (){
+                        const detailId = $(this).attr('data-audio-path')
+                        if ($(this).html().trim() === '') {
+                            _this.loadAudio($(this), detailId)
+                        }
+                    })
+                    
+                    obj.find('td[id^=audioContent-]').on('click', function (){
+                        const target = $(this).parent().find('td[data-audio-path]')
+                        const detailId = target.attr('data-audio-path')
+                        if (target.html().trim() === '') {
+                            _this.loadAudio(target, detailId)
+                        }
+                    })
+
+                    let currentSelectedRow = null; // 用来存储当前选中的行
+
+                    // 使用jQuery选择所有具有class为list-item的行
+                    obj.find('tr[id^=item-]').on('click', function() {
+                        // 如果之前有选中的行，先移除其样式
+                        if (currentSelectedRow) {
+                            $(currentSelectedRow).removeClass('selected');
+                        }
+
+                        // 添加或移除当前行的选中样式
+                        $(this).toggleClass('selected');
+
+                        // 更新当前选中的行
+                        currentSelectedRow = this;
+                        
+                        $(this).find('input[name=audioScore]').prop("checked", true)
+                    });
+                    
+                    _this.processEcharts()
+                    
+                });
+            }
+
+            getSelectedScore(){
+                const _this = this
+                const score = $('#' + _this.viewId).find('input[name=audioScore]:checked').val()
+                if (!score){
+                    return ''
+                }
+                return score
+            }
+
+            loadAudio(divElement, detailId){
+                const _this = this
+                if (divElement.html().trim() !== '') {
+                    return
+                }
+                const entry = _this.compareAudioDetailList.find(item => item.id == detailId)
+                divElement.html(`
+                         <audio id="audio-${entry.id}" controls style="width: 350px;height: 30px;margin: 0 0">
+                            <source src="${entry.compareAudio.audioPath.replace(/\\/g, '/')}" type="audio/mpeg">
+                            您的浏览器不支持音频播放。
+                        </audio>
+                `)
+
+                const div = document.getElementById(`item-${entry.id}`);
+
+                const contentElement = div.querySelector(`#audioContent-${entry.id}`);
+                const audioElement = div.querySelector(`#audio-${entry.id}`);
+
+                contentElement.addEventListener('click', function () {
+                    _this.dispatchClickEvent(audioElement);
+                });
+
+                // 为每个音频添加播放事件监听器
+                audioElement.addEventListener('play', function () {
+                    if (_this.currentPlayingAudio && _this.currentPlayingAudio !== this) {
+                        _this.currentPlayingAudio.pause(); // 如果有其他音频在播放，则先暂停
+                    }
+                    _this.currentPlayingAudio = this; // 更新当前播放的音频引用
+                });
+
+                // 可以考虑添加暂停或结束事件处理，根据需要重置currentPlayingAudio
+                audioElement.addEventListener('pause', () => {
+                    if (_this.currentPlayingAudio === this) {
+                        _this.currentPlayingAudio = null;
+                    }
+                });
+                audioElement.addEventListener('ended', () => {
+                    if (_this.currentPlayingAudio === this) {
+                        _this.currentPlayingAudio = null;
+                    }
+                });
+            }
+
+            dispatchClickEvent(audioElement) {
+                console.log('播放/暂停按钮被点击');
+                if (audioElement.paused || audioElement.currentTime === 0) {
+                    // 如果音频当前是暂停状态或尚未开始播放，则播放音频
+                    audioElement.play();
+                    console.log('正在播放音频');
+                } else {
+                    // 如果音频正在播放，则暂停音频
+                    audioElement.pause();
+                    console.log('音频已暂停');
+                }
+            }
+
+            processEcharts() {
+                
+                const _this = this
+
+                const dataList = _this.countItemsByScoreRangeOptimized()
+
+                const dom = document.getElementById('echartDiv');
+                const myChart = echarts.init(dom, null, {
+                    renderer: 'canvas',
+                    useDirtyRect: false
+                });
+
+                let option = {
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow'
+                        }
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    xAxis: [
+                        {
+                            type: 'category',
+                            data: dataList.map(item => item.range),
+                            axisTick: {
+                                alignWithLabel: true
+                            }
+                        }
+                    ],
+                    yAxis: [
+                        {
+                            type: 'value'
+                        }
+                    ],
+                    series: [
+                        {
+                            name: '数量',
+                            type: 'bar',
+                            barWidth: '60%',
+                            data: dataList.map(item => item.count)
+                        }
+                    ]
+                };
+
+                if (option && typeof option === 'object') {
+                    myChart.setOption(option);
+                }
+
+                // 添加点击事件监听器
+                myChart.on('click', function (params) {
+                    if (params.componentType === 'series') { // 确保点击的是系列中的数据
+                        const seriesName = params.seriesName; // 点击的系列名称，如 'Direct'
+
+                        console.log('点击了:', seriesName, '分类:', params.name, '值:', params.value);
+
+                        const selectedItem = dataList.find(item => item.range === params.name);
+                        if (selectedItem) {
+                            const subList = selectedItem.subList;
+                            const firstEntry = subList[0];
+                            // 假设你有一个ID为'myElement'的元素，你想让页面滚动到这个元素的位置
+                            document.getElementById(`item-${firstEntry.id}`).scrollIntoView({
+                                behavior: 'smooth', // 使滚动动画效果平滑，默认为"auto"即瞬间滚动
+                                block: 'start'     // 指定元素的哪一部分对齐到视口的顶部，可选值有"start", "center", "end"
+                            });
+                        }
+
+                        // 在这里添加你希望点击后执行的逻辑
+                        // 例如弹窗提示、跳转页面等
+                    }
+                });
+
+                window.addEventListener('resize', myChart.resize);
+            }
+
+            countItemsByScoreRangeOptimized() {
+                const _this = this
+                
+                const items = _this.compareAudioDetailList
+                
+                const scoreStep = 0.1;
+                // 初始化最小和最大分数，确保包含所有可能的边界
+                let minScoreBound = -0.3;
+                let maxScoreBound = 1;
+
+                // 计算区间总数并初始化结果数组，同时明确每个区间的边界
+                let intervals = [];
+                for (let i = minScoreBound; i <= maxScoreBound; i += scoreStep) {
+                    intervals.push({
+                        start: i,
+                        end: i + scoreStep,
+                        count: 0,
+                        subList: []
+                    });
+                }
+
+                // 遍历原数组，统计每个分值区间内的元素数量
+                items.forEach(item => {
+                    for (let interval of intervals) {
+                        if (interval.start <= item.score && item.score < interval.end) {
+                            interval.count++;
+                            interval.subList.push(item);
+                            break;
+                        }
+                    }
+                });
+
+                // 根据score从大到小排序
+                intervals.sort((a, b) => b.start - a.start);
+
+                // 转换格式为字符串表示的区间和计数
+                return intervals.map(interval => ({
+                    range: `${interval.start.toFixed(1)}-${interval.end.toFixed(1)}`,
+                    count: interval.count,
+                    subList: interval.subList
+                }));
+            }
+            
+        }
+
+        function getReportResult(viewId, audioId) {
+            return new C_ReportResult(viewId, audioId)
+        }
+
+        return {
+            getReportResult: getReportResult
+        }
+    })()
+</script>
+
+<script id="reportResultTemplate" type="text/html">
+    <div id="echartDiv" style="width: 100%;height: 300px"></div>
+    <table id="audioList" class="table2" >
+        {{# layui.each(d.compareAudioDetailList, function(index, item){ }}
+            <tr id="item-{{item.id}}" style="height: 46px">
+                <td>
+                    <input name="audioScore" type="radio" value="{{item.score.toFixed(4)}}">
+                </td>
+                <td>{{index+1}}</td>
+                <td>{{item.score.toFixed(4)}}</td>
+                <td data-audio-path="{{item.id}}" style="width: 350px;cursor: pointer"></td>
+                <td>{{item.compareAudio.category}}</td>
+                <td id="audioContent-{{item.id}}" class="single-line" title="{{item.compareAudio.content}}" style="cursor: pointer">{{item.compareAudio.content}}</td>
+            </tr>
+        {{# }) }}
+    </table>
+</script>

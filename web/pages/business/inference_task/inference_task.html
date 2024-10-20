@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<script>
+    const InferenceTaskSpace = (function () {
+        class C_InferenceTask {
+            constructor(viewId) {
+                this.viewId = viewId
+            }
+            render() {
+                const _this = this
+                const getTpl = $('#inferenceTaskTemplate').html();
+                // 渲染并输出结果
+                layui.laytpl(getTpl).render({}, function(html){
+                    const obj = $('#'+_this.viewId)
+                    obj.html(html)
+                    
+                    _this.loadInferenceTaskList()
+                    
+                    obj.find('#createInferenceTask').on('click', function(){
+                        _this.openEditInferenceTask(0)
+                    })
+                    
+                    obj.find('#searchTask').on('click', function(){
+                        _this.reloadInferenceTaskList()
+                    })
+                });
+            }
+
+            getSearchParams(){
+                const _this = this
+                const obj = $('#'+_this.viewId)
+                const searchTaskName = obj.find('#searchTaskName').val()
+                const searchCompareType = obj.find('#searchCompareType').val()
+                const searchInferenceStatus = obj.find('#searchInferenceStatus').val()
+                return {
+                    task_name: searchTaskName,
+                    compare_type: searchCompareType,
+                    inference_status: searchInferenceStatus
+                }
+            }
+
+            reloadInferenceTaskList() {
+                const _this = this
+                const params = _this.getSearchParams()
+                reloadListDataBySearchParams('inferenceTaskList',params)
+            }
+
+            loadInferenceTaskList(){
+                const _this = this
+                const height = $('#inferenceTaskList').parent().parent().height() - 50
+                // 创建渲染实例
+                layui.table.render({
+                    elem: '#inferenceTaskList',
+                    url: BaseUrl + 'task/get_inference_task_list', // 此处为静态模拟数据，实际使用时需换成真实接口
+                    height: height, // 最大高度减去其他容器已占有的高度差
+                    method: 'post',
+                    // cellMinWidth: 80,
+                    page: true,
+                    cols: [[
+                        {field:'index', width:'5%', title: '序号', type: 'numbers'},
+                        {field:'taskName', width:'20%', title: '任务名称', templet: function(d){
+                                return d.taskName;
+                            }},
+                        {field:'compareType', width:'15%', title: '任务变量', templet: function(d){
+                                if (d.compareType === 'refer_audio') {
+                                    return '参考音频'
+                                }
+                                if (d.compareType === 'gpt_model') {
+                                    return 'GPT模型'
+                                }
+                                if (d.compareType === 'vits_model') {
+                                    return 'Vits模型'
+                                }
+                                if (d.compareType === 'top_k') {
+                                    return 'top_k值'
+                                }
+                                if (d.compareType === 'top_p') {
+                                    return 'top_p值'
+                                }
+                                if (d.compareType === 'temperature') {
+                                    return 'temperature值'
+                                }
+                                if (d.compareType === 'speed') {
+                                    return 'speed值'
+                                }
+                                if (d.compareType === 'text_delimiter') {
+                                    return '文本分隔符'
+                                }
+                                if (d.compareType === 'other') {
+                                    return '其余参数'
+                                }
+                                return d.compareType;
+                            }},
+                        {field:'inferenceStatus', width:'15%', title: '推理状态', templet: function(d){
+                                if (d.inferenceStatus == 0) {
+                                    return '待推理'
+                                }
+                                if (d.inferenceStatus == 1) {
+                                    return '部分推理'
+                                }
+                                if (d.inferenceStatus == 2) {
+                                    return '已完成'
+                                }
+                                return d.inferenceStatus
+                            }},
+                        {field:'executeTextSimilarity', width:'10%', title: '文本相似度', templet: function(d){
+                                if (d.executeTextSimilarity == 1) {
+                                    return '是'
+                                }
+                                return '否'
+                            }},
+                        {field:'executeAudioSimilarity', width:'10%', title: '音频相似度', templet: function(d){
+                                if (d.executeAudioSimilarity == 1) {
+                                    return '是'
+                                }
+                                return '否'
+                            }},
+                        {field:'opt', width:'25%', title: '操作', templet: function(d){
+                                const html = []
+                                if (d.inferenceStatus == 0) {
+                                    html.push(`<button type="button" class="layui-btn layui-btn-xs" data-task-edit="${d.id}">编辑</button>`)
+                                } else {
+                                    html.push(`<button type="button" class="layui-btn layui-btn-xs" data-task-look="${d.id}">查看</button>`)
+                                }
+                                if (d.inferenceStatus == 2 && d.executeTextSimilarity == 1 && d.executeAudioSimilarity == 1) {
+                                    html.push(`<button type="button" class="layui-btn layui-btn-xs" data-task-go-to-result="${d.id}">结果评测</button>`)
+                                } else {
+                                    html.push(`<button type="button" class="layui-btn layui-btn-xs" data-task-start-inference="${d.id}">开始执行</button>`)
+                                }
+                                return html.join(' ');
+                            }},//查看详情，执行推理
+                    ]],
+                    done: function(){
+                        const obj = $('#' + _this.viewId)
+                        
+                        obj.find('button[data-task-edit]').on('click', function () {
+                            const taskId = $(this).attr('data-task-edit')
+                            _this.openEditInferenceTask(taskId)
+                        })
+                        
+                        obj.find('button[data-task-look]').on('click', function () {
+                            const taskId = $(this).attr('data-task-look')
+                            _this.lookInferenceTaskDetail(taskId)
+                        })
+                        
+                        obj.find('button[data-task-start-inference]').on('click', function () {
+                            const taskId = $(this).attr('data-task-start-inference')
+                            _this.startInferenceTask(taskId)
+                        })
+                        
+                    },
+                    error: function(res, msg){
+                        console.log(res, msg)
+                    }
+                });
+            }
+
+            startInferenceTask(taskId){
+                const _this = this
+                layui.layer.confirm('是否开始执行推理任务？', () => {
+                    $.customAjax({
+                        url: BaseUrl+'task/start_execute_inference_task',
+                        type: 'post',
+                        data: {
+                            task_id: taskId
+                        },
+                        success: function(res){
+                            if (res.code == 0) {
+                                refreshListData('inferenceTaskList')
+                            }
+                            layui.layer.msg(res.msg)
+                        }
+                    })
+                })
+            }
+
+            openEditInferenceTask(taskId){
+                
+                const _this = this
+                const C_TaskDetail$1 = TaskDetailSpace.getTaskDetail('createInferenceTaskView', taskId)
+                
+                const dialogIndex = layer.open({
+                    type: 1,
+                    area: ['95%', '95%'],
+                    content: `<div id="createInferenceTaskView" style="overflow-x: hidden"></div>`,
+                    btn: ['确定', '取消'],
+                    yes: function(){
+                        const task = C_TaskDetail$1.getTask()
+                        $.customAjax({
+                            url: BaseUrl+'task/save_inference_task',
+                            type: 'post',
+                            data: JSON.stringify(task),
+                            success: function(res){
+                                if (res.code == 0) {
+                                   layui.layer.msg('保存成功')
+                                    refreshListData('inferenceTaskList')
+                                    layui.layer.close(dialogIndex)
+                                } else {
+                                    layui.layer.msg(res.msg)
+                                }
+                            },
+                            error: function(res, msg){
+                                layui.layer.msg(msg)
+                            }
+                        })
+                    }
+                });
+
+                
+                C_TaskDetail$1.loadData()
+            }
+
+            lookInferenceTaskDetail(taskId){
+                
+                const _this = this
+                const C_TaskDetail$1 = TaskDetailSpace.getTaskDetail('createInferenceTaskView', taskId)
+                
+                const dialogIndex = layer.open({
+                    type: 1,
+                    area: ['95%', '95%'],
+                    content: `<div id="createInferenceTaskView"></div>`,
+                    btn: ['关闭'],
+                    yes: function(){
+                        layui.layer.close(dialogIndex)
+                    }
+                });
+                
+                C_TaskDetail$1.loadData()
+            }
+            
+        }
+        
+        function getInferenceTask(viewId) {
+            return new C_InferenceTask(viewId)
+        }
+        
+        return {
+            getInferenceTask: getInferenceTask
+        }
+    })()
+</script>
+
+<script id="inferenceTaskTemplate" type="text/html">
+    
+    <table class="table3">
+        <tr>
+            <td>任务名称：</td>
+            <td><input type="text" autocomplete="off" id="searchTaskName" placeholder="任务名称" class="layui-input" style="width: auto;"></td>
+            <td>变量类型：</td>
+            <td>
+                <select class="customSelect" id="searchCompareType">
+                    <option value="">请选择</option>
+                    <option value="refer_audio">参考音频</option>
+                    <option value="gpt_model">GPT模型</option>
+                    <option value="vits_model">Vits模型</option>
+                    <option value="top_k">top_k值</option>
+                    <option value="top_p">top_p值</option>
+                    <option value="temperature">temperature值</option>
+                    <option value="speed">speed值</option>
+                    <option value="text_delimiter">文本分隔符</option>
+                    <option value="other">其余参数</option>
+                </select>
+            </td>
+            <td>推理状态：</td>
+            <td>
+                <select class="customSelect" id="searchInferenceStatus">
+                    <option value="-1">请选择</option>
+                    <option value="0">待推理</option>
+                    <option value="1">部分推理</option>
+                    <option value="2">已完成</option>
+                </select>
+            </td>
+            <td colspan="2">
+                <button type="submit" class="layui-btn layui-btn-sm" id="searchTask">搜索</button>
+                <button type="submit" class="layui-btn layui-btn-sm" id="createInferenceTask">创建任务</button>
+                <button type="submit" class="layui-btn layui-btn-sm" id="modelManager">模型管理</button>
+            </td>
+        </tr>
+    </table>
+    
+
+    <div class="layui-tab-item layui-show" style="height: 500px">
+        <table class="layui-hide" id="inferenceTaskList" lay-filter="inferenceTaskList" style="height: 100%"></table>
+    </div>
+</script>

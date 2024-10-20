@@ -1,0 +1,27 @@
+{
+  "code": 0,
+  "count": 2,
+  "msg": "success",
+  "data": [
+    {
+      "id": 1,
+      "audioName": "音频名称",
+      "audioPath": "音频路径",
+      "content": "音频内容",
+      "language": "音频语种",
+      "category": "音频分类",
+      "audioLength": 10,
+      "createTime": "2023-03-08T06:05:08.000Z"
+    },
+    {
+      "id": 2,
+      "audioName": "音频名称",
+      "audioPath": "音频路径",
+      "content": "音频内容",
+      "language": "音频语种",
+      "category": "音频分类",
+      "audioLength": 10,
+      "createTime": "2023-03-08T06:05:08.000Z"
+    }
+  ]
+}

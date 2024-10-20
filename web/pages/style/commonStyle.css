@@ -1,0 +1,112 @@
+.table1 {
+    width: calc(100% - 10px);
+    margin: 5px;
+    padding: 5px;
+    border-collapse: collapse; /* 合并边框 */
+}
+.table1 td, .table1 th {
+    text-align: center;
+    border: 1px solid #eee; /* 更浅的灰色边框 */
+    padding: 20px; /* 内边距 */
+}
+
+.table1 input {
+    display: inline;
+}
+
+.table3 {
+    width: calc(100% - 10px);
+    margin: 5px;
+    padding: 5px;
+    border-collapse: collapse; /* 合并边框 */
+}
+.table3 td, .table3 th {
+    text-align: center;
+    border: 0 solid #eee; /* 更浅的灰色边框 */
+    padding: 20px; /* 内边距 */
+}
+
+.table3 input {
+    display: inline;
+}
+
+.table2 {
+    width: calc(100% - 10px);
+    margin: 5px;
+    border-collapse: collapse; /* 合并边框 */
+}
+.table2 td, .table2 th {
+    text-align: center;
+    border: 1px solid #eee; /* 更浅的灰色边框 */
+    padding: 7px 5px 5px 5px; /* 内边距 */
+}
+
+.table2 tr:nth-child(even) {
+    background-color: #F9F9F9; /* 浅灰色 */
+}
+
+.table2 tr:nth-child(odd) {
+    background-color: #EDEFF1; /* 白色 */
+}
+
+
+/* 悬停时改变背景颜色 */
+.table2 tr:hover {
+    background-color: #E3F2FD; /* 更深的灰色 */
+}
+
+/* 选中时改变背景颜色 */
+.table2 .selected {
+    background-color: #BBDEFB !important; /* 指定鼠标悬停时的背景色 */
+}
+
+
+/* 基本样式 */
+.customSelect {
+    appearance: none; /* 移除默认样式 */
+    -webkit-appearance: none; /* Safari */
+    -moz-appearance: none; /* Firefox */
+    background-color: #ffffff; /* 背景颜色 */
+    border: 1px solid #cccccc; /* 边框 */
+    border-radius: 4px; /* 圆角 */
+    padding: 8px 12px; /* 内边距 */
+    font-size: 16px; /* 字体大小 */
+    color: #333333; /* 文字颜色 */
+    cursor: pointer; /* 鼠标指针 */
+    width: 200px; /* 固定宽度 */
+}
+
+/* 选项列表样式 */
+.customSelect option {
+    background-color: #ffffff; /* 选项背景颜色 */
+    color: #333333; /* 选项文字颜色 */
+}
+
+/* 对于 Webkit 浏览器 */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    .customSelect {
+        padding-right: 30px; /* 为箭头预留空间 */
+        background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%20width%3D%222em%22%20height%3D%222em%22%3E%3Cpath%20d%3D%22M42.5%2050L75%2025L75%2075L42.5%2050z%22%20fill%3D%22%23777777%22%2F%3E%3C%2Fsvg%3E");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        background-size: 20px; /* 调整箭头大小 */
+    }
+}
+
+/* 垂直居中 */
+.vertical-center {
+    display: flex; /* 使用 Flexbox 布局 */
+    align-items: center; /* 垂直居中 */
+    justify-content: center; /* 水平居中 */
+}
+
+.custom-audio{
+    height: 30px;
+}
+
+/* 简化后的单行文本溢出样式 */
+.single-line {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
