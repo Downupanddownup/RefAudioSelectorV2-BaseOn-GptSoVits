@@ -60,4 +60,5 @@ if __name__ == "__main__":
 
     url = "http://localhost:8000/static/main.html"
     # webbrowser.open(url)
+    # 测试
     uvicorn.run(app, host="0.0.0.0", port=8000)
