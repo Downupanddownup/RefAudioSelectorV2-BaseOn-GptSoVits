@@ -102,24 +102,25 @@
                 if (_this.selectedTask.compareType !== 'refer_audio') {
                     _this.filter.compareParamIds = xmSelect.get('#'+_this.viewId+' #compareParamIds').getValue('value')
                 }
-                _this.audioLengthStart = obj.find('#audioLengthStart').val()
-                _this.audioLengthEnd = obj.find('#audioLengthEnd').val()
-                _this.asrSimilarScoreStart = obj.find('#asrSimilarScoreStart').val()
-                _this.asrSimilarScoreEnd = obj.find('#asrSimilarScoreEnd').val()
-                _this.audioSimilarScoreStart = obj.find('#audioSimilarScoreStart').val()
-                _this.audioSimilarScoreEnd = obj.find('#audioSimilarScoreEnd').val()
-                _this.scoreStart = obj.find('#scoreStart').val()
-                _this.scoreEnd = obj.find('#scoreEnd').val()
-                _this.remark = obj.find('#remark').val()
-                _this.includeSort = obj.find('#includeSort').val()
-                _this.audioSort = obj.find('#audioSort').val()
-                _this.audioUpDown = obj.find('#audioUpDown').val()
+                _this.filter.audioLengthStart = obj.find('#audioLengthStart').val()
+                _this.filter.audioLengthEnd = obj.find('#audioLengthEnd').val()
+                _this.filter.asrSimilarScoreStart = obj.find('#asrSimilarScoreStart').val()
+                _this.filter.asrSimilarScoreEnd = obj.find('#asrSimilarScoreEnd').val()
+                _this.filter.audioSimilarScoreStart = obj.find('#audioSimilarScoreStart').val()
+                _this.filter.audioSimilarScoreEnd = obj.find('#audioSimilarScoreEnd').val()
+                _this.filter.scoreStart = obj.find('#scoreStart').val()
+                _this.filter.scoreEnd = obj.find('#scoreEnd').val()
+                _this.filter.remark = obj.find('#remark').val()
+                _this.filter.includeSort = obj.find('#includeSort').val()
+                _this.filter.audioSort = obj.find('#audioSort').val()
+                _this.filter.audioUpDown = obj.find('#audioUpDown').val()
                 return _this.filter
             }
 
             searchTaskResult(){
                 const _this = this
                 const filter = _this.getSearchParam()
+                console.log(filter)
                 const C_ResultAudioList$1 = ResultAudioListSpace.getResultAudioList('showResultAudioListView', filter)
 
                 const dialogIndex = layer.open({
@@ -221,6 +222,8 @@
                 <td>包含顺序：</td>
                 <td>
                     <select class="customSelect" id="includeSort" style="font-size: 11px">
+
+                        <option value="-1">请选择</option>
                         
                         {{# if(d.selectedTask.compareType == 'refer_audio'){ }}
                             <option value="6">推理文本->参考音频</option>

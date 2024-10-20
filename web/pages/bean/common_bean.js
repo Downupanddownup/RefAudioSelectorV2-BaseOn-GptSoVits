@@ -138,19 +138,19 @@ class C_ObjInferenceTaskResultAudioFilter {
         this.compareParamIds = data.compareParamIds || [];// 对比参数id
         this.audioIds = data.audioIds || [];// 任务中，参考音频id
         this.textIds = data.textIds || [];// 任务中，推理文本id
-        this.audioLengthStart = data.audioLengthStart || 0;// 音频时长开始
-        this.audioLengthEnd = data.audioLengthEnd || 0;// 音频时长结束
-        this.asrSimilarScoreStart = data.asrSimilarScoreStart || 0;// 文本相似度开始
-        this.asrSimilarScoreEnd = data.asrSimilarScoreEnd || 0;// 文本相似度结束
-        this.audioSimilarScoreStart = data.audioSimilarScoreStart || 0;// 音频相似度开始
-        this.audioSimilarScoreEnd = data.audioSimilarScoreEnd || 0;// 音频相似度结束
-        this.scoreStart = data.scoreStart || 0;// 评分开始
-        this.scoreEnd = data.scoreEnd || 0;// 评分结束
-        this.longTextScoreStart = data.longTextScoreStart || 0;// 长文评分开始
-        this.longTextScoreEnd = data.longTextScoreEnd || 0;// 长文评分结束
+        this.audioLengthStart = data.audioLengthStart || '';// 音频时长开始
+        this.audioLengthEnd = data.audioLengthEnd || '';// 音频时长结束
+        this.asrSimilarScoreStart = data.asrSimilarScoreStart || '';// 文本相似度开始
+        this.asrSimilarScoreEnd = data.asrSimilarScoreEnd || '';// 文本相似度结束
+        this.audioSimilarScoreStart = data.audioSimilarScoreStart || '';// 音频相似度开始
+        this.audioSimilarScoreEnd = data.audioSimilarScoreEnd || '';// 音频相似度结束
+        this.scoreStart = data.scoreStart || '';// 评分开始
+        this.scoreEnd = data.scoreEnd || '';// 评分结束
+        this.longTextScoreStart = data.longTextScoreStart || '';// 长文评分开始
+        this.longTextScoreEnd = data.longTextScoreEnd || '';// 长文评分结束
         this.remark = data.remark || '';// 备注
         this.includeSort = data.includeSort || 0;// 包含排序
-        this.audioSort = data.audioSort || 0;// 音频排序
+        this.audioSort = data.audioSort || 'audioLength';// 音频排序
         this.audioUpDown = data.audioUpDown || 'desc';// 音频排序方式
     }
 }

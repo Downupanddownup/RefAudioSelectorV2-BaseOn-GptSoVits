@@ -7,6 +7,8 @@ def convert_dict_to_camel_case_dicts(dict_obj: dict):
     for key, value in dict_obj.items():
         if isinstance(value, BaseModel):
             result[key] = value.to_camel_case_dict()
+        elif isinstance(value, list):
+            result[key] = convert_list_to_camel_case_dicts(value)
         else:
             result[key] = value
     return result
