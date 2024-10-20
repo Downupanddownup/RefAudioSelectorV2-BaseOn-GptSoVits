@@ -122,3 +122,7 @@
     overflow: hidden;      /* 超出部分隐藏 */
     text-overflow: ellipsis; /* 超出部分显示省略号 */
 }
+
+.no-wrap {
+    white-space: nowrap; /* 防止文本自动换行 */
+}

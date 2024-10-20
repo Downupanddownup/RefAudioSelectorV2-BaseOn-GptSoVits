@@ -157,7 +157,88 @@
 
                     });
                     
+                    obj.find('div[id^=audio-score-]').each(function(){
+                        const id = $(this).attr('id').replace('audio-score-', '')
+                        const resultAudio = _this.taskResultAudioList.find(i => i.id == id)
+                        layui.rate.render({
+                            elem: '#audio-score-'+id,
+                            value: resultAudio.score,
+                            choose: function(value){
+                                console.log('评分',value); // 获得选中的评分值
+                                _this.updateResultAudioScore(id, value)
+                            }
+                        });
+                    })
+                    
+                    obj.find('i[data-audio-remark-edit]').on('click', function(){
+                        const id = $(this).attr('data-audio-remark-edit')
+                        _this.showEditRemarkDialog(id)
+                    })
+                    
                 });
+            }
+
+            showEditRemarkDialog(id){
+                const _this = this
+                const resultAudio = _this.taskResultAudioList.find(i => i.id == id)
+
+                const dialogIndex = layui.layer.open({
+                    type: 1,
+                    area: ['600px', '400px'],
+                    content: `
+                        <table class="table1">
+                             <tr>
+                                  <td>
+                                       <textarea id="audioRemarkEdit" placeholder="请输入备注" class="layui-textarea">${resultAudio.remark}</textarea>
+                                </td>
+                            </tr>
+                        </table>
+                `,
+                    btn: ['确认', '取消'],
+                    yes: function(){
+                        const remark = $('#audioRemarkEdit').val()
+                        console.log('remark', remark)
+                        $.customAjax({
+                            url: BaseUrl + 'evaluation/update_result_audio_remark',
+                            type: 'POST',
+                            data: {
+                                id: id,
+                                remark: remark
+                            },
+                            success: function (data) {
+                                if (data.code == 0) {
+                                    layui.layer.msg('保持成功')
+                                    layui.layer.close(dialogIndex)
+                                    resultAudio.remark = remark
+                                    $('#' + _this.viewId + ' #data-audio-remark-span-'+id).html(remark)
+                                } else {
+                                    layui.layer.msg(data.msg)
+                                }
+                            }
+                        })
+                    }
+                });
+                
+            }
+
+            updateResultAudioScore(id, score){
+                const _this = this
+                $.customAjax({
+                    url: BaseUrl + 'evaluation/update_result_audio_score',
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        score: score
+                    },
+                    success: function (data) {
+                        if (data.code == 0) {
+                            const resultAudio = _this.taskResultAudioList.find(i => i.id == id)
+                            resultAudio.score = score
+                        } else {
+                            layui.layer.msg(data.msg)
+                        }
+                    }
+                })
             }
 
             showReferenceAudio(path,content){
@@ -168,19 +249,19 @@
                     area: ['600px', '400px'],
                     content: `
                         <table class="table1">
-                         <tr>
-                              <td>
-                                  <audio id="referenceAudio" controls style="width: 350px;height: 30px;margin: 0 0">
-                                    <source src="${path.replace(/\\/g, '/')}" type="audio/mpeg">
-                                    您的浏览器不支持音频播放。
-                                </audio>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                ${content}
-                            </td>
-                        </tr>
+                             <tr>
+                                  <td>
+                                      <audio id="referenceAudio" controls style="width: 350px;height: 30px;margin: 0 0">
+                                        <source src="${path.replace(/\\/g, '/')}" type="audio/mpeg">
+                                        您的浏览器不支持音频播放。
+                                    </audio>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    ${content}
+                                </td>
+                            </tr>
                         </table>
                 `,
                     btn: ['关闭'],
@@ -404,26 +485,26 @@
     
                                     <tr style="height: 46px" class="first-row">
                                         <td style="width: 5%">序号</td>
+                                        <td style="width: 8%;">评分</td>
                                         <td style="width: 20%;min-width: 380px">推理音频</td>
-                                        <td style="width: 20%">{{item2.getTitle()}}</td>
+                                        <td style="width: 15%">{{item2.getTitle()}}</td>
                                         <td style="width: 5%;">时长</td>
                                         <td style="width: 5%;">文本相似度</td>
                                         <td style="width: 5%;">音频相似度</td>
-                                        <td style="width: 5%;">评分</td>
-                                        <td style="width: 5%;">备注</td>
+                                        <td style="width: 10%;">备注</td>
                                     </tr>
                                 
                                 {{# } }}
                             
                             <tr id="result-audio-{{item2.resultAudio.id}}" style="height: 46px">
                                 <td>{{index2+1}}</td>
+                                <td><div id="audio-score-{{item2.resultAudio.id}}" class="no-wrap"></div></td>
                                 <td data-audio-path="{{item2.resultAudio.id}}" style="width: 350px;cursor: pointer"></td>
                                 <td id="audio-different-{{item2.resultAudio.id}}" style="text-align: left;" class="single-line">{{- item2.getHtml(true)}}</td>
                                 <td>{{item2.resultAudio.audioLength}}</td>
                                 <td>{{item2.resultAudio.asrSimilarScore}}</td>
                                 <td>{{item2.resultAudio.audioSimilarScore}}</td>
-                                <td>{{item2.resultAudio.score}}</td>
-                                <td>{{item2.resultAudio.remark}}</td>
+                                <td><span id="data-audio-remark-span-{{item2.resultAudio.id}}">{{item2.resultAudio.remark}}</span><i class="layui-icon layui-icon-edit" data-audio-remark-edit="{{item2.resultAudio.id}}"></i> </td>
                             </tr>
                             {{# }) }}
                         </table>
