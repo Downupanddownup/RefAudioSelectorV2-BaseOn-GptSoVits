@@ -277,8 +277,8 @@
 
         }
 
-        function getReferenceSelect(viewId) {
-            return new C_ReferenceSelect(viewId)
+        function getReferenceSelect(viewId, selectedAudioList) {
+            return new C_ReferenceSelect(viewId, selectedAudioList)
         }
 
         return {
@@ -291,7 +291,7 @@
     <div class="layui-tab layui-tab-brief" lay-filter="audioManagerTab" style="padding: 10px">
         <ul class="layui-tab-title" id="audioHeader">
             <li class="layui-this" lay-id="1">候选列表</li>
-            <li lay-id="2">已选中（<span id="selectedAudioCount">0</span>）</li>
+            <li lay-id="2">已选中（<span id="selectedAudioCount">{{d.selectedAudioList.length}}</span>）</li>
         </ul>
         <div class="layui-tab-content">
             <div class="layui-tab-item layui-show">

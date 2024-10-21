@@ -115,6 +115,7 @@
           obj.find('select[data-params-gsv-version]').on('change', function(){
             const index = $(this).data('params-gsv-version')
             _this.task.compareParams[index].gptSovitsVersion = $(this).val()
+            _this.render()
           })
           
           obj.find('select[data-params-gpt-model]').on('change', function(){
@@ -677,17 +678,17 @@
             {{# } }}
           </td>
           <td>
-            其余参数：
+<!--            其余参数：-->
           </td>
           <td>
 
-            {{# if (d.task.compareType == 'other') { }}
+<!--            {{# if (d.task.compareType == 'other') { }}
             已作为对比变量
             {{# } else { }}
 
               <input type="text" autocomplete="off" id="other" placeholder="其余参数" class="layui-input" style="width: auto;" value="{{d.task.otherParameters}}">
 
-            {{# } }}
+            {{# } }}-->
           </td>
         </tr>
         <tr>
