@@ -557,31 +557,41 @@
                                 level: 3
                             })
                             //1 参考音频；2 推理文本； 3 对比参数
-                            let textId = 0;
-                            let audioId = 0;
-                            let compareParamId = 0;
+                            let audioId = 0
+                            let textId = 0
+                            let compareParamId = 0
                             if (firstRow.type == 1) {
-                                audioId = first.id
+                                if (secondRow.type == 2) {
+                                    audioId = first.id
+                                    textId = second.id
+                                    compareParamId = three.id
+                                } else if (secondRow.type == 3) {
+                                    audioId = first.id
+                                    textId = three.id
+                                    compareParamId = second.id
+                                }
                             } else if (firstRow.type == 2) {
-                                textId = first.id
+                                if (secondRow.type == 1) {
+                                    audioId = second.id
+                                    textId = first.id
+                                    compareParamId = three.id
+                                } else if (secondRow.type == 3) {
+                                    audioId = three.id
+                                    textId = first.id
+                                    compareParamId = second.id
+                                }
                             } else if (firstRow.type == 3) {
-                                compareParamId = first.id
+                                if (secondRow.type == 1) {
+                                    audioId = second.id
+                                    textId = three.id
+                                    compareParamId = first.id
+                                } else if (secondRow.type == 2) {
+                                    audioId = three.id
+                                    textId = second.id
+                                    compareParamId = first.id
+                                }
                             }
-                            if (secondRow.type == 1) {
-                                audioId = second.id
-                            } else if (secondRow.type == 2) {
-                                textId = second.id
-                            } else if (secondRow.type == 3) {
-                                compareParamId = second.id
-                            }
-                            if (threeRow.type == 1) {
-                                audioId = three.id
-                            } else if (threeRow.type == 2) {
-                                textId = three.id
-                            } else if (threeRow.type == 3) {
-                                compareParamId = three.id
-                            }
-                            threeLevel.subLevelList = _this.taskResultAudioList.filter(audio => audio.textId == textId && audio.audioId == audioId && audio.compareParamId == compareParamId)
+                            threeLevel.resultAudio = _this.taskResultAudioList.find(audio => audio.textId == textId && audio.audioId == audioId && audio.compareParamId == compareParamId)
                             return threeLevel
                         })
                         return twoLevel
@@ -590,7 +600,7 @@
                 })
                 levelData.forEach(i => {
                     i.subLevelList.forEach(j => {
-                        j.subLevelList = j.subLevelList.filter(k => k.subLevelList.length > 0)
+                        j.subLevelList = j.subLevelList.filter(k => k.resultAudio != null)
                     })
                 })
                 levelData.forEach(i => {
@@ -703,26 +713,28 @@
                                             <div class="layui-colla-content {{isTrue(item2.selected,'layui-show','')}}">
                                                 
                                                 <table id="audioList" class="table2" >
-                                                    <tr style="height: 46px">
-                                                        <td>序号</td>
-                                                        <td>推理音频</td>
-                                                        <td>差异</td>
-                                                        <td>时长</td>
-                                                        <td>文本相似度</td>
-                                                        <td>音频相似度</td>
-                                                        <td>评分</td>
-                                                        <td>备注</td>
-                                                    </tr>
                                                     {{# layui.each(item2.subLevelList, function(index3, item3){ }}
-                                                        <tr id="result-audio-{{item3.id}}" style="height: 46px">
-                                                            <td>{{index3+1}}</td>
+                                                        {{# if(index3 == 0) { }}
+                                                            <tr style="height: 46px" class="first-row">
+                                                                <td style="width: 5%">序号</td>
+                                                                <td style="width: 8%;">评分</td>
+                                                                <td style="width: 20%;min-width: 380px">推理音频</td>
+                                                                <td style="width: 15%">{{item3.getTitle()}}</td>
+                                                                <td style="width: 5%;">时长</td>
+                                                                <td style="width: 5%;">文本相似度</td>
+                                                                <td style="width: 5%;">音频相似度</td>
+                                                                <td style="width: 10%;">备注</td>
+                                                            </tr>
+                                                        {{# } }}
+                                                        <tr id="result-audio-{{item3.resultAudio.id}}" style="height: 46px">
+                                                            <td>{{index2+1}}</td>
+                                                            <td><div id="audio-score-{{item3.resultAudio.id}}" class="no-wrap"></div></td>
                                                             <td data-audio-path="{{item3.resultAudio.id}}" style="width: 350px;cursor: pointer"></td>
-                                                            <td>{{- item3.resultAudio.getHtml()}}</td>
+                                                            <td id="audio-different-{{item3.resultAudio.id}}" style="text-align: left;" class="single-line">{{- item3.getHtml(true)}}</td>
                                                             <td>{{item3.resultAudio.audioLength}}</td>
                                                             <td>{{item3.resultAudio.asrSimilarScore}}</td>
                                                             <td>{{item3.resultAudio.audioSimilarScore}}</td>
-                                                            <td>{{item3.resultAudio.score}}</td>
-                                                            <td>{{item3.resultAudio.remark}}</td>
+                                                            <td><span id="data-audio-remark-span-{{item3.resultAudio.id}}">{{item3.resultAudio.remark}}</span><i class="layui-icon layui-icon-edit" data-audio-remark-edit="{{item3.resultAudio.id}}"></i> </td>
                                                         </tr>
                                                     {{# }) }}
                                                 </table>
