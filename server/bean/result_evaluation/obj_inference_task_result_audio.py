@@ -82,6 +82,7 @@ class ObjInferenceTaskResultAudioFilter(Filter):
         self.long_text_score_start = form_data.get('longTextScoreStart')
         self.long_text_score_end = form_data.get('longTextScoreEnd')
         self.remark = form_data.get('remark')
+        self.status = form_data.get('status')
 
     def make_sql(self) -> []:
         sql = ''
@@ -131,5 +132,8 @@ class ObjInferenceTaskResultAudioFilter(Filter):
         if not ValidationUtils.is_empty(self.remark):
             sql += f" and remark like ? "
             condition.append(f"%{self.remark}%")
+        if not ValidationUtils.is_empty(self.status):
+            sql += f" and status = ? "
+            condition.append(f"{self.status}")
 
         return sql, tuple(condition)

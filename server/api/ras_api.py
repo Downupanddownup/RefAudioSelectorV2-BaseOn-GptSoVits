@@ -4,6 +4,10 @@ import signal
 import subprocess
 import uvicorn
 
+print("Current working directory:", os.getcwd())
+# 将项目根目录添加到 sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+
 from server.api.inference_params_manager import InferenceParamsManager, InferenceParams
 
 # 获取当前脚本所在的绝对路径
@@ -23,7 +27,6 @@ sys.argv.extend(["--bert_path", os.path.join(api_dir, "GPT_SoVITS/pretrained_mod
 sys.argv.extend(["--sovits_path", os.path.join(api_dir, "GPT_SoVITS/pretrained_models/s2G488k.pth")])
 sys.argv.extend(["--gpt_path",
                  os.path.join(api_dir, "GPT_SoVITS/pretrained_models/s1bert25hz-2kh-longer-epoch=68e-step=50232.ckpt")])
-
 
 # 设置环境变量
 os.environ['g2pw_model_dir'] = os.path.join(api_dir, "GPT_SoVITS/text/G2PWModel")

@@ -70,6 +70,31 @@
                 }
             }
 
+            // 定义一个函数来按顺序播放多个音频流
+            playAudioSequence(audioUrls, requestBody, audioId, finishCallback) {
+                let currentIndex = 0;
+
+                function playNextAudio() {
+                    if (currentIndex >= audioUrls.length) {
+                        // 所有音频播放完毕，执行 finishCallback
+                        if (typeof finishCallback === 'function') {
+                            finishCallback();
+                        }
+                        return;
+                    }
+
+                    const currentAudioUrl = audioUrls[currentIndex];
+                    startStreamAudio(currentAudioUrl, requestBody, audioId, () => {
+                        // 当前音频播放完成后，递增索引并播放下一个音频
+                        currentIndex++;
+                        playNextAudio();
+                    });
+                }
+
+                // 从第一个音频开始播放
+                playNextAudio();
+            }
+
        }
        
        function getLongTextInference(viewId) {

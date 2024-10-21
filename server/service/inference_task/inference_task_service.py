@@ -12,7 +12,8 @@ from server.bean.inference_task.obj_inference_task_compare_params import ObjInfe
 from server.bean.inference_task.obj_inference_task_text import ObjInferenceTaskText
 from server.bean.inference_task.task_cell import TaskCell
 from server.bean.reference_audio.obj_reference_audio import ObjReferenceAudioFilter
-from server.bean.result_evaluation.obj_inference_task_result_audio import ObjInferenceTaskResultAudio
+from server.bean.result_evaluation.obj_inference_task_result_audio import ObjInferenceTaskResultAudio, \
+    ObjInferenceTaskResultAudioFilter
 from server.common.custom_exception import CustomException
 from server.common.log_config import logger, p_logger
 from server.common.ras_api_monitor import RasApiMonitor
@@ -150,13 +151,23 @@ class InferenceTaskService:
                     result = result and generate_audio_files_parallel(task_cell, 5)
                 RasApiMonitor.stop_service()
                 if result:
-                    InferenceTaskService.change_inference_task_inference_status(task.id, 2)
+                    InferenceTaskService.change_inference_task_inference_status_to_finish_if_all_finish(task.id)
             else:
                 raise CustomException("RAS API 服务启动失败")
 
     @staticmethod
     def change_inference_task_inference_status(task_id, inference_status: int) -> int:
         return InferenceTaskDao.change_inference_task_inference_status(task_id, inference_status)
+
+    @staticmethod
+    def change_inference_task_inference_status_to_finish_if_all_finish(task_id):
+        audio_filter = ObjInferenceTaskResultAudioFilter({
+            'task_id': task_id,
+            'status': 0,
+        })
+        count = ResultEvaluationService.find_count(audio_filter)
+        if count == 0:
+            return InferenceTaskService.change_inference_task_inference_status(task_id, 2)
 
 
 def create_task_cell_list_if_not_inference(task: ObjInferenceTask) -> list[TaskCell]:
@@ -284,7 +295,7 @@ def generate_audio_files_for_group(role_name: str, task_result_audio_list: list[
                 task_result_audio.path = audio_file_path
 
             except Exception as e:
-                task_result_audio.status = 2
+                task_result_audio.status = 0
                 logger.error(f"生成音频文件失败: {e}")
 
             has_generated_count += 1

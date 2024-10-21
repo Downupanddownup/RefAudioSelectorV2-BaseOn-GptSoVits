@@ -72,7 +72,7 @@ function reloadListDataBySearchParams(listId,params){
     });
 }
 
-function startStreamAudio(audio_url, audioId) {
+function startStreamAudio(audio_url, requestBody, audioId, finishCallback) {
     // 创建一个 Audio 元素
     const audioElement =  document.getElementById(audioId); // 使用已有的 audio 元素
 
@@ -85,7 +85,13 @@ function startStreamAudio(audio_url, audioId) {
 
         // 获取流式音频数据
         const fetchAudioStream = async () => {
-            const response = await fetch(audio_url); // 替换为后台音频流的 URL
+            const response = await fetch(audio_url, {
+                method: 'POST', // 请求方法
+                headers: {
+                    'Content-Type': 'application/json', // 设置请求体的内容类型
+                },
+                body: JSON.stringify(requestBody) // 将请求体转换为 JSON 字符串
+            }); // 替换为后台音频流的 URL
             const reader = response.body.getReader();
 
             while (true) {
@@ -96,6 +102,13 @@ function startStreamAudio(audio_url, audioId) {
                 }
                 audioSourceBuffer.appendBuffer(value); // 动态将音频数据追加到 SourceBuffer 中
             }
+
+            // 添加一个事件监听器来检测音频播放结束
+            audioElement.addEventListener('ended', () => {
+                console.log('音频播放完成');
+                finishCallback()
+            }, { once: true }); // 使用一次性的监听器
+            
         };
 
         fetchAudioStream().catch(error => {
@@ -104,13 +117,19 @@ function startStreamAudio(audio_url, audioId) {
     });
 }
 
-async function fetchAndPlayAudio(audio_url, audioId) {
+async function fetchAndPlayAudio(audio_url, requestBody, audioId) {
 
     // 加载层
     const loadIndex = layui.layer.load(0);
     
     // 通过 fetch 请求流式获取音频数据
-    const response = await fetch(audio_url); // 后端返回流式音频的 URL
+    const response = await fetch(audio_url, {
+        method: 'POST', // 请求方法
+        headers: {
+            'Content-Type': 'application/json', // 设置请求体的内容类型
+        },
+        body: JSON.stringify(requestBody) // 将请求体转换为 JSON 字符串
+    }); // 后端返回流式音频的 URL
     const reader = response.body.getReader();
     let chunks = []; // 用于存储音频数据的所有片段
     let receivedLength = 0; // 记录接收的字节总数
