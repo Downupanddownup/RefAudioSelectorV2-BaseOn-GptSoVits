@@ -71,3 +71,78 @@ function reloadListDataBySearchParams(listId,params){
         scrollPos: true, // 设定重载数据或切换分页时的滚动条的位置状态 --- 属性设置有效
     });
 }
+
+function startStreamAudio(audio_url, audioId) {
+    // 创建一个 Audio 元素
+    const audioElement =  document.getElementById(audioId); // 使用已有的 audio 元素
+
+    // 创建 MediaSource 实例
+    const mediaSource = new MediaSource();
+    audioElement.src = URL.createObjectURL(mediaSource);
+
+    mediaSource.addEventListener('sourceopen', function() {
+        const audioSourceBuffer = mediaSource.addSourceBuffer('audio/mpeg'); // 根据音频格式选择适合的 MIME 类型
+
+        // 获取流式音频数据
+        const fetchAudioStream = async () => {
+            const response = await fetch(audio_url); // 替换为后台音频流的 URL
+            const reader = response.body.getReader();
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) {
+                    mediaSource.endOfStream(); // 当流结束时调用
+                    break;
+                }
+                audioSourceBuffer.appendBuffer(value); // 动态将音频数据追加到 SourceBuffer 中
+            }
+        };
+
+        fetchAudioStream().catch(error => {
+            console.error('Error streaming audio:', error);
+        });
+    });
+}
+
+async function fetchAndPlayAudio(audio_url, audioId) {
+
+    // 加载层
+    const loadIndex = layui.layer.load(0);
+    
+    // 通过 fetch 请求流式获取音频数据
+    const response = await fetch(audio_url); // 后端返回流式音频的 URL
+    const reader = response.body.getReader();
+    let chunks = []; // 用于存储音频数据的所有片段
+    let receivedLength = 0; // 记录接收的字节总数
+
+    // 循环读取每个数据块，直到读取完成
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+            break; // 读取完成
+        }
+        chunks.push(value); // 将每个数据块存储到 chunks 数组中
+        receivedLength += value.length; // 更新接收到的数据总长度
+    }
+
+    // 将所有数据块合并成一个完整的 Uint8Array
+    let audioArray = new Uint8Array(receivedLength);
+    let position = 0;
+    for (let chunk of chunks) {
+        audioArray.set(chunk, position);
+        position += chunk.length;
+    }
+
+    // 将 Uint8Array 转换为 Blob
+    const audioBlob = new Blob([audioArray], { type: 'audio/wav' }); // 根据实际的音频类型设置 Blob 类型
+    const audioUrl = URL.createObjectURL(audioBlob);
+    
+    // 获取现有的 audio 元素并更新其 src 属性
+    const audioElement = document.getElementById(audioId); // 使用已有的 audio 元素
+    audioElement.src = audioUrl; // 更新音频文件的 URL
+
+    layui.layer.close(loadIndex)
+    
+    audioElement.play(); // 播放音频
+}
+

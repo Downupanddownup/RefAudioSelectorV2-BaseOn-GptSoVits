@@ -4,6 +4,7 @@
         class C_LongTextInference {
             constructor(viewId) {
                 this.viewId = viewId
+                this.streamOrNot = false// 是否为流式推理
             }
 
             render() {
@@ -11,9 +12,62 @@
                 const getTpl = $('#longTextInferenceTemplate').html(); // 获取模板字符
                 // 渲染并输出结果
                 layui.laytpl(getTpl).render({}, function(html){
-                    $('#'+_this.viewId).html(html)
+                    const obj = $('#' + _this.viewId)
+                    obj.html(html)
+                    
+                    obj.find('#startRasApi').on('click', function() {
+                        _this.startApi()
+                    })
+                    
+                    obj.find('#stopRasApi').on('click', function() {
+                        _this.stopApi()
+                    })
+                    
+                    obj.find('#startInference').on('click', function() {
+                        _this.startInference()
+                    })
+                    
                 });
                 return _this
+            }
+
+            startApi(){
+                const _this = this
+                $.customAjax({
+                    url: BaseUrl+'inference/start_ras_api',
+                    type: 'post',
+                    success: function(res){
+                        layui.layer.msg(res.msg)
+                    },
+                    error: function(res, msg){
+                        layui.layer.msg(msg)
+                    }
+                })
+            }
+
+            stopApi(){
+                const _this = this
+                $.customAjax({
+                    url: BaseUrl+'inference/stop_ras_api',
+                    type: 'post',
+                    success: function(res){
+                        layui.layer.msg(res.msg)
+                    },
+                    error: function(res, msg){
+                        layui.layer.msg(msg)
+                    }
+                })
+            }
+
+            startInference(){
+                const _this = this
+                const url = RasApiUrl
+                const audioId = 'playLongTextAudio'
+                if (_this.streamOrNot) {
+                    startStreamAudio(url, audioId)
+                } else {
+                    fetchAndPlayAudio(url, audioId)
+                }
             }
 
        }
@@ -29,5 +83,43 @@
 </script>
 
 <script id="longTextInferenceTemplate" type="text/html">
-    长文推理
+    <table class="table1">
+        
+        <tr>
+            <td>
+                <fieldset class="layui-elem-field layui-field-title">
+                    <legend>参数设置</legend>
+                </fieldset>
+                <div id="inferenceParamsEditView"></div>
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <fieldset class="layui-elem-field layui-field-title">
+                    <legend>长文管理</legend>
+                </fieldset>
+                <div id="longTextDealWith"></div>
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <audio controls id="playLongTextAudio">
+                    <source type="audio/mpeg">
+                    <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
+                    您的浏览器不支持 HTML5 audio 标签。
+                </audio>
+            </td>
+        </tr>
+        
+        <tr>
+            <td>
+                <button type="button" class="layui-btn layui-btn-lg" id="startRasApi">启动api</button>
+                <button type="button" class="layui-btn layui-btn-lg" id="startInference">开始推理</button>
+                <button type="button" class="layui-btn layui-btn-lg" id="stopRasApi">关闭api</button>
+            </td>
+        </tr>
+        
+    </table>
 </script>

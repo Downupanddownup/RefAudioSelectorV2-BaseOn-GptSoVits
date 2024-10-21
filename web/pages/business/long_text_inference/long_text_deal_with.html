@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<script>
+    const LongTextDealWithSpace = (function () {
+        class C_LongTextDealWith {
+            constructor(viewId) {
+                this.viewId = viewId
+            }
+
+            render() {
+                const _this = this
+                const getTpl = $('#longTextDealWithTemplate').html(); // 获取模板字符
+                // 渲染并输出结果
+                layui.laytpl(getTpl).render({}, function(html){
+                    const obj = $('#' + _this.viewId)
+                    obj.html(html)
+                });
+                return _this
+            }
+
+        }
+
+        function getLongTextDealWith(viewId) {
+            return new C_LongTextDealWith(viewId)
+        }
+
+        return {
+            getLongTextDealWith: getLongTextDealWith
+        }
+    })()
+</script>
+
+<script id="longTextDealWithTemplate" type="text/html">
+    长文推理
+</script>

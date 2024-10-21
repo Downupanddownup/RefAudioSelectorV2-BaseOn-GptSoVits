@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<script>
+    const InferenceParamsEditSpace = (function () {
+        class C_InferenceParamsEdit {
+            constructor(viewId) {
+                this.viewId = viewId
+            }
+
+            render() {
+                const _this = this
+                const getTpl = $('#inferenceParamsEditTemplate').html(); // 获取模板字符
+                // 渲染并输出结果
+                layui.laytpl(getTpl).render({}, function(html){
+                    const obj = $('#' + _this.viewId)
+                    obj.html(html)
+                });
+                return _this
+            }
+
+        }
+
+        function getInferenceParamsEdit(viewId) {
+            return new C_InferenceParamsEdit(viewId)
+        }
+
+        return {
+            getInferenceParamsEdit: getInferenceParamsEdit
+        }
+    })()
+</script>
+
+<script id="inferenceParamsEditTemplate" type="text/html">
+    
+    <div class="layui-collapse" lay-accordion="">
+        <div class="layui-colla-item">
+            <h2 class="layui-colla-title">更多</h2>
+            <div class="layui-colla-content layui-show">
+
+                <table class="table1">
+                    <tr>
+                        <td>
+                            GPT-Sovits 版本：
+                        </td>
+                        <td>
+                            <select class="customSelect" id="gsvVersion">
+                                <option {{isTrue(d.task.gptSovitsVersion=="v1",'selected','')}} value="v1">v1</option>
+                                <option {{isTrue(d.task.gptSovitsVersion=="v2",'selected','')}} value="v2">v2</option>
+                            </select>
+                            <button type="button" class="layui-btn layui-btn-sm" id="modelManager">模型管理</button>
+                        </td>
+                        <td>
+                            GPT 模型：
+                        </td>
+                        <td>
+
+                            <select class="customSelect" id="gptModel">
+                                <option value="">请选择</option>
+                                {{# layui.each(d.gptModels, function(index, item){ }}
+                                {{# if (d.task.gptSovitsVersion == item.version) { }}
+                                <option {{isTrue(item.name==d.task.gptModelName,'selected','')}} value="{{item.name}}">{{item.name}}</option>
+                                {{# } }}
+                                {{# }) }}
+                            </select>
+                            <button type="button" class="layui-btn layui-btn-sm" data-refresh-model >刷新</button>
+
+                        </td>
+                        <td>
+                            Vits 模型：
+                        </td>
+                        <td>
+
+                            <select class="customSelect" id="vitsModel">
+                                <option value="">请选择</option>
+                                {{# layui.each(d.vitsModels, function(index, item){ }}
+                                {{# if (d.task.gptSovitsVersion == item.version) { }}
+                                <option {{isTrue(item.name==d.task.vitsModelName,'selected','')}} value="{{item.name}}">{{item.name}}</option>
+                                {{# } }}
+                                {{# }) }}
+                            </select>
+                            <button type="button" class="layui-btn layui-btn-sm" data-refresh-model >刷新</button>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            top_k值：
+                        </td>
+                        <td>
+
+                            <input type="number" autocomplete="off" id="topK" placeholder="top_k值" class="layui-input" style="width: auto;" value="{{d.task.topK}}">
+
+                        </td>
+                        <td>
+                            top_p值：
+                        </td>
+                        <td>
+
+                            <input type="number" autocomplete="off" id="topP" placeholder="top_p值" class="layui-input" style="width: auto;" value="{{d.task.topP}}">
+
+                        </td>
+                        <td>
+                            temperature值：
+                        </td>
+                        <td>
+
+                            <input type="number" autocomplete="off" id="temperature" placeholder="temperature值" class="layui-input" style="width: auto;" value="{{d.task.temperature}}">
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            文本分隔符：
+                        </td>
+                        <td>
+
+                            <input type="text" autocomplete="off" id="textDelimiter" placeholder="文本分隔符" class="layui-input" style="width: auto;" value="{{d.task.textDelimiter}}">
+
+                        </td>
+                        <td>
+                            speed值：
+                        </td>
+                        <td>
+
+                            <input type="number" autocomplete="off" id="speed" placeholder="speed值" class="layui-input" style="width: auto;" value="{{d.task.speed}}">
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>参考音频：</td>
+                        <td>
+
+                            已选中待推理音频数量：<span id="audioSelectedCount">{{d.task.taskAudioList.length}}</span>
+                            <button type="button" class="layui-btn layui-btn-sm" id="audioSelect">音频选择</button>
+
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+        </div>
+    </div>
+    
+</script>
