@@ -247,17 +247,17 @@
                 <td>音频排序字段：</td>
                 <td>
                     <select class="customSelect" id="audioSort">
-                        <option value="audioLength">时长</option>
-                        <option value="asrSimilarScore">文本相似度</option>
-                        <option value="audioSimilarScore">音频相似度</option>
-                        <option value="score">评分</option>
+                        <option value="audioLength" {{d.filter.audioSort=='audioLength'?'selected':''}}>时长</option>
+                        <option value="asrSimilarScore" {{d.filter.audioSort=='asrSimilarScore'?'selected':''}}>文本相似度</option>
+                        <option value="audioSimilarScore" {{d.filter.audioSort=='audioSimilarScore'?'selected':''}}>音频相似度</option>
+                        <option value="score" {{d.filter.audioSort=='score'?'selected':''}}>评分</option>
                     </select>
                 </td>
                 <td>音频升降序：</td>
                 <td>
                     <select class="customSelect" id="audioUpDown">
-                        <option value="desc">降序</option>
-                        <option value="asc">升序</option>
+                        <option value="desc" {{d.filter.audioUpDown=='desc'?'selected':''}}>降序</option>
+                        <option value="asc" {{d.filter.audioUpDown=='asc'?'selected':''}}>升序</option>
                     </select>
                 </td>
             </tr>
