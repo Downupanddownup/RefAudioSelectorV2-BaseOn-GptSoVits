@@ -174,6 +174,21 @@
 
                     layui.element.render('collapse');
 
+                    layui.element.on('collapse(filter-collapse-first)', function(data){
+                        console.log(data.show); // 得到当前面板的展开状态，true or false
+                        console.log(data.title); // 得到当前点击面板的标题区域对象
+                        console.log(data.content); // 得到当前点击面板的内容区域对象
+
+                        // 显示状态，仅用于演示
+                        layer.msg('展开状态：'+ data.show);
+                        
+                        const objId = null
+                        
+                        const levelData = _this.getLevelDataByObjId(objId, 1)
+                        levelData.selected = data.show
+                        
+                    });
+
                     obj.find('td[data-audio-path]').on('click', function (){
                         const resultId = $(this).attr('data-audio-path')
                         if ($(this).html().trim() === '') {
@@ -265,6 +280,24 @@
                     })
                     
                 });
+            }
+
+            getLevelDataByObjId(objId, levelDeep){
+                const _this = this
+                if (levelDeep == 1) {
+                    return _this.levelDatas.find(i => i.obj.id == objId)
+                } else if (levelDeep == 2) {
+                    let levelData = null
+                    _this.levelDatas.forEach(first => {
+                        first.subLevelList.forEach(second => {
+                            if (second.obj.id == objId) {
+                                levelData = second
+                            }
+                        })
+                    })
+                    return levelData
+                }
+                return null
             }
 
             changeLevelDataLaunch(selected){
@@ -602,7 +635,7 @@
                 
                 {{# if(d.levelDeep == 2){ }}
                 
-                    <div class="layui-collapse">
+                    <div class="layui-collapse" lay-filter="filter-collapse-first">
                 
                 
                         {{# layui.each(d.getFirstLevelData(), function(index, item){ }}

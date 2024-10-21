@@ -65,6 +65,11 @@
                         success: function(res){
                             if (res.code == 0) {
                                 _this.selectedTask = new C_ObjInferenceTask(res.data.task)
+                                if (_this.selectedTask.compareType == 'refer_audio') {
+                                    _this.filter.includeSort = 6
+                                } else {
+                                    _this.filter.includeSort = 0
+                                }
                                 _this.render()
                             } else {
                                 layui.layer.msg(res.msg)
