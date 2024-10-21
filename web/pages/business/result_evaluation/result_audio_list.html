@@ -82,7 +82,7 @@
 `
                 }
                 if (this.type == 2) {
-                    return `${this.obj.textContent}`
+                    return `推理文本：${this.obj.textContent}`
                 }
                 if (this.type == 3) {
                     return `${this.obj.getShowTxt(this.compareType)}`
@@ -702,14 +702,14 @@
                     {{# layui.each(d.getFirstLevelData(), function(index, item){ }}
             
                         <div class="layui-colla-item">
-                            <div class="layui-colla-title">{{item.getHtml()}}</div>
+                            <div class="layui-colla-title">{{-item.getHtml()}}</div>
                             <div class="layui-colla-content {{isTrue(item.selected,'layui-show','')}}">
                 
                                 {{# layui.each(item.subLevelList, function(index2, item2){ }}
             
                                     <div class="layui-collapse">
                                         <div class="layui-colla-item">
-                                            <div class="layui-colla-title">{{item2.getHtml()}}</div>
+                                            <div class="layui-colla-title">{{-item2.getHtml()}}</div>
                                             <div class="layui-colla-content {{isTrue(item2.selected,'layui-show','')}}">
                                                 
                                                 <table id="audioList" class="table2" >

@@ -30,9 +30,9 @@ class ResultEvaluationService:
                         result_audio.obj_text = text
                         break
                 result_audio.obj_task = task
-            task.param_list = []
-            task.audio_list = []
-            task.text_list = []
+            # task.param_list = []
+            # task.audio_list = []
+            # task.text_list = []
             return result_audio_list
         return []
 

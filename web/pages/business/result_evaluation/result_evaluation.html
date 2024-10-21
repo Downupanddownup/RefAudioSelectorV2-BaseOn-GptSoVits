@@ -105,7 +105,7 @@
                 const _this = this
                 const obj = $('#'+_this.viewId)
                 if (_this.selectedTask.compareType !== 'refer_audio') {
-                    _this.filter.compareParamIds = xmSelect.get('#'+_this.viewId+' #compareParamIds').getValue('value')
+                    _this.filter.compareParamIds = xmSelect.get('#'+_this.viewId+' #compareParamIds', true).getValue('value')
                 }
                 _this.filter.audioLengthStart = obj.find('#audioLengthStart').val()
                 _this.filter.audioLengthEnd = obj.find('#audioLengthEnd').val()
@@ -231,15 +231,15 @@
                         <option value="-1">请选择</option>
                         
                         {{# if(d.selectedTask.compareType == 'refer_audio'){ }}
-                            <option value="6">推理文本->参考音频</option>
-                            <option value="7">参考音频->推理文本</option>
+                            <option value="6" {{d.filter.includeSort==6?'selected':''}}>推理文本->参考音频</option>
+                            <option value="7" {{d.filter.includeSort==7?'selected':''}}>参考音频->推理文本</option>
                         {{# } else { }}
-                            <option value="0">参考音频->推理文本->比对参数</option>
-                            <option value="1">参考音频->比对参数->推理文本</option>
-                            <option value="2">比对参数->推理文本->参考音频</option>
-                            <option value="3">比对参数->参考音频->推理文本</option>
-                            <option value="4">推理文本->参考音频->比对参数</option>
-                            <option value="5">推理文本->比对参数->参考音频</option>
+                            <option value="0" {{d.filter.includeSort==0?'selected':''}}>参考音频->推理文本->比对参数</option>
+                            <option value="1" {{d.filter.includeSort==1?'selected':''}}>参考音频->比对参数->推理文本</option>
+                            <option value="2" {{d.filter.includeSort==2?'selected':''}}>比对参数->推理文本->参考音频</option>
+                            <option value="3" {{d.filter.includeSort==3?'selected':''}}>比对参数->参考音频->推理文本</option>
+                            <option value="4" {{d.filter.includeSort==4?'selected':''}}>推理文本->参考音频->比对参数</option>
+                            <option value="5" {{d.filter.includeSort==5?'selected':''}}>推理文本->比对参数->参考音频</option>
                         {{# } }}
     
                     </select>

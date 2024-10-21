@@ -162,7 +162,7 @@ class InferenceTaskService:
     @staticmethod
     def change_inference_task_inference_status_to_finish_if_all_finish(task_id):
         audio_filter = ObjInferenceTaskResultAudioFilter({
-            'task_id': task_id,
+            'taskId': task_id,
             'status': 0,
         })
         count = ResultEvaluationService.find_count(audio_filter)
