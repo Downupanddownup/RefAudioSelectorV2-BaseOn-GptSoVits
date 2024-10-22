@@ -10,6 +10,7 @@
                 this.webCutPunc = ''
                 this.minTextLen = 50
                 this.textLanguage = ''
+                this.text = ''
             }
         }
         
@@ -18,7 +19,8 @@
                 this.viewId = viewId
                 this.streamOrNot = false// 是否为流式推理
                 this.setting = new C_InferenceSetting()
-               
+                this.editObj = null
+                this.dealWithObj = null
             }
 
             render() {
@@ -40,11 +42,11 @@
                     obj.find('#startInference').on('click', function() {
                         _this.startInference()
                     })
-                    
-                   
 
-                    InferenceParamsEditSpace.getInferenceParamsEdit('inferenceParamsEditView').loadData()
-                    LongTextDealWithSpace.getLongTextDealWith('longTextDealWithView', _this.setting).render()
+                    _this.editObj = InferenceParamsEditSpace.getInferenceParamsEdit('inferenceParamsEditView')
+                    _this.editObj.loadData()
+                    _this.dealWithObj = LongTextDealWithSpace.getLongTextDealWith('longTextDealWithView', _this.setting)
+                    _this.dealWithObj.render()
                     
                 });
                 return _this
@@ -82,12 +84,18 @@
 
             startInference(){
                 const _this = this
-                const url = RasApiUrl
+                const url = RasApiUrl+'ras'
                 const audioId = 'playLongTextAudio'
                 if (_this.streamOrNot) {
-                    startStreamAudio(url, audioId)
+                    startStreamAudio(url, [{
+                        text: _this.setting.text,
+                        text_language: _this.setting.textLanguage,
+                    }], audioId)
                 } else {
-                    fetchAndPlayAudio(url, audioId)
+                    fetchAndPlayAudio(url, {
+                        text: _this.setting.text,
+                        text_language: _this.setting.textLanguage,
+                    }, audioId)
                 }
             }
 

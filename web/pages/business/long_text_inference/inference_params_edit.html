@@ -21,7 +21,9 @@
             constructor(data) {
                 this.gptSovitsVersion = data.gptSovitsVersion || 'v2'; // 模型版本
                 this.gptModelName = data.gptModelName || ''; // GPT模型名称
+                this.gptModelPath = data.gptModelPath || ''; // GPT模型名称
                 this.vitsModelName = data.vitsModelName || ''; // Vits模型名称
+                this.vitsModelPath = data.vitsModelPath || ''; // Vits模型名称
                 this.topK = data.topK || 15; // top_k值
                 this.topP = data.topP || 1.0; // top_p值
                 this.temperature = data.temperature || 1.0; // 温度
@@ -35,9 +37,12 @@
                 this.viewId = viewId
                 this.gptModels = []
                 this.vitsModels = []
-                this.C_ObjReferenceAudio$1 = null
+                this.C_ObjReferenceAudio$1 = new C_ObjReferenceAudio({
+                    audioPath:'workspace\\七七\\refer_audio\\00eea10b-8dcf-11ef-af3e-d4d853edba5b.wav',
+                    content:'毕竟，又有谁会不喜欢勇敢的少女呢？',
+                    language:'ZH',
+                })
                 this.config = new C_ParamsConfig({})
-                this.params = new C_InferenceParams()
             }
 
             loadData(){
@@ -46,9 +51,6 @@
                 $.customAjax({
                     url: BaseUrl+'inference/load_models',
                     type: 'post',
-                    data:{
-                        task_id: _this.taskId
-                    },
                     success: function(res){
                         if (res.code == 0) {
 
@@ -76,6 +78,41 @@
                     obj.html(html)
                     layui.element.render('collapse');
 
+                    obj.find('#gsvVersion').on('change', function() {
+                        _this.config.gptSovitsVersion = $(this).val()
+                        _this.render()
+                    })
+
+                    obj.find('#gptModel').on('change', function() {
+                        _this.config.gptModelName = $(this).val()
+                        _this.config.gptModelPath = $(this).find(':selected').data('gpt-model-path')
+                    })
+
+                    obj.find('#vitsModel').on('change', function() {
+                        _this.config.vitsModelName = $(this).val()
+                        _this.config.vitsModelPath = $(this).find(':selected').data('vits-model-path')
+                    })
+
+                    obj.find('#topK').on('blur', function(){
+                        _this.config.topK = $(this).val()
+                    })
+
+                    obj.find('#topP').on('blur', function(){
+                        _this.config.topP = $(this).val()
+                    })
+
+                    obj.find('#temperature').on('blur', function(){
+                        _this.config.temperature = $(this).val()
+                    })
+
+                    obj.find('#textDelimiter').on('blur', function(){
+                        _this.config.textDelimiter = $(this).val()
+                    })
+
+                    obj.find('#speed').on('blur', function(){
+                        _this.config.speed = $(this).val()
+                    })
+                    
                     obj.find('#setInferenceParams').on('click', function() {
                         _this.setInferenceParams()
                     })
@@ -83,34 +120,53 @@
                 });
                 return _this
             }
+            
+            getInferenceParams() {
+                const _this = this
+                return new C_InferenceParams({
+                    gpt_model_path: _this.config.gptModelPath,
+                    sovits_model_path: _this.config.vitsModelPath,
+                    referWavPath: '',
+                    promptText: '',
+                    promptLanguage: 'ZH',
+                    cutPunc: _this.config.textDelimiter,
+                    topK: _this.config.topK,
+                    topP: _this.config.topP,
+                    temperature: _this.config.temperature,
+                    speed: _this.config.speed
+                })
+            }
 
             setInferenceParams(){
 
                 const _this = this
+                console.log(_this)
+                const data = {
+                    gpt_model_path:_this.config.gptModelPath,
+                    sovits_model_path:_this.config.vitsModelPath
+                }
                 $.customAjax({
                     url: RasApiUrl+'set_model',
                     type: 'post',
-                    data:{
-                        gpt_model_path:_this.params.gpt_model_path,
-                        sovits_model_path:_this.params.sovits_model_path
-                    },
+                    data:JSON.stringify(data),
                     success: function(res){
-                        if (res === 'ok') {
+                        console.log(res)
+                        if (res == 'ok') {
                             $.customAjax({
                                 url: RasApiUrl+'ras/set_default_params',
                                 type: 'post',
-                                data:{
-                                    refer_wav_path:_this.params.referWavPath,
-                                    prompt_text:_this.params.promptText,
-                                    prompt_language:_this.params.promptLanguage,
-                                    cut_punc:_this.params.cutPunc,
-                                    top_k:_this.params.topK,
-                                    top_p:_this.params.topP,
-                                    temperature:_this.params.temperature,
-                                    speed:_this.params.speed,
-                                },
+                                data:JSON.stringify({
+                                    refer_wav_path:_this.C_ObjReferenceAudio$1.audioPath,
+                                    prompt_text:_this.C_ObjReferenceAudio$1.content,
+                                    prompt_language:_this.C_ObjReferenceAudio$1.language,
+                                    cut_punc:_this.config.textDelimiter,
+                                    top_k:_this.config.topK,
+                                    top_p:_this.config.topP,
+                                    temperature:_this.config.temperature,
+                                    speed:_this.config.speed,
+                                }),
                                 success: function(res){
-                                    if (res === 'ok') {
+                                    if (res == 'ok') {
                                         layui.layer.msg('参数设置成功')
                                     } else {
                                         layui.layer.msg('参数设置失败：' + res)
@@ -124,8 +180,10 @@
                             layui.layer.msg('模型设置失败：' + res)
                         }
                     },
-                    error: function(res, msg){
-                        layui.layer.msg(msg)
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        $('#response').text('发生错误: ' + textStatus + ', ' + errorThrown);
+                        console.error('Error details:', jqXHR.responseText);
+                        layui.layer.msg(textStatus)
                     }
                 })
 
@@ -171,7 +229,7 @@
                                 <option value="">请选择</option>
                                 {{# layui.each(d.gptModels, function(index, item){ }}
                                     {{# if (d.config.gptSovitsVersion == item.version) { }}
-                                        <option {{isTrue(item.name==d.config.gptModelName,'selected','')}} value="{{item.name}}">{{item.name}}</option>
+                                        <option {{isTrue(item.name==d.config.gptModelName,'selected','')}} value="{{item.name}}" data-gpt-model-path="{{item.path}}">{{item.name}}</option>
                                     {{# } }}
                                 {{# }) }}
                             </select>
@@ -187,7 +245,7 @@
                                 <option value="">请选择</option>
                                 {{# layui.each(d.vitsModels, function(index, item){ }}
                                     {{# if (d.config.gptSovitsVersion == item.version) { }}
-                                        <option {{isTrue(item.name==d.config.vitsModelName,'selected','')}} value="{{item.name}}">{{item.name}}</option>
+                                        <option {{isTrue(item.name==d.config.vitsModelName,'selected','')}} value="{{item.name}}" data-vits-model-path="{{item.path}}">{{item.name}}</option>
                                     {{# } }}
                                 {{# }) }}
                             </select>

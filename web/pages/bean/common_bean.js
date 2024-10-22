@@ -189,6 +189,7 @@ class C_GptModel {
     constructor(data) {
         this.version = data.version || '';//模型版本
         this.name = data.name || '';//模型名称
+        this.path = data.path || '';//模型路径
     }
 }
 
@@ -196,6 +197,7 @@ class C_VitsModel {
     constructor(data) {
         this.version = data.version || '';//模型版本
         this.name = data.name || '';//模型名称
+        this.path = data.path || '';//模型路径
     }
 }
 

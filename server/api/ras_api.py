@@ -3,6 +3,7 @@ import os
 import signal
 import subprocess
 import uvicorn
+from fastapi.middleware.cors import CORSMiddleware
 
 print("Current working directory:", os.getcwd())
 # 将项目根目录添加到 sys.path
@@ -37,6 +38,14 @@ inference_params_manager = InferenceParamsManager()
 # 导入模块中的所有内容
 from api import *
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 允许所有域
+    allow_credentials=True,
+    allow_methods=["*"],  # 允许所有方法
+    allow_headers=["*"],  # 允许所有头
+)
+
 
 @app.get("/status")
 async def status():
@@ -57,6 +66,7 @@ async def set_default_params(request: Request):
         temperature=json_post_raw.get("temperature", None),
         speed=json_post_raw.get("speed", None)
     ))
+    print(inference_params_manager.default_params)
     return 'ok'
 
 

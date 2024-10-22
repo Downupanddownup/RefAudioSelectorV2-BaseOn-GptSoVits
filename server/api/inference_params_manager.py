@@ -10,6 +10,16 @@ class InferenceParams:
         self.top_p = top_p
         self.temperature = temperature
         self.speed = speed
+    
+    def __str__(self):
+        return (f"refer_wav_path:{self.refer_wav_path}, "
+                f"prompt_text:{self.prompt_text}, "
+                f"prompt_language:{self.prompt_language}, "
+                f"cut_punc:{self.cut_punc}, "
+                f"top_k:{self.top_k}, "
+                f"top_p:{self.top_p}, "
+                f"temperature:{self.temperature}, "
+                f"speed:{self.speed}")
 
 
 class InferenceParamsManager:

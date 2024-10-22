@@ -14,6 +14,10 @@
                 layui.laytpl(getTpl).render({}, function(html){
                     const obj = $('#' + _this.viewId)
                     obj.html(html)
+                    
+                    _this.setting.text = obj.find('#longText').val()
+                    _this.setting.textLanguage = obj.find('#textLanguage').val()
+                    
                 });
                 return _this
             }
@@ -47,10 +51,10 @@
             </td>
             <td>文本语种：</td>
             <td>
-                <select name="interest" class="customSelect">
+                <select id="textLanguage" class="customSelect">
                     <option value=""></option>
                     <option value="0">写作</option>
-                    <option value="1" selected>阅读</option>
+                    <option value="ZH" selected>ZH</option>
                     <option value="2">游戏</option>
                     <option value="3">音乐</option>
                     <option value="4">旅行</option>
@@ -60,7 +64,38 @@
         <tr>
             <td>长文内容：</td>
             <td colspan="3">
-                <textarea placeholder="请输入内容" class="layui-textarea" style="height: 300px"></textarea>
+                <textarea placeholder="请输入内容" class="layui-textarea" style="height: 300px" id="longText">
+                    当然可以。以下是一个简短的科幻小说提纲，围绕着探索未知星球和人类的自我发现主题展开：
+                    
+                    ### 小说标题：《星际彼岸》
+                    
+                    #### 一、开头（引子）
+                    - 描述地球资源枯竭，人类面临生存危机。
+                    - 科学家发现了一颗类地行星，名为“新希望”。
+                    - 一支探险队被派遣去调查这颗行星。
+                    
+                    #### 二、发展
+                    - 探险队抵达“新希望”，发现环境宜人，却有未知生物。
+                    - 主角李雷（虚构人物），作为探险队的一员，在一次任务中意外与队伍失散。
+                    - 李雷在森林中遭遇未知生物，却意外发现这些生物具有智慧，并能与之交流。
+                    
+                    #### 三、转折
+                    - 李雷了解到这些生物曾是人类的先祖，他们通过科技进化成为了新的形态。
+                    - 这些生物分享了他们的知识，揭示了人类起源的秘密。
+                    - 李雷意识到，人类的未来并不在于寻找新的居住地，而在于重新认识自我，以及与自然和谐共存的重要性。
+                    
+                    #### 四、高潮
+                    - 地球政府派出的第二支探险队到达，意图占领“新希望”。
+                    - 李雷必须在新朋友的帮助下，阻止这场战争，并说服地球政府改变策略。
+                    - 经过一番努力，李雷成功地促成了两方的和平对话。
+                    
+                    #### 五、结局
+                    - 李雷返回地球，成为英雄，但他更看重的是他所学到的关于生命和宇宙的新观念。
+                    - “新希望”成为人类学习和研究的基地，促进了科技与哲学的进步。
+                    - 故事以李雷的一句话结束：“真正的希望，不在于远方的星球，而在于我们内心的觉醒。”
+                    
+                    这个提纲提供了故事的基本框架，包含了冲突、转折点以及最终的解决办法，旨在探索人类的本质以及与环境的关系。
+                </textarea>
             </td>
         </tr>
     </table>
