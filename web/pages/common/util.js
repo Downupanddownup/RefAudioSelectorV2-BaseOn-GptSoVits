@@ -80,9 +80,21 @@ function startStreamAudio(audio_url, requestBody, audioId, finishCallback) {
     const mediaSource = new MediaSource();
     audioElement.src = URL.createObjectURL(mediaSource);
 
-    mediaSource.addEventListener('sourceopen', function() {
-        const audioSourceBuffer = mediaSource.addSourceBuffer('audio/mpeg'); // 根据音频格式选择适合的 MIME 类型
+    // 监听 durationchange 事件，以便在时长变化时更新 UI
+    audioElement.addEventListener('durationchange', () => {
+        console.log('音频时长已更新:', audioElement.duration);
+    });
 
+
+    mediaSource.addEventListener('sourceopen', function() {
+        const audioSourceBuffer = mediaSource.addSourceBuffer('audio/aac'); // 根据音频格式选择适合的 MIME 类型
+
+        // 定义一个队列来存储待追加的数据块
+        const pendingBuffers = [];
+        let appending = false;
+        let finished = false;
+        let firstBufferReceived = false;
+        
         // 获取流式音频数据
         const fetchAudioStream = async () => {
             const response = await fetch(audio_url, {
@@ -97,19 +109,63 @@ function startStreamAudio(audio_url, requestBody, audioId, finishCallback) {
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) {
-                    mediaSource.endOfStream(); // 当流结束时调用
+                    if (!audioSourceBuffer.updating) {
+                        mediaSource.endOfStream(); // 当流结束时调用
+                        console.log('流已结束2');
+                    }
+                    finished = true
                     break;
                 }
-                audioSourceBuffer.appendBuffer(value); // 动态将音频数据追加到 SourceBuffer 中
-            }
+                
+                console.log('分段接收value')
+                
+                // audioSourceBuffer.appendBuffer(value); // 动态将音频数据追加到 SourceBuffer 中
 
-            // 添加一个事件监听器来检测音频播放结束
-            audioElement.addEventListener('ended', () => {
-                console.log('音频播放完成');
-                finishCallback()
-            }, { once: true }); // 使用一次性的监听器
+                // 将数据块加入待追加队列
+                pendingBuffers.push(value);
+
+                // 如果当前没有正在进行的 appendBuffer 操作，则开始追加
+                if (!appending) {
+                    processPendingBuffers();
+                }
+            }
             
         };
+
+        // 处理待追加的数据队列
+        function processPendingBuffers() {
+            if (pendingBuffers.length > 0 && !appending) {
+                const buffer = pendingBuffers.shift();
+                appending = true;
+                audioSourceBuffer.appendBuffer(buffer);
+                audioSourceBuffer.addEventListener('updateend', () => {
+                    console.log('数据块已追加');
+                    appending = false;
+
+                    // 在接收到第一个数据块时开始播放音频
+                    if (!firstBufferReceived) {
+                        firstBufferReceived = true;
+                        console.log('接收到第一个数据块，开始播放音频');
+                        audioElement.play().catch(error => {
+                            console.error('播放失败:', error);
+                        });
+
+                        // 添加一个事件监听器来检测音频播放结束
+                        audioElement.addEventListener('ended', () => {
+                            console.log('音频播放完成');
+                            finishCallback()
+                        }, { once: true }); // 使用一次性的监听器
+                    }
+
+                    if (finished && pendingBuffers.length === 0) {
+                        mediaSource.endOfStream(); // 当流结束时调用
+                        console.log('流已结束1');
+                    } else {
+                        processPendingBuffers(); // 继续处理队列中的其他数据块
+                    }
+                }, { once: true });
+            }
+        }
 
         fetchAudioStream().catch(error => {
             console.error('Error streaming audio:', error);

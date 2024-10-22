@@ -29,6 +29,9 @@ sys.argv.extend(["--sovits_path", os.path.join(api_dir, "GPT_SoVITS/pretrained_m
 sys.argv.extend(["--gpt_path",
                  os.path.join(api_dir, "GPT_SoVITS/pretrained_models/s1bert25hz-2kh-longer-epoch=68e-step=50232.ckpt")])
 
+# sys.argv.extend(["--stream_mode", 'normal'])
+# sys.argv.extend(["--media_type", 'acc'])
+
 # 设置环境变量
 os.environ['g2pw_model_dir'] = os.path.join(api_dir, "GPT_SoVITS/text/G2PWModel")
 os.environ['g2pw_model_source'] = os.path.join(api_dir, "GPT_SoVITS/pretrained_models/chinese-roberta-wwm-ext-large")
@@ -83,6 +86,8 @@ async def tts_endpoint(request: Request):
         temperature=json_post_raw.get("temperature", None),
         speed=json_post_raw.get("speed", None)
     ))
+    print(params)
+    print(f'text:{json_post_raw.get("text")};text_language:{json_post_raw.get("text_language")}')
     return handle(
         refer_wav_path=params.refer_wav_path,
         prompt_text=params.prompt_text,
@@ -120,6 +125,9 @@ async def tts_endpoint(
         temperature=temperature,
         speed=speed
     ))
+    print(params)
+    print(f'text:{text};text_language:{text_language}')
+    # text = '这个提纲提供了故事的基本框架，包含了冲突、转折点以及最终的解决办法，旨在探索人类的本质以及与环境的关系。'
     return handle(
         refer_wav_path=params.refer_wav_path,
         prompt_text=params.prompt_text,

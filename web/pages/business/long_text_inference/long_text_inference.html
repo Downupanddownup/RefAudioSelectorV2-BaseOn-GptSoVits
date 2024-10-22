@@ -12,6 +12,15 @@
                 this.textLanguage = ''
                 this.text = ''
             }
+            splitStringByLength(str, length) {
+                let result = [];
+                for (let i = 0; i < str.length; i += length) {
+                    // 截取从i开始，长度为length的子串
+                    let chunk = str.slice(i, i + length);
+                    result.push(chunk);
+                }
+                return result;
+            }
         }
         
         class C_LongTextInference {
@@ -87,10 +96,16 @@
                 const url = RasApiUrl+'ras'
                 const audioId = 'playLongTextAudio'
                 if (_this.streamOrNot) {
-                    startStreamAudio(url, [{
-                        text: _this.setting.text,
-                        text_language: _this.setting.textLanguage,
-                    }], audioId)
+                    
+                    const subTexts = _this.setting.splitStringByLength(_this.setting.text, 50)
+                    console.log(subTexts)
+
+                    _this.playAudioSequence(url, subTexts.map(text => {
+                        return {
+                            text: text,
+                            text_language: _this.setting.textLanguage,
+                        }
+                    }), audioId)
                 } else {
                     fetchAndPlayAudio(url, {
                         text: _this.setting.text,
