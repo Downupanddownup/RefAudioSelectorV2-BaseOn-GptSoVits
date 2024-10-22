@@ -126,3 +126,56 @@
 .no-wrap {
     white-space: nowrap; /* 防止文本自动换行 */
 }
+.custom-radio {
+    position: relative;
+    display: inline-block;
+    padding-left: 35px; /* 增加一些空间给文本 */
+    cursor: pointer;
+    font-size: 16px; /* 文本字体大小 */
+}
+
+.custom-radio input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.custom-radio span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: #fff; /* 背景颜色为白色 */
+    border: 2px solid #cccccc; /* 蓝色边框 */
+    border-radius: 50%;
+}
+
+.custom-radio span::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.2s ease-in-out;
+    width: 12px;
+    height: 12px;
+    background-color: #16baaa; /* 绿色圆点 */
+    border-radius: 50%;
+}
+
+.custom-radio input[type="radio"]:checked + span::before {
+    transform: translate(-50%, -50%) scale(1); /* 当选中时显示圆点 */
+}
+
+.custom-radio label {
+    display: flex; /* 使用Flexbox来对齐文本和单选按钮 */
+    align-items: center; /* 文本垂直居中 */
+    user-select: none; /* 防止用户选择文本 */
+}
+
+/* 为了更好地对齐文本，可以添加以下样式 */
+.custom-radio span + div {
+    margin-left: 5px; /* 文本与单选按钮之间的间距 */
+}

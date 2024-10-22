@@ -2,18 +2,7 @@
 <script>
     const LongTextInferenceSpace = (function () {
         
-        class C_InferenceParams {
-            constructor() {
-                this.referWavPath = null
-                this.promptText = null
-                this.promptLanguage = null
-                this.cutPunc = null
-                this.topK = null
-                this.topP = null
-                this.temperature = null
-                this.speed = null
-            }
-        }
+
         
         class C_InferenceSetting {
             constructor() {
@@ -28,6 +17,8 @@
             constructor(viewId) {
                 this.viewId = viewId
                 this.streamOrNot = false// 是否为流式推理
+                this.setting = new C_InferenceSetting()
+               
             }
 
             render() {
@@ -49,13 +40,17 @@
                     obj.find('#startInference').on('click', function() {
                         _this.startInference()
                     })
+                    
+                   
 
-                    InferenceParamsEditSpace.getInferenceParamsEdit('inferenceParamsEditView').render()
-                    LongTextDealWithSpace.getLongTextDealWith('longTextDealWithView').render()
+                    InferenceParamsEditSpace.getInferenceParamsEdit('inferenceParamsEditView').loadData()
+                    LongTextDealWithSpace.getLongTextDealWith('longTextDealWithView', _this.setting).render()
                     
                 });
                 return _this
             }
+
+            
 
             startApi(){
                 const _this = this
@@ -133,16 +128,14 @@
     <table class="table1">
         
         <tr>
-            <td>
-                <fieldset class="layui-elem-field layui-field-title">
-                    <legend>参数设置</legend>
-                </fieldset>
+            <td style="text-align: left">
                 <div id="inferenceParamsEditView"></div>
             </td>
         </tr>
         
+        
         <tr>
-            <td>
+            <td style="text-align: left">
                 <fieldset class="layui-elem-field layui-field-title">
                     <legend>长文管理</legend>
                 </fieldset>

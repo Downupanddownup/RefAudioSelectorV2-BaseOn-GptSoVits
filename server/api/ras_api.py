@@ -57,7 +57,7 @@ async def set_default_params(request: Request):
         temperature=json_post_raw.get("temperature", None),
         speed=json_post_raw.get("speed", None)
     ))
-    return {"code": 0, "msg": "设置成功"}
+    return 'ok'
 
 
 @app.post("/ras")

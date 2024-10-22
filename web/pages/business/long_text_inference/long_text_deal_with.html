@@ -2,8 +2,9 @@
 <script>
     const LongTextDealWithSpace = (function () {
         class C_LongTextDealWith {
-            constructor(viewId) {
+            constructor(viewId, setting) {
                 this.viewId = viewId
+                this.setting = setting
             }
 
             render() {
@@ -19,8 +20,8 @@
 
         }
 
-        function getLongTextDealWith(viewId) {
-            return new C_LongTextDealWith(viewId)
+        function getLongTextDealWith(viewId, setting) {
+            return new C_LongTextDealWith(viewId, setting)
         }
 
         return {
@@ -30,5 +31,39 @@
 </script>
 
 <script id="longTextDealWithTemplate" type="text/html">
-    长文推理
+    
+    <table class="table1">
+        <tr>
+            <td>流式推理：</td>
+            <td>
+                <label class="custom-radio" style="margin-right: 30px">
+                    <input type="radio" name="sex" value="是" title="是" checked>
+                    <span></span>是
+                </label>
+                <label class="custom-radio">
+                    <input type="radio" name="sex" value="否" title="否">
+                    <span></span>否
+                </label>
+            </td>
+            <td>文本语种：</td>
+            <td>
+                <select name="interest" class="customSelect">
+                    <option value=""></option>
+                    <option value="0">写作</option>
+                    <option value="1" selected>阅读</option>
+                    <option value="2">游戏</option>
+                    <option value="3">音乐</option>
+                    <option value="4">旅行</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>长文内容：</td>
+            <td colspan="3">
+                <textarea placeholder="请输入内容" class="layui-textarea" style="height: 300px"></textarea>
+            </td>
+        </tr>
+    </table>
+    
+    
 </script>
