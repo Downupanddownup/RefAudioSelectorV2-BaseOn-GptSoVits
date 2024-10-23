@@ -70,8 +70,8 @@ async def set_default_params(request: Request):
         speed=json_post_raw.get("speed", None),
     ))
 
-    temp_stream_mode = json_post_raw.get("stream_mode", None),
-    temp_media_type = json_post_raw.get("media_type", None),
+    temp_stream_mode = json_post_raw.get("stream_mode", None)
+    temp_media_type = json_post_raw.get("media_type", None)
     if temp_stream_mode is not None:
         global stream_mode
         # 流式返回模式

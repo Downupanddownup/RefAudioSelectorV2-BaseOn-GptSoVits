@@ -14,7 +14,7 @@
                 this.temperature = data.temperature || 1.0; // 温度
                 this.textDelimiter = data.textDelimiter || `,.;?!、，。？！；：…"`; // 文本分隔符
                 this.speed = data.speed || 1.0; // 语速
-                this.streamMode = data.streamMode || false; // 是否开启流式
+                this.streamMode = data.streamMode || true; // 是否开启流式
                 this.mediaType = data.mediaType || 'aac'; // 音频类型
             }
         }
@@ -51,7 +51,7 @@
 
                     _this.editObj = InferenceParamsEditSpace.getInferenceParamsEdit('inferenceParamsEditView', _this.config)
                     _this.editObj.loadData()
-                    _this.dealWithObj = LongTextDealWithSpace.getLongTextDealWith('longTextDealWithView')
+                    _this.dealWithObj = LongTextDealWithSpace.getLongTextDealWith('longTextDealWithView', _this.config)
                     _this.dealWithObj.render()
                     
                 });

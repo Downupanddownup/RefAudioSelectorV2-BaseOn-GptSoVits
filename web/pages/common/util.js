@@ -81,9 +81,11 @@ function startStreamAudio(audio_url, requestBody, audioId, finishCallback) {
     audioElement.src = URL.createObjectURL(mediaSource);
 
     // 监听 durationchange 事件，以便在时长变化时更新 UI
+/*
     audioElement.addEventListener('durationchange', () => {
         console.log('音频时长已更新:', audioElement.duration);
     });
+*/
 
 
     mediaSource.addEventListener('sourceopen', function() {
@@ -152,7 +154,6 @@ function startStreamAudio(audio_url, requestBody, audioId, finishCallback) {
 
                         // 添加一个事件监听器来检测音频播放结束
                         audioElement.addEventListener('ended', () => {
-                            console.log('音频播放完成');
                             finishCallback()
                         }, { once: true }); // 使用一次性的监听器
                     }

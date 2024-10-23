@@ -179,3 +179,23 @@
 .custom-radio span + div {
     margin-left: 5px; /* 文本与单选按钮之间的间距 */
 }
+
+/* 选中高亮 */
+.text-context .selected {
+    background-color: orange;!important; /* 更深的灰色背景 */
+    color: #000; /* 黑色文字 */
+}
+
+/* 基础样式 */
+.text-context .highlightable {
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* 悬浮高亮 */
+.text-context .highlightable:hover {
+    background-color: #e0e0e0; /* 浅灰色背景 */
+    color: #333; /* 深灰色文字 */
+}
+
