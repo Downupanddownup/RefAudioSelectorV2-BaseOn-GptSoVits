@@ -8,8 +8,9 @@ router = APIRouter(prefix="/inference")
 
 
 @router.post("/start_ras_api")
-async def start_ras_api():
-    if RasApiMonitor.start_service():
+async def start_ras_api(request: Request):
+    data_form = await request.form()
+    if RasApiMonitor.start_service(int(data_form.get('streamMode')) == 1):
         return ResponseResult(msg="api服务已启动")
     return ResponseResult(msg="api服务启动失败")
 

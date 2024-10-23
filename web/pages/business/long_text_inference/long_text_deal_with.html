@@ -1,31 +1,100 @@
 <!DOCTYPE html>
 <script>
     const LongTextDealWithSpace = (function () {
+
+        class C_InferenceSetting {
+            constructor() {
+                this.webCutPunc = ''
+                this.minTextLen = 50
+                this.textLanguage = ''
+                this.text = ''
+            }
+            splitStringByLength(str, length) {
+                let result = [];
+                for (let i = 0; i < str.length; i += length) {
+                    // 截取从i开始，长度为length的子串
+                    let chunk = str.slice(i, i + length);
+                    result.push(chunk);
+                }
+                return result;
+            }
+        }
+        
         class C_LongTextDealWith {
-            constructor(viewId, setting) {
+            constructor(viewId) {
                 this.viewId = viewId
-                this.setting = setting
+                this.setting = new C_InferenceSetting()
             }
 
             render() {
                 const _this = this
                 const getTpl = $('#longTextDealWithTemplate').html(); // 获取模板字符
                 // 渲染并输出结果
-                layui.laytpl(getTpl).render({}, function(html){
+                layui.laytpl(getTpl).render(_this, function(html){
                     const obj = $('#' + _this.viewId)
                     obj.html(html)
                     
                     _this.setting.text = obj.find('#longText').val()
                     _this.setting.textLanguage = obj.find('#textLanguage').val()
                     
+
+
+                    obj.find('#startInference').on('click', function() {
+                        _this.startInference()
+                    })
+                    
                 });
                 return _this
             }
 
+            startInference(){
+                const _this = this
+                const url = RasApiUrl+'ras'
+                const audioId = 'playLongTextAudio'
+                if (_this.config.streamMode) {
+
+                    const subTexts = _this.setting.splitStringByLength(_this.setting.text, 50)
+                    console.log(subTexts)
+
+                    _this.playAudioSequence(url, subTexts.map(text => {
+                        return {
+                            text: text,
+                            text_language: _this.setting.textLanguage,
+                        }
+                    }), audioId)
+                } else {
+                    fetchAndPlayAudio(url, {
+                        text: _this.setting.text,
+                        text_language: _this.setting.textLanguage,
+                    }, audioId)
+                }
+            }
+
+            // 定义一个函数来按顺序播放多个音频流
+            playAudioSequence(audioUrl, requestBodys, audioId) {
+                let currentIndex = 0;
+
+                function playNextAudio() {
+                    if (currentIndex >= requestBodys.length) {
+                        return;
+                    }
+
+                    const requestBody = requestBodys[currentIndex];
+                    startStreamAudio(audioUrl, requestBody, audioId, () => {
+                        // 当前音频播放完成后，递增索引并播放下一个音频
+                        currentIndex++;
+                        playNextAudio();
+                    });
+                }
+
+                // 从第一个音频开始播放
+                playNextAudio();
+            }
+
         }
 
-        function getLongTextDealWith(viewId, setting) {
-            return new C_LongTextDealWith(viewId, setting)
+        function getLongTextDealWith(viewId) {
+            return new C_LongTextDealWith(viewId)
         }
 
         return {
@@ -38,17 +107,7 @@
     
     <table class="table1">
         <tr>
-            <td>流式推理：</td>
-            <td>
-                <label class="custom-radio" style="margin-right: 30px">
-                    <input type="radio" name="sex" value="是" title="是" checked>
-                    <span></span>是
-                </label>
-                <label class="custom-radio">
-                    <input type="radio" name="sex" value="否" title="否">
-                    <span></span>否
-                </label>
-            </td>
+           
             <td>文本语种：</td>
             <td>
                 <select id="textLanguage" class="customSelect">
@@ -96,6 +155,20 @@
                     
                     这个提纲提供了故事的基本框架，包含了冲突、转折点以及最终的解决办法，旨在探索人类的本质以及与环境的关系。
                 </textarea>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <audio controls id="playLongTextAudio">
+                    <source type="audio/mpeg">
+                    <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
+                    您的浏览器不支持 HTML5 audio 标签。
+                </audio>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <button type="button" class="layui-btn layui-btn-lg" id="startInference">开始推理</button>
             </td>
         </tr>
     </table>

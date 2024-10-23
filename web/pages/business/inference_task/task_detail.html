@@ -401,14 +401,14 @@
                 </td>
                 <td>
                   <select class="customSelect" data-params-gsv-version="{{index}}">
-                    <option {{isTrue('v1'==d.task.compareParams[index].gptSovitsVersion,'selected','')}} value="v1">v1</option>
-                    <option {{isTrue('v2'==d.task.compareParams[index].gptSovitsVersion,'selected','')}} value="v2">v2</option>
+                    <option {{isTrue('v1'==item.gptSovitsVersion,'selected','')}} value="v1">v1</option>
+                    <option {{isTrue('v2'==item.gptSovitsVersion,'selected','')}} value="v2">v2</option>
                   </select>
                   <select class="customSelect" data-params-gpt-model="{{index}}">
                     <option value="">请选择</option>
-                    {{# layui.each(d.gptModels, function(index, item){ }}
-                      {{# if (d.task.compareParams[index].gptSovitsVersion == item.version) { }}
-                        <option {{isTrue(item.name==d.task.compareParams[index].gptModelName,'selected','')}} value="{{item.name}}">{{item.name}}</option>
+                    {{# layui.each(d.gptModels, function(index, model){ }}
+                      {{# if (item.gptSovitsVersion == model.version) { }}
+                        <option {{isTrue(model.name==item.gptModelName,'selected','')}} value="{{model.name}}">{{model.name}}</option>
                       {{# } }}
                     {{# }) }}
                   </select>
@@ -425,14 +425,14 @@
                 </td>
                 <td>
                   <select class="customSelect" data-params-gsv-version="{{index}}">
-                    <option {{isTrue('v1'==d.task.compareParams[index].gptSovitsVersion,'selected','')}} value="v1">v1</option>
-                    <option {{isTrue('v2'==d.task.compareParams[index].gptSovitsVersion,'selected','')}} value="v2">v2</option>
+                    <option {{isTrue('v1'==item.gptSovitsVersion,'selected','')}} value="v1">v1</option>
+                    <option {{isTrue('v2'==item.gptSovitsVersion,'selected','')}} value="v2">v2</option>
                   </select>
                   <select class="customSelect" data-params-vits-model="{{index}}">
                     <option value="">请选择</option>
-                    {{# layui.each(d.vitsModels, function(index, item){ }}
-                      {{# if (d.task.compareParams[index].gptSovitsVersion == item.version) { }}
-                        <option {{isTrue(item.name==d.task.compareParams[index].vitsModelName,'selected','')}} value="{{item.name}}">{{item.name}}</option>
+                    {{# layui.each(d.vitsModels, function(index, model){ }}
+                      {{# if (item.gptSovitsVersion == model.version) { }}
+                        <option {{isTrue(model.name==item.vitsModelName,'selected','')}} value="{{model.name}}">{{model.name}}</option>
                       {{# } }}
                     {{# }) }}
                   </select>
@@ -449,7 +449,7 @@
                 </td>
                 <td>
                   <input type="number" autocomplete="off" data-params-top-k="{{index}}" placeholder="top_k值"
-                         class="layui-input" style="width: auto;" value="{{d.task.compareParams[index].topK}}">
+                         class="layui-input" style="width: auto;" value="{{item.topK}}">
                 </td>
                 <td>
                   <button type="button" class="layui-btn layui-btn-sm" data-add="{{index}}"><i class="layui-icon"></i></button>
@@ -463,7 +463,7 @@
             </td>
             <td>
               <input type="number" autocomplete="off" data-params-top-p="{{index}}" placeholder="top_p值" 
-                     class="layui-input" style="width: auto;" value="{{d.task.compareParams[index].topP}}">
+                     class="layui-input" style="width: auto;" value="{{item.topP}}">
             </td>
             <td>
               <button type="button" class="layui-btn layui-btn-sm" data-add="{{index}}"><i class="layui-icon"></i></button>
@@ -477,7 +477,7 @@
             </td>
             <td>
               <input type="number" autocomplete="off" data-params-temperature="{{index}}" placeholder="temperature值" 
-                     class="layui-input" style="width: auto;" value="{{d.task.compareParams[index].temperature}}">
+                     class="layui-input" style="width: auto;" value="{{item.temperature}}">
             </td>
             <td>
               <button type="button" class="layui-btn layui-btn-sm" data-add="{{index}}"><i class="layui-icon"></i></button>
@@ -491,7 +491,7 @@
             </td>
             <td>
               <input type="number" autocomplete="off" data-params-speed="{{index}}" placeholder="speed值" 
-                     class="layui-input" style="width: auto;" value="{{d.task.compareParams[index].speed}}">
+                     class="layui-input" style="width: auto;" value="{{item.speed}}">
             </td>
             <td>
               <button type="button" class="layui-btn layui-btn-sm" data-add="{{index}}"><i class="layui-icon"></i></button>
@@ -505,7 +505,7 @@
             </td>
             <td>
               <input type="text" autocomplete="off" data-params-text-delimiter="{{index}}" placeholder="文本分隔符" 
-                     class="layui-input" style="width: auto;" value="{{d.task.compareParams[index].textDelimiter}}">
+                     class="layui-input" style="width: auto;" value="{{item.textDelimiter}}">
             </td>
             <td>
               <button type="button" class="layui-btn layui-btn-sm" data-add="{{index}}"><i class="layui-icon"></i></button>
@@ -519,7 +519,7 @@
             </td>
             <td>
               <input type="text" autocomplete="off" data-params-other="{{index}}" placeholder="其余参数" 
-                     class="layui-input" style="width: auto;" value="{{d.task.compareParams[index].otherParameters}}">
+                     class="layui-input" style="width: auto;" value="{{item.otherParameters}}">
             </td>
             <td>
               <button type="button" class="layui-btn layui-btn-sm" data-add="{{index}}"><i class="layui-icon"></i></button>

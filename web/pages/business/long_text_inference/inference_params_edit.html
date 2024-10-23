@@ -2,47 +2,20 @@
 <script>
     const InferenceParamsEditSpace = (function () {
 
-        class C_InferenceParams {
-            constructor() {
-                this.gpt_model_path = null
-                this.sovits_model_path = null
-                this.referWavPath = null
-                this.promptText = null
-                this.promptLanguage = null
-                this.cutPunc = null
-                this.topK = null
-                this.topP = null
-                this.temperature = null
-                this.speed = null
-            }
-        }
 
-        class C_ParamsConfig {//推理任务
-            constructor(data) {
-                this.gptSovitsVersion = data.gptSovitsVersion || 'v2'; // 模型版本
-                this.gptModelName = data.gptModelName || ''; // GPT模型名称
-                this.gptModelPath = data.gptModelPath || ''; // GPT模型名称
-                this.vitsModelName = data.vitsModelName || ''; // Vits模型名称
-                this.vitsModelPath = data.vitsModelPath || ''; // Vits模型名称
-                this.topK = data.topK || 15; // top_k值
-                this.topP = data.topP || 1.0; // top_p值
-                this.temperature = data.temperature || 1.0; // 温度
-                this.textDelimiter = data.textDelimiter || `,.;?!、，。？！；：…"`; // 文本分隔符
-                this.speed = data.speed || 1.0; // 语速
-            }
-        }
         
         class C_InferenceParamsEdit {
-            constructor(viewId) {
+            constructor(viewId, config) {
                 this.viewId = viewId
                 this.gptModels = []
                 this.vitsModels = []
+                this.config = config
                 this.C_ObjReferenceAudio$1 = new C_ObjReferenceAudio({
                     audioPath:'workspace\\七七\\refer_audio\\00eea10b-8dcf-11ef-af3e-d4d853edba5b.wav',
                     content:'毕竟，又有谁会不喜欢勇敢的少女呢？',
                     language:'ZH',
                 })
-                this.config = new C_ParamsConfig({})
+                
             }
 
             loadData(){
@@ -112,6 +85,16 @@
                     obj.find('#speed').on('blur', function(){
                         _this.config.speed = $(this).val()
                     })
+
+                    obj.find('input[name=streamMode]').on('change', function() {
+                        _this.config.streamMode = $(this).val() === '是'
+                        if (_this.config.streamMode) {
+                            _this.config.mediaType = 'aac'
+                        } else {
+                            _this.config.mediaType = 'wav'
+                        }
+                        _this.render()
+                    })
                     
                     obj.find('#setInferenceParams').on('click', function() {
                         _this.setInferenceParams()
@@ -119,22 +102,6 @@
                     
                 });
                 return _this
-            }
-            
-            getInferenceParams() {
-                const _this = this
-                return new C_InferenceParams({
-                    gpt_model_path: _this.config.gptModelPath,
-                    sovits_model_path: _this.config.vitsModelPath,
-                    referWavPath: '',
-                    promptText: '',
-                    promptLanguage: 'ZH',
-                    cutPunc: _this.config.textDelimiter,
-                    topK: _this.config.topK,
-                    topP: _this.config.topP,
-                    temperature: _this.config.temperature,
-                    speed: _this.config.speed
-                })
             }
 
             setInferenceParams(){
@@ -164,6 +131,8 @@
                                     top_p:_this.config.topP,
                                     temperature:_this.config.temperature,
                                     speed:_this.config.speed,
+                                    stream_mode:_this.config.streamMode ? 1 : 0,
+                                    media_type:_this.config.mediaType,
                                 }),
                                 success: function(res){
                                     if (res == 'ok') {
@@ -191,8 +160,8 @@
 
         }
 
-        function getInferenceParamsEdit(viewId) {
-            return new C_InferenceParamsEdit(viewId)
+        function getInferenceParamsEdit(viewId, config) {
+            return new C_InferenceParamsEdit(viewId, config)
         }
 
         return {
@@ -202,117 +171,135 @@
 </script>
 
 <script id="inferenceParamsEditTemplate" type="text/html">
-    
-    <div class="layui-collapse" lay-accordion="">
-        <div class="layui-colla-item">
-            <h2 class="layui-colla-title">参数设置</h2>
-            <div class="layui-colla-content layui-show">
 
-                <table class="table1">
-                    <tr>
-                        <td>
-                            GPT-Sovits 版本：
-                        </td>
-                        <td>
-                            <select class="customSelect" id="gsvVersion">
-                                <option {{isTrue(d.config.gptSovitsVersion=="v1",'selected','')}} value="v1">v1</option>
-                                <option {{isTrue(d.config.gptSovitsVersion=="v2",'selected','')}} value="v2">v2</option>
-                            </select>
-                            <button type="button" class="layui-btn layui-btn-sm" id="modelManager">模型管理</button>
-                        </td>
-                        <td>
-                            GPT 模型：
-                        </td>
-                        <td>
+    <table class="table1">
+        <tr>
+            <td>
+                GPT-Sovits 版本：
+            </td>
+            <td>
+                <select class="customSelect" id="gsvVersion">
+                    <option {{isTrue(d.config.gptSovitsVersion=="v1",'selected','')}} value="v1">v1</option>
+                    <option {{isTrue(d.config.gptSovitsVersion=="v2",'selected','')}} value="v2">v2</option>
+                </select>
+                <button type="button" class="layui-btn layui-btn-sm" id="modelManager">模型管理</button>
+            </td>
+            <td>
+                GPT 模型：
+            </td>
+            <td>
 
-                            <select class="customSelect" id="gptModel">
-                                <option value="">请选择</option>
-                                {{# layui.each(d.gptModels, function(index, item){ }}
-                                    {{# if (d.config.gptSovitsVersion == item.version) { }}
-                                        <option {{isTrue(item.name==d.config.gptModelName,'selected','')}} value="{{item.name}}" data-gpt-model-path="{{item.path}}">{{item.name}}</option>
-                                    {{# } }}
-                                {{# }) }}
-                            </select>
-                            <button type="button" class="layui-btn layui-btn-sm" data-refresh-model >刷新</button>
+                <select class="customSelect" id="gptModel">
+                    <option value="">请选择</option>
+                    {{# layui.each(d.gptModels, function(index, item){ }}
+                    {{# if (d.config.gptSovitsVersion == item.version) { }}
+                    <option {{isTrue(item.name==d.config.gptModelName,'selected','')}} value="{{item.name}}" data-gpt-model-path="{{item.path}}">{{item.name}}</option>
+                    {{# } }}
+                    {{# }) }}
+                </select>
+                <button type="button" class="layui-btn layui-btn-sm" data-refresh-model >刷新</button>
 
-                        </td>
-                        <td>
-                            Vits 模型：
-                        </td>
-                        <td>
+            </td>
+            <td>
+                Vits 模型：
+            </td>
+            <td>
 
-                            <select class="customSelect" id="vitsModel">
-                                <option value="">请选择</option>
-                                {{# layui.each(d.vitsModels, function(index, item){ }}
-                                    {{# if (d.config.gptSovitsVersion == item.version) { }}
-                                        <option {{isTrue(item.name==d.config.vitsModelName,'selected','')}} value="{{item.name}}" data-vits-model-path="{{item.path}}">{{item.name}}</option>
-                                    {{# } }}
-                                {{# }) }}
-                            </select>
-                            <button type="button" class="layui-btn layui-btn-sm" data-refresh-model >刷新</button>
+                <select class="customSelect" id="vitsModel">
+                    <option value="">请选择</option>
+                    {{# layui.each(d.vitsModels, function(index, item){ }}
+                    {{# if (d.config.gptSovitsVersion == item.version) { }}
+                    <option {{isTrue(item.name==d.config.vitsModelName,'selected','')}} value="{{item.name}}" data-vits-model-path="{{item.path}}">{{item.name}}</option>
+                    {{# } }}
+                    {{# }) }}
+                </select>
+                <button type="button" class="layui-btn layui-btn-sm" data-refresh-model >刷新</button>
 
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            top_k值：
-                        </td>
-                        <td>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                top_k值：
+            </td>
+            <td>
 
-                            <input type="number" autocomplete="off" id="topK" placeholder="top_k值" class="layui-input" style="width: auto;" value="{{d.config.topK}}">
+                <input type="number" autocomplete="off" id="topK" placeholder="top_k值" class="layui-input" style="width: auto;" value="{{d.config.topK}}">
 
-                        </td>
-                        <td>
-                            top_p值：
-                        </td>
-                        <td>
+            </td>
+            <td>
+                top_p值：
+            </td>
+            <td>
 
-                            <input type="number" autocomplete="off" id="topP" placeholder="top_p值" class="layui-input" style="width: auto;" value="{{d.config.topP}}">
+                <input type="number" autocomplete="off" id="topP" placeholder="top_p值" class="layui-input" style="width: auto;" value="{{d.config.topP}}">
 
-                        </td>
-                        <td>
-                            temperature值：
-                        </td>
-                        <td>
+            </td>
+            <td>
+                temperature值：
+            </td>
+            <td>
 
-                            <input type="number" autocomplete="off" id="temperature" placeholder="temperature值" class="layui-input" style="width: auto;" value="{{d.config.temperature}}">
+                <input type="number" autocomplete="off" id="temperature" placeholder="temperature值" class="layui-input" style="width: auto;" value="{{d.config.temperature}}">
 
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            文本分隔符：
-                        </td>
-                        <td>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                文本分隔符：
+            </td>
+            <td>
 
-                            <input type="text" autocomplete="off" id="textDelimiter" placeholder="文本分隔符" class="layui-input" style="width: auto;" value="{{d.config.textDelimiter}}">
+                <input type="text" autocomplete="off" id="textDelimiter" placeholder="文本分隔符" class="layui-input" style="width: auto;" value="{{d.config.textDelimiter}}">
 
-                        </td>
-                        <td>
-                            speed值：
-                        </td>
-                        <td>
+            </td>
+            <td>
+                speed值：
+            </td>
+            <td>
 
-                            <input type="number" autocomplete="off" id="speed" placeholder="speed值" class="layui-input" style="width: auto;" value="{{d.config.speed}}">
+                <input type="number" autocomplete="off" id="speed" placeholder="speed值" class="layui-input" style="width: auto;" value="{{d.config.speed}}">
 
-                        </td>
-                        <td>参考音频：</td>
-                        <td>
+            </td>
+            <td>参考音频：</td>
+            <td>
 
-                            已选中待推理音频数量：
-                            <button type="button" class="layui-btn layui-btn-sm" id="audioSelect">音频选择</button>
+                已选中待推理音频数量：
+                <button type="button" class="layui-btn layui-btn-sm" id="audioSelect">音频选择</button>
 
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="6">
-                            <button type="button" class="layui-btn layui-btn-lg" id="setInferenceParams">设置参数</button>
-                        </td>
-                    </tr>
-                </table>
-
-            </div>
-        </div>
-    </div>
+            </td>
+        </tr>
+        <tr>
+            <td>流式推理：</td>
+            <td>
+                <label class="custom-radio" style="margin-right: 30px">
+                    <input type="radio" name="streamMode" value="是" title="是" {{d.config.streamMode ? 'checked' : ''}}>
+                    <span></span>是
+                </label>
+                <label class="custom-radio">
+                    <input type="radio" name="streamMode" value="否" title="否" {{d.config.streamMode ? '' : 'checked'}}>
+                    <span></span>否
+                </label>
+            </td>
+            <td>
+                音频格式：
+            </td>
+            <td>
+                <select class="customSelect" id="mediaType">
+                    {{# if (!d.config.streamMode) { }}
+                        <option {{isTrue(d.config.mediaType=="wav",'selected','')}} value="wav">wav</option>
+                    {{# } }}
+                    <option {{isTrue(d.config.mediaType=="aac",'selected','')}} value="aac">aac</option>
+                    <option {{isTrue(d.config.mediaType=="ogg",'selected','')}} value="ogg">ogg</option>
+                </select>
+            </td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td colspan="6">
+                <button type="button" class="layui-btn layui-btn-lg" id="setInferenceParams">设置参数</button>
+            </td>
+        </tr>
+    </table>
     
 </script>

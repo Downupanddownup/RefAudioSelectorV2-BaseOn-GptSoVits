@@ -30,7 +30,7 @@ sys.argv.extend(["--gpt_path",
                  os.path.join(api_dir, "GPT_SoVITS/pretrained_models/s1bert25hz-2kh-longer-epoch=68e-step=50232.ckpt")])
 
 # sys.argv.extend(["--stream_mode", 'normal'])
-# sys.argv.extend(["--media_type", 'acc'])
+# sys.argv.extend(["--media_type", 'aac'])
 
 # 设置环境变量
 os.environ['g2pw_model_dir'] = os.path.join(api_dir, "GPT_SoVITS/text/G2PWModel")
@@ -67,8 +67,31 @@ async def set_default_params(request: Request):
         top_k=json_post_raw.get("top_k", None),
         top_p=json_post_raw.get("top_p", None),
         temperature=json_post_raw.get("temperature", None),
-        speed=json_post_raw.get("speed", None)
+        speed=json_post_raw.get("speed", None),
     ))
+
+    temp_stream_mode = json_post_raw.get("stream_mode", None),
+    temp_media_type = json_post_raw.get("media_type", None),
+    if temp_stream_mode is not None:
+        global stream_mode
+        # 流式返回模式
+        if temp_stream_mode == 1:
+            stream_mode = "normal"
+            logger.info("流式返回已开启")
+        else:
+            stream_mode = "close"
+            logger.info("流式返回已关闭")
+    if temp_media_type is not None:
+        global media_type
+        # 音频编码格式
+        if temp_media_type.lower() in ["aac", "ogg"]:
+            media_type = temp_media_type.lower()
+        elif stream_mode == "close":
+            media_type = "wav"
+        else:
+            media_type = "ogg"
+        logger.info(f"编码格式: {media_type}")
+
     print(inference_params_manager.default_params)
     return 'ok'
 

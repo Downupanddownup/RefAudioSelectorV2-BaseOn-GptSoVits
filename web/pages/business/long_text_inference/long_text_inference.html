@@ -1,33 +1,32 @@
 <!DOCTYPE html>
 <script>
     const LongTextInferenceSpace = (function () {
-        
 
-        
-        class C_InferenceSetting {
-            constructor() {
-                this.isStream = false
-                this.webCutPunc = ''
-                this.minTextLen = 50
-                this.textLanguage = ''
-                this.text = ''
-            }
-            splitStringByLength(str, length) {
-                let result = [];
-                for (let i = 0; i < str.length; i += length) {
-                    // 截取从i开始，长度为length的子串
-                    let chunk = str.slice(i, i + length);
-                    result.push(chunk);
-                }
-                return result;
+        class C_ParamsConfig {//推理任务
+            constructor(data) {
+                this.gptSovitsVersion = data.gptSovitsVersion || 'v2'; // 模型版本
+                this.gptModelName = data.gptModelName || ''; // GPT模型名称
+                this.gptModelPath = data.gptModelPath || ''; // GPT模型名称
+                this.vitsModelName = data.vitsModelName || ''; // Vits模型名称
+                this.vitsModelPath = data.vitsModelPath || ''; // Vits模型名称
+                this.topK = data.topK || 15; // top_k值
+                this.topP = data.topP || 1.0; // top_p值
+                this.temperature = data.temperature || 1.0; // 温度
+                this.textDelimiter = data.textDelimiter || `,.;?!、，。？！；：…"`; // 文本分隔符
+                this.speed = data.speed || 1.0; // 语速
+                this.streamMode = data.streamMode || false; // 是否开启流式
+                this.mediaType = data.mediaType || 'aac'; // 音频类型
             }
         }
+
+        
+
         
         class C_LongTextInference {
             constructor(viewId) {
                 this.viewId = viewId
-                this.streamOrNot = false// 是否为流式推理
-                this.setting = new C_InferenceSetting()
+                
+                this.config = new C_ParamsConfig({})
                 this.editObj = null
                 this.dealWithObj = null
             }
@@ -48,13 +47,11 @@
                         _this.stopApi()
                     })
                     
-                    obj.find('#startInference').on('click', function() {
-                        _this.startInference()
-                    })
 
-                    _this.editObj = InferenceParamsEditSpace.getInferenceParamsEdit('inferenceParamsEditView')
+
+                    _this.editObj = InferenceParamsEditSpace.getInferenceParamsEdit('inferenceParamsEditView', _this.config)
                     _this.editObj.loadData()
-                    _this.dealWithObj = LongTextDealWithSpace.getLongTextDealWith('longTextDealWithView', _this.setting)
+                    _this.dealWithObj = LongTextDealWithSpace.getLongTextDealWith('longTextDealWithView')
                     _this.dealWithObj.render()
                     
                 });
@@ -68,6 +65,9 @@
                 $.customAjax({
                     url: BaseUrl+'inference/start_ras_api',
                     type: 'post',
+                    data:{
+                        streamMode:_this.config.streamMode ? 1 : 0
+                    },
                     success: function(res){
                         layui.layer.msg(res.msg)
                     },
@@ -91,49 +91,7 @@
                 })
             }
 
-            startInference(){
-                const _this = this
-                const url = RasApiUrl+'ras'
-                const audioId = 'playLongTextAudio'
-                if (_this.streamOrNot) {
-                    
-                    const subTexts = _this.setting.splitStringByLength(_this.setting.text, 50)
-                    console.log(subTexts)
-
-                    _this.playAudioSequence(url, subTexts.map(text => {
-                        return {
-                            text: text,
-                            text_language: _this.setting.textLanguage,
-                        }
-                    }), audioId)
-                } else {
-                    fetchAndPlayAudio(url, {
-                        text: _this.setting.text,
-                        text_language: _this.setting.textLanguage,
-                    }, audioId)
-                }
-            }
-
-            // 定义一个函数来按顺序播放多个音频流
-            playAudioSequence(audioUrl, requestBodys, audioId) {
-                let currentIndex = 0;
-
-                function playNextAudio() {
-                    if (currentIndex >= requestBodys.length) {
-                        return;
-                    }
-
-                    const requestBody = requestBodys[currentIndex];
-                    startStreamAudio(audioUrl, requestBody, audioId, () => {
-                        // 当前音频播放完成后，递增索引并播放下一个音频
-                        currentIndex++;
-                        playNextAudio();
-                    });
-                }
-
-                // 从第一个音频开始播放
-                playNextAudio();
-            }
+            
 
        }
        
@@ -152,35 +110,48 @@
         
         <tr>
             <td style="text-align: left">
-                <div id="inferenceParamsEditView"></div>
+
+                <div class="layui-collapse">
+                    <div class="layui-colla-item">
+                        <div class="layui-colla-title">api服务</div>
+                        <div class="layui-colla-content layui-show" style="text-align: center;padding: 10px">
+                            <button type="button" class="layui-btn layui-btn-lg" id="startRasApi">启动api</button>
+                            <button type="button" class="layui-btn layui-btn-lg" id="stopRasApi">关闭api</button>
+                        </div>
+                    </div>
+                </div>
+                
+            </td>
+        </tr>
+        
+        <tr>
+            <td style="text-align: left">
+
+                <div class="layui-collapse">
+                    <div class="layui-colla-item">
+                        <div class="layui-colla-title">参数设置</div>
+                        <div class="layui-colla-content layui-show" style="text-align: center;padding: 10px">
+                            <div id="inferenceParamsEditView"></div>
+                        </div>
+                    </div>
+                </div>
+                
             </td>
         </tr>
         
         
         <tr>
             <td style="text-align: left">
-                <fieldset class="layui-elem-field layui-field-title">
-                    <legend>长文管理</legend>
-                </fieldset>
-                <div id="longTextDealWithView"></div>
-            </td>
-        </tr>
-        
-        <tr>
-            <td>
-                <audio controls id="playLongTextAudio">
-                    <source type="audio/mpeg">
-                    <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
-                    您的浏览器不支持 HTML5 audio 标签。
-                </audio>
-            </td>
-        </tr>
-        
-        <tr>
-            <td>
-                <button type="button" class="layui-btn layui-btn-lg" id="startRasApi">启动api</button>
-                <button type="button" class="layui-btn layui-btn-lg" id="startInference">开始推理</button>
-                <button type="button" class="layui-btn layui-btn-lg" id="stopRasApi">关闭api</button>
+
+                <div class="layui-collapse">
+                    <div class="layui-colla-item">
+                        <div class="layui-colla-title">长文管理</div>
+                        <div class="layui-colla-content layui-show" style="text-align: center;padding: 10px">
+                            <div id="longTextDealWithView"></div>
+                        </div>
+                    </div>
+                </div>
+                
             </td>
         </tr>
         

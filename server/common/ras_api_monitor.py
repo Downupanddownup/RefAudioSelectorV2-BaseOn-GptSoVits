@@ -61,13 +61,23 @@ class RasApiMonitor:
         return f'http://localhost:{port}'
 
     @staticmethod
-    def start_service() -> bool:
+    def start_service(stream_mode:bool) -> bool:
         if RasApiMonitor.check_service_status():
             logger.info("Service has started")
             return True
         try:
             startup_timeout = 60
-            service_process = _start_new_service('server/api/ras_api.py')
+            if stream_mode:
+                params = {
+                    "sm": "normal",
+                    "mt": "aac"
+                }
+            else:
+                params = {
+                    "sm": "close",
+                    "mt": "wav"
+                }
+            service_process = _start_new_service('server/api/ras_api.py', params)
             end_time = time.time() + startup_timeout
             while time.time() < end_time:
                 if RasApiMonitor.check_service_status():
@@ -135,7 +145,6 @@ class RasApiMonitor:
             raise Exception(
                 f"Failed to fetch audio from API. Server responded with status code {response.status_code}.message: {response.json()}")
 
-
     @staticmethod
     def inference_audio_from_api_post(params: InferenceParams):
         url = f'{RasApiMonitor.get_api_service_url()}/ras'
@@ -172,13 +181,17 @@ class RasApiMonitor:
         return response.text
 
 
-def _start_new_service(script_path: str) -> subprocess:
+def _start_new_service(script_path: str, params: dict) -> subprocess:
     # 对于Windows系统
     if sys.platform.startswith('win'):
         cmd = f'start cmd /k {python_exec} {script_path}'
     # 对于Mac或者Linux系统
     else:
         cmd = f'xterm -e {python_exec} {script_path}'
+
+    if params:
+        for key, value in params.items():
+            cmd += f' -{key} "{value}"'
 
     proc = subprocess.Popen(cmd, shell=True)
 

@@ -144,7 +144,7 @@ class InferenceTaskService:
     @staticmethod
     def start_execute_inference_task(task: ObjInferenceTask):
         if task.inference_status != 2:
-            if RasApiMonitor.start_service():
+            if RasApiMonitor.start_service(False):
                 task_cell_list = create_task_cell_list_if_not_inference(task)
                 result = True
                 for task_cell in task_cell_list:
