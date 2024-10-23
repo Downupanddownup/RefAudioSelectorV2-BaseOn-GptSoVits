@@ -287,6 +287,12 @@ def generate_audio_files_for_group(role_name: str, task_result_audio_list: list[
                 with open(audio_file_path, 'wb') as f:
                     f.write(audio_bytes)
 
+                # Force data to be written to disk
+                os.fsync(f.fileno())
+                # Give some time for the filesystem to update if necessary
+                # 这里添加一个小的等待时间，根据实际情况调整
+                time.sleep(1)  # 可选
+
                 # 直接计算音频文件的时长（单位：秒）
                 task_result_audio.audio_length = librosa.get_duration(filename=audio_file_path)
 

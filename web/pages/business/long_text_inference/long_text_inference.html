@@ -18,9 +18,7 @@
                 this.mediaType = data.mediaType || 'aac'; // 音频类型
             }
         }
-
         
-
         
         class C_LongTextInference {
             constructor(viewId) {
@@ -46,8 +44,6 @@
                     obj.find('#stopRasApi').on('click', function() {
                         _this.stopApi()
                     })
-                    
-
 
                     _this.editObj = InferenceParamsEditSpace.getInferenceParamsEdit('inferenceParamsEditView', _this.config)
                     _this.editObj.loadData()
