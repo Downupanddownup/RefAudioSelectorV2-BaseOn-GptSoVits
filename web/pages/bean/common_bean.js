@@ -14,6 +14,7 @@ class C_ObjReferenceAudio {//参考音频
 
 class C_ObjInferenceTask {//推理任务
     constructor(data) {
+        data = data || {};
         this.id = data.id ? data.id : 0; // 自增编号
         this.taskName = data.taskName || ''; // 任务名称
         this.compareType = data.compareType || ''; // 比较类型
@@ -37,6 +38,7 @@ class C_ObjInferenceTask {//推理任务
 }
 class C_ObjInferenceTaskText {//推理任务中，相关推理文本
     constructor(data) {
+        data = data || {};
         this.id = data.id ? data.id : 0; // 自增编号
         this.taskId = data.taskId || 0; // 推理任务id
         this.textId = data.textId || 0; // 推理文本id
@@ -48,6 +50,7 @@ class C_ObjInferenceTaskText {//推理任务中，相关推理文本
 }
 class C_ObjInferenceTaskAudio {//推理任务中，相关参考音频
     constructor(data) {
+        data = data || {};
         this.id = data.id ? data.id : 0; // 自增编号
         this.taskId = data.taskId || 0; // 推理任务id
         this.audioId = data.audioId || 0; // 音频id
@@ -62,6 +65,7 @@ class C_ObjInferenceTaskAudio {//推理任务中，相关参考音频
 }
 class C_ObjInferenceTaskCompareParams {//推理任务中，对比的变量
     constructor(data) {
+        data = data || {};
         this.id = data.id ? data.id : 0; // 自增编号
         this.taskId = data.taskId || 0; // 任务id
         this.audioCategory = data.audioCategory || ''; // 音频分类
@@ -107,6 +111,7 @@ class C_ObjInferenceTaskCompareParams {//推理任务中，对比的变量
 }
 class C_ObjInferenceText {//推理文本
     constructor(data) {
+        data = data || {};
         this.id = data.id ? data.id : 0; // 自增编号
         this.category = data.category || ''; // 文本分类
         this.textContent = data.textContent || ''; // 推理文本
@@ -116,6 +121,7 @@ class C_ObjInferenceText {//推理文本
 }
 class C_ObjInferenceTaskResultAudio {//推理任务的推理结果音频
     constructor(data) {
+        data = data || {};
         this.id = data.id ? data.id : 0; // 自增编号
         this.taskId = data.taskId || 0; // 推理任务id
         this.textId = data.textId || 0; // 推理文本id
@@ -135,6 +141,7 @@ class C_ObjInferenceTaskResultAudio {//推理任务的推理结果音频
 
 class C_ObjInferenceTaskResultAudioFilter {
     constructor(data) {
+        data = data || {};
         this.taskId = data.taskId || 0;// 推理任务id
         this.compareParamIds = data.compareParamIds || [];// 对比参数id
         this.audioIds = data.audioIds || [];// 任务中，参考音频id
@@ -158,6 +165,7 @@ class C_ObjInferenceTaskResultAudioFilter {
 
 class C_ObjInferenceCategory {//参考分类
     constructor(data) {
+        data = data || {};
         this.id = data.id ? data.id : 0; // 自增编号
         this.name = data.name || ''; // 分类名称
         this.createTime = data.createTime ? new Date(data.createTime) : null; // 创建时间, 默认为当前时间
@@ -166,6 +174,7 @@ class C_ObjInferenceCategory {//参考分类
 
 class C_ObjReferenceAudioCompareTask {
     constructor(data) {
+        data = data || {};
         this.id = data.id ? data.id : 0;// 自增编号
         this.audioId = data.audioId || 0;// 音频id
         this.categoryName = data.categoryName || '';// 比对目录名称
@@ -177,6 +186,7 @@ class C_ObjReferenceAudioCompareTask {
 
 class C_ObjReferenceAudioCompareDetail {
     constructor(data) {
+        data = data || {};
         this.id = data.id ? data.id : 0;// 自增编号
         this.taskId = data.taskId || 0;// 比对任务id
         this.compareAudioId = data.compareAudioId || 0;// 被比较的音频id
@@ -188,6 +198,7 @@ class C_ObjReferenceAudioCompareDetail {
 
 class C_GptModel {
     constructor(data) {
+        data = data || {};
         this.version = data.version || '';//模型版本
         this.name = data.name || '';//模型名称
         this.path = data.path || '';//模型路径
@@ -196,6 +207,7 @@ class C_GptModel {
 
 class C_VitsModel {
     constructor(data) {
+        data = data || {};
         this.version = data.version || '';//模型版本
         this.name = data.name || '';//模型名称
         this.path = data.path || '';//模型路径

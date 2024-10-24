@@ -139,14 +139,14 @@
                         {field:'opt', width:'25%', title: '操作', templet: function(d){
                                 const html = []
                                 if (d.inferenceStatus == 0) {
-                                    html.push(`<button type="button" class="layui-btn layui-btn-xs" data-task-edit="${d.id}">编辑</button>`)
+                                    html.push(`<button type="button" class="layui-btn layui-btn-sm" data-task-edit="${d.id}">编辑</button>`)
                                 } else {
-                                    html.push(`<button type="button" class="layui-btn layui-btn-xs" data-task-look="${d.id}">查看</button>`)
+                                    html.push(`<button type="button" class="layui-btn layui-btn-sm" data-task-look="${d.id}">查看</button>`)
                                 }
                                 if (d.inferenceStatus == 2 && d.executeTextSimilarity == 1 && d.executeAudioSimilarity == 1) {
-                                    html.push(`<button type="button" class="layui-btn layui-btn-xs" data-task-go-to-result="${d.id}">结果评测</button>`)
+                                    html.push(`<button type="button" class="layui-btn layui-btn-sm" data-task-go-to-result="${d.id}">结果评测</button>`)
                                 } else {
-                                    html.push(`<button type="button" class="layui-btn layui-btn-xs" data-task-start-inference="${d.id}">开始执行</button>`)
+                                    html.push(`<button type="button" class="layui-btn layui-btn-sm" data-task-start-inference="${d.id}">开始执行</button>`)
                                 }
                                 return html.join(' ');
                             }},//查看详情，执行推理

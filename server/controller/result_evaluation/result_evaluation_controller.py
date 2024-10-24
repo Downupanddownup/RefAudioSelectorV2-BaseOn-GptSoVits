@@ -9,8 +9,8 @@ from server.util.util import ValidationUtils
 router = APIRouter(prefix="/evaluation")
 
 
-@router.post("/get_result_evaluation_list")
-async def get_result_evaluation_list(request: Request):
+@router.post("/get_result_evaluation_of_task_list")
+async def get_result_evaluation_of_task_list(request: Request):
     form_data = await request.form()
     audio_filter = ObjInferenceTaskResultAudioFilter(form_data)
 
@@ -25,6 +25,17 @@ async def get_result_evaluation_list(request: Request):
         "task": task,
         "audioList": audio_list
     }, count=count)
+
+
+@router.post("/get_result_evaluation_list")
+async def get_result_evaluation_list(request: Request):
+    form_data = await request.form()
+    audio_filter = ObjInferenceTaskResultAudioFilter(form_data)
+
+    count = ResultEvaluationService.find_count(audio_filter)
+    audio_list = ResultEvaluationService.find_whole_list(audio_filter)
+
+    return ResponseResult(data=audio_list, count=count)
 
 
 @router.post("/update_result_audio_score")
