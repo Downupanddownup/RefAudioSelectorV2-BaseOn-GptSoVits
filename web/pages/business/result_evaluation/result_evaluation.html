@@ -67,8 +67,10 @@
                                 _this.selectedTask = new C_ObjInferenceTask(res.data.task)
                                 if (_this.selectedTask.compareType == 'refer_audio') {
                                     _this.filter.includeSort = 6
+                                    _this.filter.audioSort = 'audioLength'
                                 } else {
                                     _this.filter.includeSort = 0
+                                    _this.filter.audioSort = 'compareParamId'
                                 }
                                 _this.render()
                             } else {
@@ -251,6 +253,7 @@
                         <option value="asrSimilarScore" {{d.filter.audioSort=='asrSimilarScore'?'selected':''}}>文本相似度</option>
                         <option value="audioSimilarScore" {{d.filter.audioSort=='audioSimilarScore'?'selected':''}}>音频相似度</option>
                         <option value="score" {{d.filter.audioSort=='score'?'selected':''}}>评分</option>
+                        <option value="compareParamId" {{d.filter.audioSort=='compareParamId'?'selected':''}}>对比变量</option>
                     </select>
                 </td>
                 <td>音频升降序：</td>

@@ -1,4 +1,9 @@
 <!DOCTYPE html>
+<style>
+    .layui-rate{
+        padding: 0;
+    }
+</style>
 <script>
     const ResultAudioListSpace = (function () {
         
@@ -20,6 +25,8 @@
                     return desc * (resultAudioA.audioSimilarScore - resultAudioB.audioSimilarScore)
                 } else if (_this.audioSort === 'asrSimilarScore') {
                     return desc * (resultAudioA.asrSimilarScore - resultAudioB.asrSimilarScore)
+                } else if (_this.audioSort === 'compareParamId') {
+                    return desc * (resultAudioA.compareParamId - resultAudioB.compareParamId)
                 }
             }
 
@@ -76,7 +83,7 @@
 
 <div class="limited-width" style="max-width: ${maxWidth}">
 <button type="submit" class="layui-btn layui-btn-sm" data-reference-audio="${this.obj.audioPath}" data-reference-audio-content="${this.obj.audioContent}">参考音频</button> 
-                    <span  >${this.obj.audioContent}</span>
+                    <span >【${this.obj.audioCategory}】${this.obj.audioContent}</span>
 </div>
 
 `
@@ -258,6 +265,12 @@
                     
                     obj.find('#sortScore').on('click', function () {
                         _this.order.changeSort('score')
+                        _this.sortLevelData()
+                        _this.render()
+                    })
+                    
+                    obj.find('#sortCompare').on('click', function () {
+                        _this.order.changeSort('compareParamId')
                         _this.sortLevelData()
                         _this.render()
                     })
@@ -631,10 +644,11 @@
     <table class="table3">
         <tr>
             <td style="width: 20%"><span id="launch">{{d.order.launchTxt()}}</span></td>
-            <td style="width: 20%"><span id="sortScore">评分 {{-d.order.getSortHtml('score')}}</span></td>
-            <td style="width: 20%"><span id="sortAudioLength">时长 {{-d.order.getSortHtml('audioLength')}}</span></td>
-            <td style="width: 20%"><span id="sortAsrSimilarScore">文本相似度 {{-d.order.getSortHtml('asrSimilarScore')}}</span></td>
-            <td style="width: 20%"><span id="sortAudioSimilarScore">音频相似度 {{-d.order.getSortHtml('audioSimilarScore')}}</span></td>
+            <td style="width: 16%"><span id="sortScore">评分 {{-d.order.getSortHtml('score')}}</span></td>
+            <td style="width: 16%"><span id="sortCompare">对比变量 {{-d.order.getSortHtml('compareParamId')}}</span></td>
+            <td style="width: 16%"><span id="sortAudioLength">时长 {{-d.order.getSortHtml('audioLength')}}</span></td>
+            <td style="width: 16%"><span id="sortAsrSimilarScore">文本相似度 {{-d.order.getSortHtml('asrSimilarScore')}}</span></td>
+            <td style="width: 16%"><span id="sortAudioSimilarScore">音频相似度 {{-d.order.getSortHtml('audioSimilarScore')}}</span></td>
         </tr>
     </table>
     
@@ -728,7 +742,7 @@
                                                             </tr>
                                                         {{# } }}
                                                         <tr id="result-audio-{{item3.resultAudio.id}}" style="height: 46px">
-                                                            <td>{{index2+1}}</td>
+                                                            <td>{{index3+1}}</td>
                                                             <td><div id="audio-score-{{item3.resultAudio.id}}" class="no-wrap"></div></td>
                                                             <td data-audio-path="{{item3.resultAudio.id}}" style="width: 350px;cursor: pointer"></td>
                                                             <td id="audio-different-{{item3.resultAudio.id}}" style="text-align: left;" class="single-line">{{- item3.getHtml(true)}}</td>
