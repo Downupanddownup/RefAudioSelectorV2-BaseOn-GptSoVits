@@ -3,7 +3,7 @@ from server.bean.inference_task.obj_inference_task_audio import ObjInferenceTask
 from server.bean.inference_task.obj_inference_task_compare_params import ObjInferenceTaskCompareParams
 from server.bean.inference_task.obj_inference_task_text import ObjInferenceTaskText
 from server.common.filter import Filter
-from server.util.util import ValidationUtils
+from server.util.util import ValidationUtils, str_to_int
 
 
 class ObjInferenceTask(BaseModel):
@@ -53,7 +53,7 @@ class ObjInferenceTaskFilter(Filter):
         self.id = form_data.get('id')
         self.task_name = form_data.get('task_name')
         self.compare_type = form_data.get('compare_type')
-        self.inference_status = form_data.get('inference_status')
+        self.inference_status = str_to_int(form_data.get('inference_status'))
 
     def make_sql(self) -> []:
         sql = ''
@@ -70,7 +70,7 @@ class ObjInferenceTaskFilter(Filter):
             sql += f" and CompareType = ? "
             condition.append(f"{self.compare_type}")
 
-        if not ValidationUtils.is_empty(self.inference_status):
+        if self.inference_status is not None and self.inference_status > -1:
             sql += f" and InferenceStatus = ? "
             condition.append(f"{self.inference_status}")
 

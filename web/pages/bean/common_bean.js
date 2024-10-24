@@ -1,5 +1,6 @@
 class C_ObjReferenceAudio {//参考音频
     constructor(data) {
+        data = data || {};
         this.id = data.id ? data.id : 0; // id
         this.audioName = data.audioName || ''; // 音频名称
         this.audioPath = data.audioPath || ''; // 音频路径

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<script>
+    const LongTextReferenceSelectSpace = (function () {
+        class C_LongTextReferenceSelect {
+            constructor(viewId, C_ObjReferenceAudio$1) {
+                this.viewId = viewId
+                this.audioList = []
+                this.selectedAudio = new C_ObjReferenceAudio(C_ObjReferenceAudio$1)
+            }
+
+            getSelectedAudio(){
+                return this.selectedAudio
+            }
+
+            render() {
+                const _this = this
+                const getTpl = $('#longTextReferenceSelectTemplate').html(); // 获取模板字符
+                // 渲染并输出结果
+                layui.laytpl(getTpl).render(_this, function(html){
+                    const obj = $('#'+_this.viewId)
+                    obj.html(html)
+
+                    _this.loadAudioList()
+
+                    obj.find('#searchAudio').on('click', function(){
+                        _this.reloadAudioList()
+                    })
+
+                });
+                return _this
+            }
+
+            getSearchParams(){
+                const _this = this
+                const obj = $('#'+_this.viewId)
+                const searchAudioName = obj.find('#searchAudioName').val()
+                const searchCategory = obj.find('#searchCategory').val()
+                const searchLanguage = obj.find('#searchLanguage').val()
+                const searchContent = obj.find('#searchContent').val()
+                return {
+                    audio_name: searchAudioName,
+                    category: searchCategory,
+                    language: searchLanguage,
+                    content: searchContent,
+                }
+            }
+
+            reloadAudioList() {
+                const _this = this
+                const params = _this.getSearchParams()
+                reloadListDataBySearchParams('audioList',params)
+            }
+
+            loadAudioList(){
+                const _this = this
+
+                const windowHeight = window.innerHeight;
+
+                const audioListSearch = $('#'+_this.viewId+' #audioListSearch').height()
+
+                const height = windowHeight * 0.95 *0.95 - audioListSearch - 150
+                // 创建渲染实例
+                layui.table.render({
+                    elem: '#audioList',
+                    url: BaseUrl+'audio/get_reference_audio_list', // 此处为静态模拟数据，实际使用时需换成真实接口
+                    method: 'post',
+                    height: height, // 最大高度减去其他容器已占有的高度差
+                    // cellMinWidth: 80,
+                    page: true,
+                    limit:50,
+                    limits:[50,100,150,200],
+                    autoSort:false,
+                    initSort: {
+                        order: 'audioLength', // 按 id 字段排序
+                        desc: 'desc' // 降序排序
+                    },
+                    // lineStyle: 'height: 50px;', // 定义表格的多行样式
+                    parseData: function(res){ //res 即为原始返回的数据
+                        const list = res.data ? res.data.map(i => new C_ObjReferenceAudio(i)) : []
+                        _this.audioList = list
+
+                        if (_this.selectedAudio != null) {
+                            list.forEach(i => {
+                                if (_this.selectedAudio.id == i.id) {
+                                    i.LAY_CHECKED = true
+                                } else {
+                                    i.LAY_CHECKED = false
+                                }
+                            })
+                        }
+                       
+
+                        return {
+                            "code": res.code, //解析接口状态
+                            "msg": res.msg, //解析提示文本
+                            "count": res.count, //解析数据长度
+                            "data": list //解析数据列表
+                        };
+                    },
+                    cols: [[
+                        {field:'radio', width:'5%', title: '选择', type: 'radio'},
+                        {field:'index', width:'5%', title: '序号', type: 'numbers'},
+                        {field:'audioName', width:'10%', title: '音频名称', templet: function(d){
+                                return d.audioName;
+                            }},
+                        {field:'category', width:'12%', title: '音频分类', templet: function(d){
+                                return d.category;
+                            }},
+                        {field:'audioPlay', width:'22%', title: '音频播放', templet: function(d){
+                                return ` 
+                                 <audio controls class="custom-audio" data-audio-wait="${d.id}">
+                                    <source src="${d.audioPath}" type="audio/wav">
+                                    <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
+                                    您的浏览器不支持 HTML5 audio 标签。
+                                </audio>`
+                            }},
+                        {field:'content', width:'22%', title: '音频内容', templet: function(d){
+                                return `<div data-content-wait-id="${d.id}" style="cursor: pointer">${d.content}</div>`;
+                            }},
+                        {field:'language', width:'12%', title: '音频语种', templet: function(d){
+                                return d.language;
+                            }},
+                        {field:'audioLength', width:'12%', title: '音频时长', sort: true, templet: function(d){
+                                return d.audioLength.toFixed(1);
+                            }},
+                    ]],
+                    done: function(){
+                        const audioElements = $('#'+_this.viewId+' audio.custom-audio');
+                        // 创建 AudioController 实例并传入音频元素集合
+                        const audioController = new AudioController(Array.from(audioElements));
+
+                        $('#' + _this.viewId + ' div[data-content-wait-id]').on('click', function() {
+                            const audioId = $(this).attr('data-content-wait-id')
+                            _this.audioList.forEach(i => {
+                                if (i.id == audioId) {
+                                    const audioElement = $('#' + _this.viewId + ' audio[data-audio-wait="' + audioId + '"]')[0]
+                                    console.log('audioElement',audioElement)
+                                    audioController.dispatchClickEvent(audioElement)
+                                }
+                            })
+                        })
+
+                    },
+                    error: function(res, msg){
+                        console.log(res, msg)
+                    }
+                });
+
+                // 复选框事件
+                layui.table.on('radio(audioList)', function(obj){
+                    console.log(obj); // 当前行的一些常用操作集合
+                    console.log(obj.checked); // 当前是否选中状态
+                    console.log(obj.data); // 选中行的相关数据
+
+                    if (obj.checked) {
+                        _this.selectedAudio = new C_ObjReferenceAudio(obj.data)
+                    }
+
+                });
+                
+            }
+
+        }
+
+        function getLongTextReferenceSelect(viewId, C_ObjReferenceAudio$1) {
+            return new C_LongTextReferenceSelect(viewId, C_ObjReferenceAudio$1)
+        }
+
+        return {
+            getLongTextReferenceSelect: getLongTextReferenceSelect
+        }
+    })()
+</script>
+
+<script id="longTextReferenceSelectTemplate" type="text/html">
+    <table class="table3" id="audioListSearch">
+        <tr>
+            <td>音频名称：</td>
+            <td><input type="text" autocomplete="off" id="searchAudioName" placeholder="音频名称" class="layui-input" style="width: auto;"></td>
+            <td>音频分类：</td>
+            <td><input type="text" autocomplete="off" id="searchCategory" placeholder="音频分类" class="layui-input" style="width: auto;"></td>
+            <td>音频语种：</td>
+            <td>
+                <select class="customSelect" id="searchLanguage">
+                    <option value="">请选择</option>
+                    <option value="refer_audio">参考音频</option>
+                    <option value="speed">speed值</option>
+                    <option value="text_delimiter">文本分隔符</option>
+                    <option value="other">其余参数</option>
+                </select>
+            </td>
+            <td>音频内容：</td>
+            <td><input type="text" autocomplete="off" id="searchContent" placeholder="音频内容" class="layui-input" style="width: auto;"></td>
+            <td colspan="2">
+                <button type="submit" class="layui-btn layui-btn-sm" id="searchAudio">搜索</button>
+            </td>
+        </tr>
+    </table>
+
+    <table class="layui-hide" id="audioList" lay-filter="audioList" style="height: 100%"></table>
+</script>

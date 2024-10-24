@@ -222,3 +222,9 @@ async function fetchAndPlayAudio(audio_url, requestBody, audioId) {
     audioElement.play(); // 播放音频
 }
 
+function initTextarea(id) {
+    $('#'+id).on('input',function () {
+        $(this).css('height',$('#'+id)[0].scrollHeight+'px')
+    })
+    $('#'+id).css('height',$('#'+id)[0].scrollHeight+'px').css('overflow','hidden')
+}

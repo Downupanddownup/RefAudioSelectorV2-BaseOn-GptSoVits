@@ -40,14 +40,23 @@
 
         class C_InferenceSetting {
             constructor() {
-                const _this = this
                 this.webCutPunc = `,.;?!、，。？！；：…"`
                 this.minTextLen = 50
                 this.textLanguage = 'ZH'
-                this.text = getText()
-                this.subTexts = this.processText().map((item,index) => new C_TextItem(index, item, _this.textLanguage))
+                this.text = ''
+                this.subTexts = []
                 this.playAudioIndex = -1
                 this.audioId = 'playLongTextAudio'
+            }
+
+            setTextObj(C_ObjInferenceText$1){
+                const _this = this
+                if (C_ObjInferenceText$1 != null) {
+                    this.text = C_ObjInferenceText$1.textContent
+                    this.textLanguage = C_ObjInferenceText$1.textLanguage
+                    this.subTexts = this.processText().map((item,index) => new C_TextItem(index, item, _this.textLanguage))
+                    this.playAudioIndex = -1
+                }
             }
             
             playAudio(obj, audioUrl, currentIndex) {
@@ -218,9 +227,34 @@
                     obj.find('#startInference').on('click', function() {
                         _this.startInference()
                     })
+
+                    obj.find('#textManager').on('click', function() {
+                        _this.openTextManagerDialog()
+                    })
                     
                 });
                 return _this
+            }
+
+            openTextManagerDialog(){
+                const _this = this
+
+                const select = LongTextSelectSpace.getLongTextSelect('textManagerView')
+
+                const dialogId = layer.open({
+                    type: 1,
+                    area: ['90%', '90%'],
+                    content: `<div id="textManagerView"></div>`,
+                    btn: ['确定', '取消'],
+                    yes: function(){
+                        const textObj = select.getSelectedText()
+                        _this.setting.setTextObj(textObj)
+                        layui.layer.close(dialogId)
+                        _this.render()
+                    }
+                });
+
+                select.render()
             }
 
             startInference(){
@@ -285,7 +319,10 @@
             </td>
         </tr>
         <tr>
-            <td class="no-wrap">长文内容：</td>
+            <td class="no-wrap">
+                长文内容：
+                <button type="button" class="layui-btn layui-btn-sm" id="textManager">选择</button>
+            </td>
             <td colspan="5" style="text-align: left">
                 <div class="text-context">
                     {{# layui.each(d.setting.subTexts, function(index, text) { }}

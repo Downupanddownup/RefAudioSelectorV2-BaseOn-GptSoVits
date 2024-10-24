@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<script>
+    const LongTextSelectSpace = (function () {
+        class C_LongTextSelect {
+            constructor(viewId) {
+                this.viewId = viewId
+                this.textList = []
+                this.selectedText = null
+            }
+
+            getSelectedText(){
+                return this.selectedText
+            }
+
+            render() {
+                const _this = this
+                const getTpl = $('#longTextSelectTemplate').html(); // 获取模板字符
+                // 渲染并输出结果
+                layui.laytpl(getTpl).render(_this, function(html){
+                    const obj = $('#'+_this.viewId)
+                    obj.html(html)
+                    _this.loadTextList()
+
+                    obj.find('#createText').on('click', function(){
+                        _this.showEditTextDialog(0)
+                    })
+
+                    obj.find('#searchText').on('click', function(){
+                        _this.reloadTextList()
+                    })
+
+                });
+                return _this
+            }
+
+            getSearchParams(){
+                const _this = this
+                const obj = $('#'+_this.viewId)
+                const searchTextCategory = obj.find('#searchTextCategory').val()
+                const searchTextLanguage = obj.find('#searchTextLanguage').val()
+                const searchTextContent = obj.find('#searchTextContent').val()
+                return {
+                    category: searchTextCategory,
+                    text_content: searchTextContent,
+                    text_language: searchTextLanguage
+                }
+            }
+
+            reloadTextList() {
+                const _this = this
+                const params = _this.getSearchParams()
+                reloadListDataBySearchParams('textList',params)
+            }
+
+            loadTextList(){
+                const _this = this
+
+                const windowHeight = window.innerHeight;
+
+                const textListSearch = $('#'+_this.viewId+' #textListSearch').height()
+
+                const height = windowHeight * 0.95 *0.95 - textListSearch - 150
+
+                const params = _this.getSearchParams()
+                // 创建渲染实例
+                layui.table.render({
+                    elem: '#textList',
+                    url: BaseUrl+'task/get_inference_text_list', // 此处为静态模拟数据，实际使用时需换成真实接口
+                    method: 'post',
+                    height: height, // 最大高度减去其他容器已占有的高度差
+                    // cellMinWidth: 80,
+                    where:params,
+                    page: true,
+                    limit:50,
+                    limits:[50,100,150,200],
+                    autoSort:false,
+                    initSort: {
+                        order: 'audioLength', // 按 id 字段排序
+                        desc: 'desc' // 降序排序
+                    },
+                    // lineStyle: 'height: 50px;', // 定义表格的多行样式
+                    parseData: function(res){ //res 即为原始返回的数据
+                        const list = res.data ? res.data.map(i => new C_ObjInferenceText(i)) : []
+                        _this.textList = list
+                        
+                        if (_this.selectedText != null) {
+                            list.forEach(i => {
+                                if (_this.selectedText.id == i.id) {
+                                    i.LAY_CHECKED = true
+                                } else {
+                                    i.LAY_CHECKED = false
+                                }
+                            })
+                        }
+                        
+
+                        return {
+                            "code": res.code, //解析接口状态
+                            "msg": res.msg, //解析提示文本
+                            "count": res.count, //解析数据长度
+                            "data": list //解析数据列表
+                        };
+                    },
+                    cols: [[
+                        {field:'radio', width:'5%', title: '选择', type: 'radio'},
+                        {field:'index', width:'5%', title: '序号', type: 'numbers'},
+                        {field:'category', width:'10%', title: '文本分类', templet: function(d){
+                                return d.category;
+                            }},
+                        {field:'textContent', width:'50%', title: '文本内容', templet: function(d){
+                                return d.textContent;
+                            }},
+                        {field:'textLanguage', width:'10%', title: '文本语种', templet: function(d){
+                                return d.textLanguage;
+                            }},
+                        {field:'opt', width:'20%', title: '操作', templet: function(d){
+                                const html = []
+                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-edit-text="${d.id}"><i class="layui-icon"></i></button>`)
+                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-delete-text="${d.id}"><i class="layui-icon"></i></button>`)
+                                return html.join(' ');
+                            }},
+                    ]],
+                    done: function(){
+
+                        const obj = $('#'+_this.viewId)
+                        obj.find('button[data-edit-text]').on('click', function(){
+                            const id = $(this).attr('data-edit-text')
+                            _this.showEditTextDialog(id)
+                        })
+
+                        obj.find('button[data-delete-text]').on('click', function(){
+                            const id = $(this).attr('data-delete-text')
+                            layui.layer.confirm('确定删除该文本？', function(){
+                                $.customAjax({
+                                    url: BaseUrl+'task/delete_inference_text',
+                                    type: 'post',
+                                    data:{
+                                        text_id:id
+                                    },
+                                    success: function(res){
+                                        if (res.code == 0) {
+                                            layui.layer.msg('删除成功')
+                                            refreshListData('textList')
+                                        } else {
+                                            layui.layer.msg(res.msg)
+                                        }
+                                    },
+                                    error: function(res, msg){
+                                        layui.layer.msg(msg)
+                                    }
+                                })
+                            })
+                        })
+
+                    },
+                    error: function(res, msg){
+                        console.log(res, msg)
+                    }
+                });
+
+                // 复选框事件
+                layui.table.on('radio(textList)', function(obj){
+                    console.log(obj); // 当前行的一些常用操作集合
+                    console.log(obj.checked); // 当前是否选中状态
+                    console.log(obj.data); // 选中行的相关数据
+                    
+                    if (obj.checked) {
+                        _this.selectedText = new C_ObjInferenceText(obj.data)
+                    }
+
+                });
+
+            }
+
+            showEditTextDialog(textId){
+
+                const _this = this
+
+                let obj_text = null
+
+                if (textId > 0) {
+                    obj_text = _this.textList.find(i => i.id == textId)
+                } else {
+                    obj_text = new C_ObjInferenceText({})
+                }
+
+                console.log('obj_text',obj_text)
+
+                const textDialogViewId = 'editTextDialog'
+
+                const dialogIndex = layui.layer.open({
+                    type: 1,
+                    area: ['1200px', '800px'],
+                    content: `<div id="${textDialogViewId}"></div>`,
+                    btn: ['确定', '取消'],
+                    yes: function(){
+                        const obj = $('#' + textDialogViewId)
+
+                        const textCategory = obj.find('#textCategory').val()
+                        const textLanguage = obj.find('#textLanguage').val()
+                        const textContent = obj.find('#textContent').val()
+
+                        if (!textCategory) {
+                            layui.layer.alert('请输入分类')
+                            return
+                        }
+
+                        if (!textLanguage) {
+                            layui.layer.alert('请选择语言')
+                            return
+                        }
+
+                        if (!textContent) {
+                            layui.layer.alert('请输入文本')
+                            return
+                        }
+
+                        const submitText = new C_ObjInferenceText({
+                            id: textId,
+                            category:textCategory,
+                            textLanguage:textLanguage,
+                            textContent:textContent
+                        })
+
+                        $.customAjax({
+                            url: BaseUrl+'task/save_inference_text',
+                            type: 'post',
+                            data:submitText,
+                            dataType:'json',
+                            success: function(res){
+                                if (res.code == 0) {
+                                    layui.layer.close(dialogIndex)
+                                    layui.layer.msg('保存成功')
+                                    refreshListData('textList')
+                                } else {
+                                    layui.layer.msg(res.msg)
+                                }
+                            },
+                            error: function(res, msg){
+                                layui.layer.msg(msg)
+                            }
+                        })
+                    }
+                });
+
+                const getTpl = $('#longTextEditTemplate').html(); // 获取模板字符
+                // 渲染并输出结果
+                layui.laytpl(getTpl).render(obj_text, function(html){
+                    const obj = $('#'+textDialogViewId)
+                    obj.html(html)
+
+                    initTextarea('textContent')
+                    
+
+                });
+
+            }
+
+        }
+
+        function getLongTextSelect(viewId) {
+            return new C_LongTextSelect(viewId)
+        }
+
+        return {
+            getLongTextSelect: getLongTextSelect
+        }
+    })()
+</script>
+
+<script id="longTextSelectTemplate" type="text/html">
+    <table class="table3" id="textListSearch">
+        <tr>
+            <td>文本分类：</td>
+            <td><input type="text" autocomplete="off" id="searchTextCategory" placeholder="文本分类" class="layui-input" style="width: auto;"></td>
+            <td>文本语种：</td>
+            <td>
+                <select class="customSelect" id="searchTextLanguage">
+                    <option value="">请选择</option>
+                    <option value="refer_audio">参考音频</option>
+                    <option value="speed">speed值</option>
+                    <option value="text_delimiter">文本分隔符</option>
+                    <option value="other">其余参数</option>
+                </select>
+            </td>
+            <td>文本内容：</td>
+            <td><input type="text" autocomplete="off" id="searchTextContent" placeholder="文本内容" class="layui-input" style="width: auto;"></td>
+            <td colspan="2">
+                <button type="submit" class="layui-btn layui-btn-sm" id="searchText">搜索</button>
+                <button type="submit" class="layui-btn layui-btn-sm" id="createText">新建文本</button>
+            </td>
+        </tr>
+    </table>
+    <table class="layui-hide" id="textList" lay-filter="textList" style="height: 100%"></table>
+</script>
+
+<script id="longTextEditTemplate" type="text/html">
+    <table class="table1">
+        <tr>
+            <td style="width: 25%">分类：</td>
+            <td style="width: 75%">
+                <input type="text" autoComplete="off" id="textCategory" placeholder="文本分类" class="layui-input"
+                       style="width: auto;" value="{{d.category}}"/>
+            </td>
+        </tr>
+        <tr>
+            <td>语种：</td>
+            <td>
+                <select class="customSelect" id="textLanguage">
+                    <option value="ZH">ZH</option>
+                    <option value="0">待推理</option>
+                    <option value="1">部分推理</option>
+                    <option value="2">已完成</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>文本内容：</td>
+            <td>
+                <textarea id="textContent" placeholder="文本内容" class="layui-textarea">{{d.textContent}}</textarea>
+            </td>
+        </tr>
+    </table>
+</script>

@@ -22,7 +22,27 @@
                     obj.find('#searchTask').on('click', function(){
                         _this.reloadInferenceTaskList()
                     })
+
+                    obj.find('#modelManager').on('click', function() {
+                        _this.openModelFile()
+                    })
                 });
+            }
+
+            openModelFile(){
+                $.customAjax({
+                    url: BaseUrl+'task/open_model_file',
+                    type: 'post',
+                    success: function(res){
+                        if (res.code == 0) {
+                        } else {
+                            layer.msg(res.msg)
+                        }
+                    },
+                    error: function(res, msg){
+                        layer.msg(msg)
+                    }
+                })
             }
 
             getSearchParams(){
@@ -46,7 +66,9 @@
 
             loadInferenceTaskList(){
                 const _this = this
-                const height = $('#inferenceTaskList').parent().parent().height() - 50
+                const windowHeight = window.innerHeight;
+
+                const height = windowHeight - $('#contentHeader').height() - 30
                 // 创建渲染实例
                 layui.table.render({
                     elem: '#inferenceTaskList',
@@ -257,7 +279,7 @@
                     <option value="temperature">temperature值</option>
                     <option value="speed">speed值</option>
                     <option value="text_delimiter">文本分隔符</option>
-                    <option value="other">其余参数</option>
+<!--                    <option value="other">其余参数</option>-->
                 </select>
             </td>
             <td>推理状态：</td>
