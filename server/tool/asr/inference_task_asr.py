@@ -1,11 +1,11 @@
 import sys
 import os
 
-from server.tool.asr.funasr_asr import LanguageModel
 
 # 获取当前脚本所在的目录
 sys.path.append(os.getcwd())
 
+from server.tool.asr.funasr_asr import LanguageModel
 from server.bean.result_evaluation.obj_inference_task_result_audio import ObjInferenceTaskResultAudio
 from server.service.inference_task.inference_task_service import InferenceTaskService
 from server.service.result_evaluation.result_evaluation_service import ResultEvaluationService

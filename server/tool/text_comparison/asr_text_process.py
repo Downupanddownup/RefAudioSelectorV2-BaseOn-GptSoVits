@@ -30,10 +30,10 @@ def process(task_id: int):
     for result_audio in task_result_audio_list:
         if result_audio.status != 1 or not result_audio.obj_text or not result_audio.asr_text:
             continue
-        score = calculate_result(result_audio.asr_text, result_audio.obj_text.text_content)
+        _, adjusted_similarity_score2 = calculate_result(result_audio.asr_text, result_audio.obj_text.text_content)
         detail = ObjInferenceTaskResultAudio(
             id=result_audio.id,
-            asr_similar_score=score
+            asr_similar_score=adjusted_similarity_score2
         )
         detail_list.append(detail)
         has_processed_count += 1

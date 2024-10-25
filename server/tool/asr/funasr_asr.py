@@ -11,7 +11,10 @@ from server.common.log_config import logger
 
 class LanguageModel:
     def __init__(self, language='zh'):
-        if language not in ['zh', 'yue']:
+        if not language:
+            raise ValueError(f'Unsupported language: {language}')
+        language = language.lower()
+        if language.lower() not in ['zh', 'yue']:
             raise ValueError(f'Unsupported language: {language}')
         self.model = init(language)
 

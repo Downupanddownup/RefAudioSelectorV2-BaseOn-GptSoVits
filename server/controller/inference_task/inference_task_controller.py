@@ -27,6 +27,7 @@ inference_task_audio_analysis = None
 inference_task_asr_analysis = None
 inference_task_asr_text_analysis = None
 
+
 @router.post("/get_inference_text_list")
 async def get_inference_text_list(request: Request):
     form_data = await request.form()
@@ -177,7 +178,6 @@ async def load_inference_task_detail(request: Request):
 
 @router.post("/load_model_list")
 async def load_model_list(request: Request):
-
     gpt_model_list = ModelManagerService.get_gpt_model_list()
     vits_model_list = ModelManagerService.get_vits_model_list()
 
@@ -217,19 +217,10 @@ async def open_model_file(request: Request):
     return ResponseResult()
 
 
-@router.post("/start_task_audio_analysis")
-async def start_task_audio_analysis(request: Request):
-    form_data = await request.form()
-    task_id = str_to_int(form_data.get('task_id'))
-    if task_id < 0:
-        raise CustomException("task_id is invalid")
-    task = InferenceTaskService.find_whole_inference_task_by_id(task_id)
-    if task is None:
-        raise CustomException("未找到task")
-
+def start_task_audio_analysis(task_id):
     global inference_task_audio_analysis
     if inference_task_audio_analysis is not None:
-        return ResponseResult(code=1, msg='正在执行音频分析，请稍后再试')
+        raise CustomException("正在执行音频分析，请稍后再试")
 
     cmd = f'"{python_exec}" server/tool/speaker_verification/inference_task_voice_similarity.py '
     cmd += f' -t "{task_id}"'
@@ -241,22 +232,11 @@ async def start_task_audio_analysis(request: Request):
 
     inference_task_audio_analysis = None
 
-    return ResponseResult(msg='完成音频分析')
 
-
-@router.post("/start_task_asr_analysis")
-async def start_task_asr_analysis(request: Request):
-    form_data = await request.form()
-    task_id = str_to_int(form_data.get('task_id'))
-    if task_id < 0:
-        raise CustomException("task_id is invalid")
-    task = InferenceTaskService.find_whole_inference_task_by_id(task_id)
-    if task is None:
-        raise CustomException("未找到task")
-
+def start_task_asr_analysis(task_id):
     global inference_task_asr_analysis
     if inference_task_asr_analysis is not None:
-        return ResponseResult(code=1, msg='正在执行音频asr，请稍后再试')
+        raise CustomException("正在执行音频asr，请稍后再试")
 
     cmd = f'"{python_exec}" server/tool/asr/inference_task_asr.py '
     cmd += f' -t "{task_id}"'
@@ -268,22 +248,11 @@ async def start_task_asr_analysis(request: Request):
 
     inference_task_asr_analysis = None
 
-    return ResponseResult(msg='完成音频asr')
 
-
-@router.post("/start_task_text_similarity_analysis")
-async def start_task_text_similarity_analysis(request: Request):
-    form_data = await request.form()
-    task_id = str_to_int(form_data.get('task_id'))
-    if task_id < 0:
-        raise CustomException("task_id is invalid")
-    task = InferenceTaskService.find_whole_inference_task_by_id(task_id)
-    if task is None:
-        raise CustomException("未找到task")
-
+def start_task_text_similarity_analysis(task_id):
     global inference_task_asr_text_analysis
     if inference_task_asr_text_analysis is not None:
-        return ResponseResult(code=1, msg='正在执行音频文本相似度分析，请稍后再试')
+        raise CustomException("正在执行文本相似度分析，请稍后再试")
 
     cmd = f'"{python_exec}" server/tool/text_comparison/asr_text_process.py '
     cmd += f' -t "{task_id}"'
@@ -295,4 +264,22 @@ async def start_task_text_similarity_analysis(request: Request):
 
     inference_task_asr_text_analysis = None
 
-    return ResponseResult(msg='完成音频文本相似度分析')
+
+@router.post("/start_task_analysis")
+async def start_task_analysis(request: Request):
+    form_data = await request.form()
+    task_id = str_to_int(form_data.get('task_id'))
+    if task_id < 0:
+        raise CustomException("task_id is invalid")
+    task = InferenceTaskService.find_whole_inference_task_by_id(task_id)
+    if task is None:
+        raise CustomException("未找到task")
+
+    logger.info('开始执行asr')
+    start_task_asr_analysis(task_id)
+    logger.info('开始执行文本相似度分析')
+    start_task_text_similarity_analysis(task_id)
+    logger.info('开始执行音频相似度分析')
+    start_task_audio_analysis(task_id)
+
+    return ResponseResult(msg='完成任务结果分析')

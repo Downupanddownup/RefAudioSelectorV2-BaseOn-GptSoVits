@@ -42,7 +42,7 @@ def calculate_similarity(text1, text2, max_length=512):
 
 
 # 对boundary到1区间的值进行放大
-def adjusted_similarity(similarity_score2, boundary=0.9):
+def adjusted_similarity(similarity_score2, boundary):
     if similarity_score2 < boundary:
         return 0
 
@@ -54,7 +54,7 @@ def adjusted_similarity(similarity_score2, boundary=0.9):
     return adjusted_score
 
 
-def calculate_result(t1, t2, boundary):
+def calculate_result(t1, t2, boundary=0.9):
     # 计算并打印相似度
     similarity_score2 = calculate_similarity(t1, t2)
 
