@@ -147,6 +147,9 @@
                                     html.push(`<button type="button" class="layui-btn layui-btn-sm" data-task-go-to-result="${d.id}">结果评测</button>`)
                                 } else {
                                     html.push(`<button type="button" class="layui-btn layui-btn-sm" data-task-start-inference="${d.id}">开始执行</button>`)
+                                    html.push(`<button type="button" class="layui-btn layui-btn-sm" data-task-start-asr="${d.id}">执行asr</button>`)
+                                    html.push(`<button type="button" class="layui-btn layui-btn-sm" data-task-start-text-similarity="${d.id}">文本相似度分析</button>`)
+                                    html.push(`<button type="button" class="layui-btn layui-btn-sm" data-task-start-audio-similarity="${d.id}">音频相似度分析</button>`)
                                 }
                                 return html.join(' ');
                             }},//查看详情，执行推理
@@ -169,6 +172,21 @@
                             _this.startInferenceTask(taskId)
                         })
                         
+                        obj.find('button[data-task-start-asr]').on('click', function () {
+                            const taskId = $(this).attr('data-task-start-asr')
+                            _this.startTaskAsrAnalysis(taskId)
+                        })
+                        
+                        obj.find('button[data-task-start-text-similarity]').on('click', function () {
+                            const taskId = $(this).attr('data-task-start-text-similarity')
+                            _this.startTaskTextSimilarityAnalysis(taskId)
+                        })
+                        
+                        obj.find('button[data-task-start-audio-similarity]').on('click', function () {
+                            const taskId = $(this).attr('data-task-start-audio-similarity')
+                            _this.startTaskAudioAnalysis(taskId)
+                        })
+                        
                     },
                     error: function(res, msg){
                         console.log(res, msg)
@@ -181,6 +199,63 @@
                 layui.layer.confirm('是否开始执行推理任务？', () => {
                     $.customAjax({
                         url: BaseUrl+'task/start_execute_inference_task',
+                        type: 'post',
+                        data: {
+                            task_id: taskId
+                        },
+                        success: function(res){
+                            if (res.code == 0) {
+                                refreshListData('inferenceTaskList')
+                            }
+                            layui.layer.msg(res.msg)
+                        }
+                    })
+                })
+            }
+
+            startTaskAudioAnalysis(taskId){
+                const _this = this
+                layui.layer.confirm('是否开始执行音频相似度分析？', () => {
+                    $.customAjax({
+                        url: BaseUrl+'task/start_task_audio_analysis',
+                        type: 'post',
+                        data: {
+                            task_id: taskId
+                        },
+                        success: function(res){
+                            if (res.code == 0) {
+                                refreshListData('inferenceTaskList')
+                            }
+                            layui.layer.msg(res.msg)
+                        }
+                    })
+                })
+            }
+
+            startTaskAsrAnalysis(taskId){
+                const _this = this
+                layui.layer.confirm('是否开始执行音频asr？', () => {
+                    $.customAjax({
+                        url: BaseUrl+'task/start_task_asr_analysis',
+                        type: 'post',
+                        data: {
+                            task_id: taskId
+                        },
+                        success: function(res){
+                            if (res.code == 0) {
+                                refreshListData('inferenceTaskList')
+                            }
+                            layui.layer.msg(res.msg)
+                        }
+                    })
+                })
+            }
+
+            startTaskTextSimilarityAnalysis(taskId){
+                const _this = this
+                layui.layer.confirm('是否开始执行音频文本相似度分析？', () => {
+                    $.customAjax({
+                        url: BaseUrl+'task/start_task_text_similarity_analysis',
                         type: 'post',
                         data: {
                             task_id: taskId

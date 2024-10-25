@@ -7,15 +7,16 @@ from fastapi.middleware.cors import CORSMiddleware
 
 print("Current working directory:", os.getcwd())
 # 将项目根目录添加到 sys.path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+sys.path.append(os.getcwd())
 
 from server.api.inference_params_manager import InferenceParamsManager, InferenceParams
+import server.common.config_params as params
 
 # 获取当前脚本所在的绝对路径
-current_dir = os.path.dirname(os.path.abspath(__file__))
+current_dir = os.getcwd()
 
 # 计算上上级目录的绝对路径
-api_dir = os.path.join(current_dir, "../../../GPT-SoVITS-v2-240807")
+api_dir = os.path.join(current_dir, params.gsv2_dir)
 
 # 将上上级目录添加到模块搜索路径中
 sys.path.append(api_dir)

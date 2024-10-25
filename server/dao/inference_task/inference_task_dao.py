@@ -271,3 +271,23 @@ class InferenceTaskDao:
             inference_status,
             task_id
         ))
+
+    @staticmethod
+    def update_task_execute_audio_similarity(task_id: int, execute_audio_similarity: int):
+        sql = '''
+            UPDATE tab_obj_inference_task SET ExecuteAudioSimilarity = ? WHERE Id = ?
+            '''
+        return DBSlaveSQLExecutor.execute_update(sql, (
+            execute_audio_similarity,
+            task_id
+        ))
+
+    @staticmethod
+    def update_task_execute_text_similarity(task_id: int, execute_text_similarity: int):
+        sql = '''
+            UPDATE tab_obj_inference_task SET ExecuteTextSimilarity = ? WHERE Id = ?
+            '''
+        return DBSlaveSQLExecutor.execute_update(sql, (
+            execute_text_similarity,
+            task_id
+        ))

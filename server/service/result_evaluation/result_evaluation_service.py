@@ -77,3 +77,15 @@ class ResultEvaluationService:
     @staticmethod
     def update_result_audio_remark(result_audio_id: int, remark: str) -> int:
         return ResultEvaluationDao.update_result_audio_remark(result_audio_id, remark)
+
+    @staticmethod
+    def batch_update_result_audio_similar_score(detail_list: list[ObjInferenceTaskResultAudio]):
+        return ResultEvaluationDao.batch_update_result_audio_similar_score(detail_list)
+
+    @staticmethod
+    def batch_update_result_asr_similar_score(detail_list: list[ObjInferenceTaskResultAudio]):
+        return ResultEvaluationDao.batch_update_result_asr_similar_score(detail_list)
+
+    @staticmethod
+    def batch_update_result_audio_asr_text(detail_list: list[ObjInferenceTaskResultAudio]):
+        return ResultEvaluationDao.batch_update_result_audio_asr_text(detail_list)

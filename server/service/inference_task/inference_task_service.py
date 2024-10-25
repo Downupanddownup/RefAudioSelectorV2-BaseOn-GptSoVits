@@ -169,6 +169,14 @@ class InferenceTaskService:
         if count == 0:
             return InferenceTaskService.change_inference_task_inference_status(task_id, 2)
 
+    @staticmethod
+    def update_task_execute_audio_similarity(task_id: int, execute_audio_similarity: int):
+        return InferenceTaskDao.update_task_execute_audio_similarity(task_id, execute_audio_similarity)
+
+    @staticmethod
+    def update_task_execute_text_similarity(task_id: int, execute_text_similarity: int):
+        return InferenceTaskDao.update_task_execute_text_similarity(task_id, execute_text_similarity)
+
 
 def create_task_cell_list_if_not_inference(task: ObjInferenceTask) -> list[TaskCell]:
     task_result_audio_list = create_task_result_audio_list_if_not_inference(task)

@@ -1,4 +1,6 @@
 import time
+import sys
+from subprocess import Popen
 
 from fastapi import APIRouter, Request
 
@@ -15,10 +17,15 @@ from server.service.inference_task.inference_task_service import InferenceTaskSe
 from server.service.inference_task.inference_text_service import InferenceTextService
 from server.service.inference_task.model_manager_service import ModelManagerService
 from server.service.reference_audio.reference_category_service import ReferenceCategoryService
-from server.util.util import str_to_int, open_file
+from server.util.util import str_to_int, open_file, ValidationUtils
+
+python_exec = sys.executable or "python"
 
 router = APIRouter(prefix="/task")
 
+inference_task_audio_analysis = None
+inference_task_asr_analysis = None
+inference_task_asr_text_analysis = None
 
 @router.post("/get_inference_text_list")
 async def get_inference_text_list(request: Request):
@@ -208,3 +215,84 @@ async def start_execute_inference_task(request: Request):
 async def open_model_file(request: Request):
     open_file(filepath=db_config.get_model_dir())
     return ResponseResult()
+
+
+@router.post("/start_task_audio_analysis")
+async def start_task_audio_analysis(request: Request):
+    form_data = await request.form()
+    task_id = str_to_int(form_data.get('task_id'))
+    if task_id < 0:
+        raise CustomException("task_id is invalid")
+    task = InferenceTaskService.find_whole_inference_task_by_id(task_id)
+    if task is None:
+        raise CustomException("未找到task")
+
+    global inference_task_audio_analysis
+    if inference_task_audio_analysis is not None:
+        return ResponseResult(code=1, msg='正在执行音频分析，请稍后再试')
+
+    cmd = f'"{python_exec}" server/tool/speaker_verification/inference_task_voice_similarity.py '
+    cmd += f' -t "{task_id}"'
+    cmd += f' -r "{db_config.role_name}"'
+
+    logger.info(cmd)
+    inference_task_audio_analysis = Popen(cmd, shell=True)
+    inference_task_audio_analysis.wait()
+
+    inference_task_audio_analysis = None
+
+    return ResponseResult(msg='完成音频分析')
+
+
+@router.post("/start_task_asr_analysis")
+async def start_task_asr_analysis(request: Request):
+    form_data = await request.form()
+    task_id = str_to_int(form_data.get('task_id'))
+    if task_id < 0:
+        raise CustomException("task_id is invalid")
+    task = InferenceTaskService.find_whole_inference_task_by_id(task_id)
+    if task is None:
+        raise CustomException("未找到task")
+
+    global inference_task_asr_analysis
+    if inference_task_asr_analysis is not None:
+        return ResponseResult(code=1, msg='正在执行音频asr，请稍后再试')
+
+    cmd = f'"{python_exec}" server/tool/asr/inference_task_asr.py '
+    cmd += f' -t "{task_id}"'
+    cmd += f' -r "{db_config.role_name}"'
+
+    logger.info(cmd)
+    inference_task_asr_analysis = Popen(cmd, shell=True)
+    inference_task_asr_analysis.wait()
+
+    inference_task_asr_analysis = None
+
+    return ResponseResult(msg='完成音频asr')
+
+
+@router.post("/start_task_text_similarity_analysis")
+async def start_task_text_similarity_analysis(request: Request):
+    form_data = await request.form()
+    task_id = str_to_int(form_data.get('task_id'))
+    if task_id < 0:
+        raise CustomException("task_id is invalid")
+    task = InferenceTaskService.find_whole_inference_task_by_id(task_id)
+    if task is None:
+        raise CustomException("未找到task")
+
+    global inference_task_asr_text_analysis
+    if inference_task_asr_text_analysis is not None:
+        return ResponseResult(code=1, msg='正在执行音频文本相似度分析，请稍后再试')
+
+    cmd = f'"{python_exec}" server/tool/text_comparison/asr_text_process.py '
+    cmd += f' -t "{task_id}"'
+    cmd += f' -r "{db_config.role_name}"'
+
+    logger.info(cmd)
+    inference_task_asr_text_analysis = Popen(cmd, shell=True)
+    inference_task_asr_text_analysis.wait()
+
+    inference_task_asr_text_analysis = None
+
+    return ResponseResult(msg='完成音频文本相似度分析')

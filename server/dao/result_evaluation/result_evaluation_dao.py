@@ -144,3 +144,33 @@ class ResultEvaluationDao:
         UPDATE tab_obj_inference_task_result_audio SET Remark = ? WHERE Id = ?
         '''
         return DBSlaveSQLExecutor.execute_update(sql, (remark,result_audio_id))
+
+    @staticmethod
+    def batch_update_result_audio_similar_score(detail_list: list[ObjInferenceTaskResultAudio]):
+        sql = f'''
+        UPDATE tab_obj_inference_task_result_audio SET AudioSimilarScore = ? WHERE Id = ?
+        '''
+        return DBSlaveSQLExecutor.batch_execute(sql, [(
+            x.audio_similar_score,
+            x.id
+        ) for x in detail_list])
+
+    @staticmethod
+    def batch_update_result_asr_similar_score(detail_list: list[ObjInferenceTaskResultAudio]):
+        sql = f'''
+        UPDATE tab_obj_inference_task_result_audio SET AsrSimilarScore = ? WHERE Id = ?
+        '''
+        return DBSlaveSQLExecutor.batch_execute(sql, [(
+            x.asr_similar_score,
+            x.id
+        ) for x in detail_list])
+
+    @staticmethod
+    def batch_update_result_audio_asr_text(detail_list: list[ObjInferenceTaskResultAudio]):
+        sql = f'''
+        UPDATE tab_obj_inference_task_result_audio SET AsrText = ? WHERE Id = ?
+        '''
+        return DBSlaveSQLExecutor.batch_execute(sql, [(
+            x.asr_text,
+            x.id
+        ) for x in detail_list])
