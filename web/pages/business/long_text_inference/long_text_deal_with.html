@@ -2,18 +2,6 @@
 <script>
     const LongTextDealWithSpace = (function () {
         
-        function getText() {
-            return `               夜幕降临，小镇上最后一缕阳光消失在山后。林间小屋的灯光透过窗户洒向庭院，温暖而宁静。书桌上，一盏台灯下，摆放着一本旧日记，纸页泛黄，记录着过往岁月的秘密。
-                
-                屋主人是一位老者，他坐在摇椅上，手中摩挲着一枚铜色怀表，那是他年轻时的回忆。每当夜深人静，他便会翻开日记，一页页读起，仿佛能穿越时空，回到那些充满梦想与挑战的日子。
-                
-                今天，他决定将这份记忆传承下去。于是，一封手写信随着晨风送到了远方，邀请他的孙子假期里回来看看。老者希望，通过分享自己的故事，能让年轻人明白生活的真谛——不仅是追求梦想，更重要的是珍惜与家人共度的时光。
-                
-                    
-                    你好，再见。
-                随着信件的寄出，老者的心也跟着轻盈起来，期待着与孙子相聚的那一刻，相信那份关于爱与坚持的故事，将成为连接两代人心灵的桥梁。`
-        }
-        
         class C_TextItem {
             constructor(index, text, text_language) {
                 this.index = index
@@ -73,7 +61,7 @@
                     }
                 } else {
                     _this.playAudioIndex = currentIndex
-                    _this.playAudioSequence(obj, audioUrl)
+                    _this.startPlayAudio(obj, audioUrl)
                 }
             }
 
@@ -88,6 +76,32 @@
                     </audio>
                     `
                 )
+            }
+            
+            startPlayAudio(obj, audioUrl) {
+                const _this = this
+
+                _this.clearAudio(obj)
+
+                const player = new TTSPlayer({
+                    audioUrl: audioUrl,
+                    audioId: _this.audioId,
+                    requestBodies: _this.subTexts.map(item => new AudioRequestBody({
+                        requestBody: item.getTextBody(),
+                        isEffective: item.isEffective()
+                    })),
+                    mediaType: 'aac',
+                    currentIndex: _this.playAudioIndex,
+                    audioStartCallback: index => {
+                        obj.find('span[data-long-text-index]').removeClass('selected')
+                        obj.find('span[data-long-text-index='+index+']').addClass('selected')
+                        // 当前音频播放完成后，递增索引并播放下一个音频
+                        console.log('音频开始播放：'+index);
+                        _this.playAudioIndex = index;
+                    }
+                })
+                player.start()
+
             }
 
             playAudioSequence(obj, audioUrl) {
