@@ -1,6 +1,9 @@
 import os
+import sys
 import time
 import webbrowser
+
+sys.path.append(os.getcwd())
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -59,6 +62,6 @@ if __name__ == "__main__":
     import uvicorn
 
     url = "http://localhost:8000/static/main.html"
-    # webbrowser.open(url)
+    webbrowser.open(url)
     # 测试
     uvicorn.run(app, host="0.0.0.0", port=8000)

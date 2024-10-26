@@ -147,6 +147,9 @@ def str_to_float(input_str, default=None):
     except ValueError:
         # 如果转换失败，则返回默认值或 None
         return default
+    except TypeError:
+        # 如果输入不是字符串类型，则抛出错误
+        return default
 
 
 def get_absolute_path(relative_path):

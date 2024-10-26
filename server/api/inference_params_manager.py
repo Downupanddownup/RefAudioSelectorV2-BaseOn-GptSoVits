@@ -1,3 +1,6 @@
+from server.util.util import str_to_int, str_to_float
+
+
 class InferenceParams:
     def __init__(self, refer_wav_path: str = None, prompt_text: str = None
                  , prompt_language: str = None, cut_punc: str = None
@@ -6,10 +9,10 @@ class InferenceParams:
         self.prompt_text = prompt_text
         self.prompt_language = prompt_language
         self.cut_punc = cut_punc
-        self.top_k = top_k
-        self.top_p = top_p
-        self.temperature = temperature
-        self.speed = speed
+        self.top_k = str_to_int(top_k, None)
+        self.top_p = str_to_float(top_p, None)
+        self.temperature = str_to_float(temperature, None)
+        self.speed = str_to_float(speed, None)
     
     def __str__(self):
         return (f"refer_wav_path:{self.refer_wav_path}, "
