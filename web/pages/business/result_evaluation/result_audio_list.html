@@ -694,7 +694,7 @@
                                         <td data-audio-path="{{item2.resultAudio.id}}" style="width: 350px;cursor: pointer"></td>
                                         <td id="audio-different-{{item2.resultAudio.id}}" style="text-align: left;" class="single-line">{{- item2.getHtml(true)}}</td>
                                         <td>{{item2.resultAudio.audioLength}}</td>
-                                        <td>{{item2.resultAudio.asrSimilarScore}}</td>
+                                        <td>{{item2.resultAudio.asrSimilarScore.toFixed(4)}}</td>
                                         <td>{{item2.resultAudio.audioSimilarScore}}</td>
                                         <td><span id="data-audio-remark-span-{{item2.resultAudio.id}}">{{item2.resultAudio.remark}}</span><i class="layui-icon layui-icon-edit" data-audio-remark-edit="{{item2.resultAudio.id}}"></i> </td>
                                     </tr>
@@ -747,7 +747,7 @@
                                                             <td data-audio-path="{{item3.resultAudio.id}}" style="width: 350px;cursor: pointer"></td>
                                                             <td id="audio-different-{{item3.resultAudio.id}}" style="text-align: left;" class="single-line">{{- item3.getHtml(true)}}</td>
                                                             <td>{{item3.resultAudio.audioLength}}</td>
-                                                            <td>{{item3.resultAudio.asrSimilarScore}}</td>
+                                                            <td>{{item3.resultAudio.asrSimilarScore.toFixed(4)}}</td>
                                                             <td>{{item3.resultAudio.audioSimilarScore}}</td>
                                                             <td><span id="data-audio-remark-span-{{item3.resultAudio.id}}">{{item3.resultAudio.remark}}</span><i class="layui-icon layui-icon-edit" data-audio-remark-edit="{{item3.resultAudio.id}}"></i> </td>
                                                         </tr>
