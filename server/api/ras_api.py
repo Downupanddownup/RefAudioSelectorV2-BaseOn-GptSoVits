@@ -122,7 +122,8 @@ async def tts_endpoint(request: Request):
         top_k=params.top_k,
         top_p=params.top_p,
         temperature=params.temperature,
-        speed=params.speed
+        speed=params.speed,
+        inp_refs=params.inp_refs
     )
 
 
@@ -162,7 +163,8 @@ async def tts_endpoint(
         top_k=params.top_k,
         top_p=params.top_p,
         temperature=params.temperature,
-        speed=params.speed
+        speed=params.speed,
+        inp_refs=params.inp_refs
     )
 
 

@@ -176,7 +176,7 @@
                     data:JSON.stringify(data),
                     success: function(res){
                         console.log(res)
-                        if (res == 'ok') {
+                        if (res.code == 0) {
                             $.customAjax({
                                 url: RasApiUrl+'ras/set_default_params',
                                 type: 'post',

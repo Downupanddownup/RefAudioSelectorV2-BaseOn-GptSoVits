@@ -4,7 +4,8 @@ from server.util.util import str_to_int, str_to_float
 class InferenceParams:
     def __init__(self, refer_wav_path: str = None, prompt_text: str = None
                  , prompt_language: str = None, cut_punc: str = None
-                 , top_k: int = None, top_p: float = None, temperature: float = None, speed: float = None):
+                 , top_k: int = None, top_p: float = None, temperature: float = None,
+                 speed: float = None, inp_refs: list = None):
         self.refer_wav_path = refer_wav_path
         self.prompt_text = prompt_text
         self.prompt_language = prompt_language
@@ -13,6 +14,7 @@ class InferenceParams:
         self.top_p = str_to_float(top_p, None)
         self.temperature = str_to_float(temperature, None)
         self.speed = str_to_float(speed, None)
+        self.inp_refs = inp_refs
     
     def __str__(self):
         return (f"refer_wav_path:{self.refer_wav_path}, "
@@ -22,7 +24,8 @@ class InferenceParams:
                 f"top_k:{self.top_k}, "
                 f"top_p:{self.top_p}, "
                 f"temperature:{self.temperature}, "
-                f"speed:{self.speed}")
+                f"speed:{self.speed}, "
+                f"inp_refs:{self.inp_refs}")
 
 
 class InferenceParamsManager:
@@ -46,6 +49,8 @@ class InferenceParamsManager:
             self.default_params.temperature = default_params.temperature
         if default_params.speed is not None:
             self.default_params.speed = default_params.speed
+        if default_params.inp_refs is not None:
+            self.default_params.inp_refs = default_params.inp_refs
 
     def get_real_params(self, web_params: InferenceParams):
         return InferenceParams(
@@ -56,7 +61,8 @@ class InferenceParamsManager:
             top_k=get_params(web_params.top_k, self.default_params.top_k, 10),
             top_p=get_params(web_params.top_p, self.default_params.top_p, 1.0),
             temperature=get_params(web_params.temperature, self.default_params.temperature, 1.0),
-            speed=get_params(web_params.speed, self.default_params.speed, 1.0)
+            speed=get_params(web_params.speed, self.default_params.speed, 1.0),
+            inp_refs=get_params(web_params.inp_refs, self.default_params.inp_refs, []),
         )
 
 
