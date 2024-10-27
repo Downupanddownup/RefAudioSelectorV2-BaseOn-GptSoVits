@@ -3,6 +3,8 @@ import sys
 import time
 import webbrowser
 
+from server.service.system.system_service import SystemService
+
 sys.path.append(os.getcwd())
 
 from fastapi import FastAPI, Request
@@ -20,7 +22,7 @@ from server.controller.inference_task.inference_task_controller import router as
 from server.controller.long_text_inference.long_text_inference_controller import router as long_text_router
 from server.controller.result_evaluation.result_evaluation_controller import router as result_evaluation_router
 from server.controller.audio_packaging.audio_packaging_controller import router as audio_packaging_router
-from server.controller.common_controller import router as common_router
+from server.controller.system.system_controller import router as system_router
 from server.dao.data_base_manager import db_config
 
 app = FastAPI()
@@ -54,7 +56,7 @@ app.include_router(task_router)
 app.include_router(long_text_router)
 app.include_router(result_evaluation_router)
 app.include_router(audio_packaging_router)
-app.include_router(common_router)
+app.include_router(system_router)
 
 # Mount static files directory
 app.mount("/static", StaticFiles(directory="."), name="static")
@@ -66,4 +68,7 @@ if __name__ == "__main__":
     # webbrowser.open(url)
     # 测试
     db_config.init_master_db_path()
+    role_name = SystemService.get_valid_role_name()
+    if role_name:
+        db_config.update_db_path(role_name)
     uvicorn.run(app, host="0.0.0.0", port=8000)

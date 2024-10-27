@@ -111,9 +111,30 @@
           
         });
 
-        layui.element.tabChange('docDemoTabBrief', 1);
+        loadRoleName()
         
       })
+      
+      
+      function loadRoleName() {
+        $.customAjax({
+          url: BaseUrl+'system/load_last_role_name',
+          type: 'post',
+          success: function(res){
+            if (res.code == 0) {
+              $('#roleName').val(res.data.roleName)
+              console.log(res)
+              layui.element.tabChange('docDemoTabBrief', 1);
+            } else {
+              layui.layer.msg(res.msg)
+            }
+          },
+          error: function(res, msg){
+            layui.layer.msg(msg)
+          }
+        })
+      }
+      
 
       $(document).keydown(function(event) {
         // 检查是否按下了 Esc 键
@@ -139,7 +160,7 @@
     }
     
     $.customAjax({
-      url: BaseUrl + 'common/switch_role_workspace',
+      url: BaseUrl + 'system/switch_role_workspace',
       type: 'POST',
       data: {
         roleName: roleName
