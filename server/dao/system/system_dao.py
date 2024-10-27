@@ -16,7 +16,6 @@ class SystemDao:
 
         for data in records:
             task_list.append(SysCache(
-                id=data['Id'],
                 type=data['Type'],
                 key_name=data['KeyName'],
                 value=data['Value']

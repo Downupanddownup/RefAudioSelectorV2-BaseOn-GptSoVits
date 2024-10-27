@@ -12,7 +12,15 @@
 <div id="contentHeader">
   <div class="layui-collapse" lay-accordion="">
     <div class="layui-colla-item">
-      <h2 class="layui-colla-title">基础信息</h2>
+      <div class="layui-colla-title" style="display: flex;justify-content: space-between">
+        <div>基础信息</div>
+        <div>
+          <select class="customSelect" id="gsvVersion">
+            <option value="v1">v1</option>
+            <option value="v2">v2</option>
+          </select>
+        </div>
+      </div>
       <div class="layui-colla-content">
 <!--        layui-show-->
         <table class="table1">
