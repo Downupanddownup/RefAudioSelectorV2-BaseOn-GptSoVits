@@ -18,6 +18,7 @@
                     success: function(res){
                         if (res.code == 0) {
                             _this.categoryList = res.data ? res.data.map(item=>new C_ObjInferenceCategory(item)) : []
+                            _this.categoryList = _this.categoryList.filter(item=>item.name !== '无效')
                             _this.render(tab_type)
                         } else {
                             layui.layer.msg(res.msg)

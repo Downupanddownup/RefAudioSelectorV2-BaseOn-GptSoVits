@@ -5,11 +5,32 @@
             constructor(viewId , selectedAudioList) {
                 this.viewId = viewId
                 this.audioList = []
+                this.categoryList = []
                 this.selectedAudioList = selectedAudioList ? selectedAudioList.map(i => new C_ObjReferenceAudio(i)) : []
             }
 
             getAllSelectedAudioList(){
                 return this.selectedAudioList
+            }
+
+            loadData() {
+                const _this = this
+                $.customAjax({
+                    url: BaseUrl+'audio/get_audio_category_list',
+                    type: 'post',
+                    success: function(res){
+                        if (res.code == 0) {
+                            _this.categoryList = res.data ? res.data.map(item=>new C_ObjInferenceCategory(item)) : []
+                            _this.categoryList = _this.categoryList.filter(item=>item.name !== '无效')
+                            _this.render()
+                        } else {
+                            layui.layer.msg(res.msg)
+                        }
+                    },
+                    error: function(res, msg){
+                        layui.layer.msg(msg)
+                    }
+                })
             }
 
             render() {
@@ -301,7 +322,14 @@
                         <td>音频名称：</td>
                         <td><input type="text" autocomplete="off" id="searchAudioName" placeholder="音频名称" class="layui-input" style="width: auto;"></td>
                         <td>音频分类：</td>
-                        <td><input type="text" autocomplete="off" id="searchCategory" placeholder="音频分类" class="layui-input" style="width: auto;"></td>
+                        <td>
+                            <select class="customSelect" id="searchCategory">
+                                <option value="">请选择</option>
+                                {{# layui.each(d.categoryList, function(index,item){ }}
+                                <option value="{{item.name}}">{{item.name}}</option>
+                                {{# }) }}
+                            </select>
+                        </td>
                         <td>音频语种：</td>
                         <td>
                             <select class="customSelect" id="searchLanguage">

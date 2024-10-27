@@ -93,9 +93,6 @@ async def get_audio_category_list(request: Request):
 
     audio_category_list = ReferenceCategoryService.get_category_list()
 
-    audio_category_list.insert(0, ObjInferenceCategory(name='无效'))
-    audio_category_list.insert(0, ObjInferenceCategory(name='default'))
-
     return ResponseResult(data=audio_category_list)
 
 

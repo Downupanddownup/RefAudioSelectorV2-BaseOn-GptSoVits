@@ -34,6 +34,7 @@
               console.log('拿到了task了吗？', _this.task)
               
               _this.audioCategoryList = res.data.categoryList ? res.data.categoryList.map(item=>new C_ObjInferenceCategory(item)) : []
+              _this.audioCategoryList = _this.audioCategoryList.filter(item=>item.name !== '无效')
               _this.gptModels = res.data.gptModels ? res.data.gptModels.map(item=>new C_GptModel(item)) : []
               _this.vitsModels = res.data.vitsModels ? res.data.vitsModels.map(item=>new C_VitsModel(item)) : []
               
@@ -289,7 +290,7 @@
         });
 
         
-        C_ReferenceSelect$1.render()
+        C_ReferenceSelect$1.loadData()
       }
 
       openTextManagerDialog(){
