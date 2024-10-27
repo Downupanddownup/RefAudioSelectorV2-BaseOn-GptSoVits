@@ -21,6 +21,7 @@ from server.controller.long_text_inference.long_text_inference_controller import
 from server.controller.result_evaluation.result_evaluation_controller import router as result_evaluation_router
 from server.controller.audio_packaging.audio_packaging_controller import router as audio_packaging_router
 from server.controller.common_controller import router as common_router
+from server.dao.data_base_manager import db_config
 
 app = FastAPI()
 app.add_middleware(
@@ -64,4 +65,5 @@ if __name__ == "__main__":
     url = "http://localhost:8000/static/main.html"
     # webbrowser.open(url)
     # 测试
+    db_config.init_master_db_path()
     uvicorn.run(app, host="0.0.0.0", port=8000)

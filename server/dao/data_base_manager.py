@@ -21,28 +21,46 @@ class DatabaseConfig(metaclass=SingletonMeta):
         self.workspace = 'workspace'
         self.role_name = ''
         self.db_path = ''
-        self.db_master_path = 'master_database.db'
+        self.db_master_path = ''
 
     def update_db_path(self, role_name: str):
         self.role_name = role_name
         self.db_path = f'{self.get_work_dir()}\\ref_audio_selector.db'
         init_slave_table(self.db_path)
+
+    def init_master_db_path(self):
+        self.db_master_path = self.get_master_db_path()
         init_master_table(self.db_master_path)
 
     def get_work_dir(self) -> str:
-        work_dir = f'{self.workspace}\\{self.role_name}'
+        work_dir = f'{self.get_slave_db_dir()}\\{self.role_name}'
         if not os.path.exists(work_dir):
             os.makedirs(work_dir)
         return work_dir
 
     def get_model_dir(self) -> str:
-        model_dir = f'{self.workspace}\\{self.role_name}\\model'
+        model_dir = f'{self.get_work_dir()}\\model'
         if not os.path.exists(model_dir):
             os.makedirs(model_dir)
         return model_dir
 
+    def get_slave_db_dir(self) -> str:
+        slave_db_dir = f'{self.workspace}\\slave'
+        if not os.path.exists(slave_db_dir):
+            os.makedirs(slave_db_dir)
+        return slave_db_dir
+
+    def get_slave_db_path(self) -> str:
+        return f'{self.get_slave_db_dir()}\\ref_audio_selector.db'
+
+    def get_master_db_dir(self) -> str:
+        master_db_dir = f'{self.workspace}\\master'
+        if not os.path.exists(master_db_dir):
+            os.makedirs(master_db_dir)
+        return master_db_dir
+
     def get_master_db_path(self) -> str:
-        return self.db_master_path
+        return f'{self.get_master_db_dir()}\\master_database.db'
 
 
 # 读取配置文件
