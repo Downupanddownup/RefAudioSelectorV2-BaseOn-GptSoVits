@@ -4,16 +4,16 @@
 
         class C_ParamsConfig {//推理任务
             constructor(data) {
-                this.gptSovitsVersion = data.gptSovitsVersion || 'v2'; // 模型版本
+                this.gptSovitsVersion = data.gptSovitsVersion || SysConfig.defaultGptSovitsVersion; // 模型版本
                 this.gptModelName = data.gptModelName || ''; // GPT模型名称
                 this.gptModelPath = data.gptModelPath || ''; // GPT模型名称
                 this.vitsModelName = data.vitsModelName || ''; // Vits模型名称
                 this.vitsModelPath = data.vitsModelPath || ''; // Vits模型名称
-                this.topK = data.topK || 15; // top_k值
-                this.topP = data.topP || 1.0; // top_p值
-                this.temperature = data.temperature || 1.0; // 温度
-                this.textDelimiter = data.textDelimiter || `,.;?!、，。？！；：…"`; // 文本分隔符
-                this.speed = data.speed || 1.0; // 语速
+                this.topK = data.topK || SysConfig.defaultTopK; // top_k值
+                this.topP = data.topP || SysConfig.defaultTopP; // top_p值
+                this.temperature = data.temperature || SysConfig.defaultTemperature; // 温度
+                this.textDelimiter = data.textDelimiter || SysConfig.defaultTextDelimiter; // 文本分隔符
+                this.speed = data.speed || SysConfig.defaultSpeed; // 语速
                 this.streamMode = data.streamMode || true; // 是否开启流式
                 this.mediaType = data.mediaType || 'aac'; // 音频类型
             }
