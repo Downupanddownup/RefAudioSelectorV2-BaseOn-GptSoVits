@@ -9,6 +9,7 @@ from server.bean.inference_task.obj_inference_task_audio import ObjInferenceTask
 from server.bean.inference_task.obj_inference_task_compare_params import ObjInferenceTaskCompareParams
 from server.bean.inference_task.obj_inference_task_text import ObjInferenceTaskText
 from server.bean.inference_task.obj_inference_text import ObjInferenceTextFilter, ObjInferenceText
+from server.common import config_params
 from server.common.custom_exception import CustomException
 from server.common.log_config import logger
 from server.common.response_result import ResponseResult
@@ -199,7 +200,7 @@ async def start_execute_inference_task(request: Request):
 
     start_time = time.perf_counter()  # 使用 perf_counter 获取高精度计时起点
 
-    InferenceTaskService.start_execute_inference_task(task)
+    InferenceTaskService.start_execute_inference_task(task, config_params.inference_process_num)
 
     end_time = time.perf_counter()  # 获取计时终点
     elapsed_time = end_time - start_time  # 计算执行耗时

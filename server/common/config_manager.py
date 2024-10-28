@@ -17,8 +17,8 @@ class ConfigManager:
     def get_log(self, key):
         return self.config.get('Log',key)
 
-    def get_other(self, key):
-        return self.config.get('Other', key)
+    def get_base(self, key):
+        return self.config.get('Base', key)
 
     def print(self):
         # 打印所有配置

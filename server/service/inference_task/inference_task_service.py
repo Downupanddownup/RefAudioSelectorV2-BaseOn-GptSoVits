@@ -142,7 +142,7 @@ class InferenceTaskService:
         return result
 
     @staticmethod
-    def start_execute_inference_task(task: ObjInferenceTask):
+    def start_execute_inference_task(task: ObjInferenceTask, num_processes: int):
         if task.inference_status != 2:
             if RasApiMonitor.start_service(False):
                 task_cell_list = create_task_cell_list_if_not_inference(task)
@@ -242,7 +242,7 @@ def splicing_task_result_audio_list(task: ObjInferenceTask) -> list[ObjInference
     return result_audio_list
 
 
-def generate_audio_files_parallel(task_cell: TaskCell, num_processes=1) -> bool:
+def generate_audio_files_parallel(task_cell: TaskCell, num_processes: int = 1) -> bool:
     switch = False
     try:
         RasApiMonitor.set_api_models(task_cell.gpt_model, task_cell.vits_model)
