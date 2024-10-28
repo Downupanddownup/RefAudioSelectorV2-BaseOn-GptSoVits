@@ -75,12 +75,10 @@
                 const obj = $('#'+_this.viewId)
                 const searchAudioName = obj.find('#searchAudioName').val()
                 const searchCategory = obj.find('#searchCategory').val()
-                const searchLanguage = obj.find('#searchLanguage').val()
                 const searchContent = obj.find('#searchContent').val()
                 return {
                     audio_name: searchAudioName,
                     category: searchCategory,
-                    language: searchLanguage,
                     content: searchContent,
                 }
             }
@@ -328,16 +326,6 @@
                                 {{# layui.each(d.categoryList, function(index,item){ }}
                                 <option value="{{item.name}}">{{item.name}}</option>
                                 {{# }) }}
-                            </select>
-                        </td>
-                        <td>音频语种：</td>
-                        <td>
-                            <select class="customSelect" id="searchLanguage">
-                                <option value="">请选择</option>
-                                <option value="refer_audio">参考音频</option>
-                                <option value="speed">speed值</option>
-                                <option value="text_delimiter">文本分隔符</option>
-                                <option value="other">其余参数</option>
                             </select>
                         </td>
                         <td>音频内容：</td>

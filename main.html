@@ -87,6 +87,7 @@
               'web/pages/business/long_text_inference/long_text_result_audio_select.html',
               'web/pages/business/long_text_inference/long_text_select.html',
               'web/pages/business/reference_audio/reference_audio.html',
+              'web/pages/business/reference_audio/reference_audio_compare.html',
               'web/pages/business/reference_audio/report_result.html',
               'web/pages/business/result_evaluation/result_evaluation.html',
               'web/pages/business/result_evaluation/result_audio_list.html'
@@ -106,7 +107,7 @@
           $('#audioPackagingView').html('')
           
           if (html == '参考音频') {
-            ReferenceAudioSpace.getReferenceAudio('referenceAudioView').loadData(1)
+            ReferenceAudioSpace.getReferenceAudio('referenceAudioView').loadData()
           } else if (html == '推理任务') {
             InferenceTaskSpace.getInferenceTask('inferenceTaskView').render()
           } else if (html == '结果评测') {

@@ -8,9 +8,13 @@
                 this.audioList = []
                 this.compareAudio = null
                 this.categoryList = []
+                this.pageParam = {
+                    order:'',
+                    desc:''
+                }
             }
-            
-            loadData(tab_type) {
+
+            loadData() {
                 const _this = this
                 $.customAjax({
                     url: BaseUrl+'audio/get_audio_category_list',
@@ -18,8 +22,7 @@
                     success: function(res){
                         if (res.code == 0) {
                             _this.categoryList = res.data ? res.data.map(item=>new C_ObjInferenceCategory(item)) : []
-                            _this.categoryList = _this.categoryList.filter(item=>item.name !== '无效')
-                            _this.render(tab_type)
+                            _this.render()
                         } else {
                             layui.layer.msg(res.msg)
                         }
@@ -30,7 +33,7 @@
                 })
             }
 
-            render(tab_type) {
+            render() {
                 const _this = this
                 const getTpl = $('#referenceAudioTemplate').html(); // 获取模板字符
                 // 渲染并输出结果
@@ -38,122 +41,25 @@
                     const obj = $('#'+_this.viewId)
                     obj.html(html)
 
-                    _this.listenTabSwitch()
+                    _this.loadReferenceList()
                     
                     obj.find('#openReportResult').on('click', function(){
                         _this.openReportResult()
                     })
                     
-                    obj.find('#extractReferenceFile').on('click', function(){
-                        _this.extractReferenceFile()
+                    obj.find('#searchAudio').on('click', function(){
+                        _this.reloadReferenceList()
                     })
                     
-                    obj.find('#startCompareAudio').on('click', function(){
-                        _this.startCompareAudio()
+                    obj.find('#importAudio').on('click', function(){
+                        _this.openImportDialog()
                     })
                     
-                    obj.find('#clearLimitScore').on('click', function(){
-                        $('#' + _this.viewId + ' #limitScore').val('')
-                    })
-                    
-                    obj.find('#changeCategory').on('click', function(){
-                        const targetCategory = $('#' + _this.viewId + ' #targetCategory').val()
-                        _this.changeCategory(targetCategory)
-                    })
-
-                    layui.element.tabChange('referenceAudioTabBrief', tab_type ? tab_type : '1');
                     
                 });
                 return _this
             }
-
-            changeCategory(targetCategory){
-                const _this = this
-                if (_this.compareAudio == null) {
-                    layui.layer.alert('请先选择音频文件')
-                    return
-                }
-                if (!targetCategory) {
-                    layui.layer.alert('请输入目标分类')
-                    return
-                }
-                const limitScore = $('#' + _this.viewId + ' #limitScore').val()
-                if (!limitScore) {
-                    layui.layer.alert('请输入分割值')
-                    return
-                }
-                $.customAjax({
-                    url: BaseUrl+'audio/change_audio_category',
-                    type: 'post',
-                    data: {
-                        audioId: _this.compareAudio.id,
-                        limitScore: limitScore,
-                        targetCategory:targetCategory
-                    },
-                    success: function(res){
-                        layui.layer.msg(res.msg)
-                    },
-                    error: function(res, msg){
-                        layui.layer.msg(msg)
-                    }
-                })
-            }
-
-            startCompareAudio(){
-                const _this = this
-                if (_this.compareAudio == null) {
-                    layui.layer.alert('请先选择音频文件')
-                    return
-                }
-                const compareCategory = $('#' + _this.viewId + ' #compareCategory').val()
-                if (!compareCategory) {
-                    layui.layer.alert('请先选择比对分类')
-                    return
-                }
-                $.customAjax({
-                    url: BaseUrl+'audio/start_compare_audio',
-                    type: 'post',
-                    data: {
-                        audioId: _this.compareAudio.id,
-                        categoryName:compareCategory
-                    },
-                    success: function(res){
-                        layer.msg(res.msg)
-                        if (res.code == 0) {
-                            _this.loadReferenceList()
-                        }
-                    },
-                    error: function(res, msg){
-                        layer.msg(msg)
-                    }
-                })
-            }
-
-            extractReferenceFile(){
-                const _this = this
-                const listFile = $('#'+_this.viewId + ' #listFile').val()
-                if (!listFile) {
-                    layer.msg('请先选择音频列表文件')
-                    return
-                }
-                $.customAjax({
-                    url: BaseUrl+'audio/load_audio_list_file',
-                    type: 'post',
-                    data: {
-                        audioListFile: listFile
-                    },
-                    success: function(res){
-                        layer.msg(res.msg)
-                        if (res.code == 0) {
-                            _this.loadReferenceList()
-                        }
-                    },
-                    error: function(res, msg){
-                        layer.msg(msg)
-                    }
-                })
-            }
-
+           
             openReportResult(){
                 const _this = this
 
@@ -173,28 +79,26 @@
                
                 C_ReportResult$1.loadAudios()
             }
-            
-            
-            listenTabSwitch(){
+
+            getSearchParams(){
                 const _this = this
-                layui.element.on('tab(referenceAudioTabBrief)', function (data) {
-                    console.log($(this).html()); // 当前 tab 标题所在的原始 DOM 元素
-                    console.log(data.index); // 得到当前 tab 项的所在下标
-                    console.log(data.elem); // 得到当前的 tab 容器
-                    console.log(data.id); // 得到当前的 tab ID(2.9.11+)
-
-                    const html = $(this).html()
-                    if (html == '参考列表') {
-                        _this.loadReferenceList()
-                    } else if (html == '参考分类') {
-                        _this.startReferenceCategory()
-                    }
-
-                });
+                const obj = $('#'+_this.viewId)
+                const searchAudioName = obj.find('#searchAudioName').val()
+                const searchCategory = obj.find('#searchCategory').val()
+                const searchContent = obj.find('#searchContent').val()
+                return {
+                    audio_name: searchAudioName,
+                    category: searchCategory,
+                    content: searchContent,
+                    order: _this.pageParam.order,
+                    desc: _this.pageParam.desc
+                }
             }
 
-            startReferenceCategory(){
+            reloadReferenceList() {
                 const _this = this
+                const params = _this.getSearchParams()
+                reloadListDataBySearchParams('referenceAudioList',params)
             }
 
             loadReferenceList(){
@@ -202,7 +106,7 @@
 
                 const windowHeight = window.innerHeight;
                 
-                const height = windowHeight - $('#contentHeader').height() - 50
+                const height = windowHeight - $('#contentHeader').height() - $('#searchHeader').height() - 50
                 // 创建渲染实例
                 layui.table.render({
                     elem: '#referenceAudioList',
@@ -288,16 +192,13 @@
                     }
                 });
 
-                const PageParam = {
-                    order:'',
-                    desc:''
-                }
+
 
                 //排序
                 layui.table.on('sort(referenceAudioList)', function(obj){ //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
 
-                    PageParam.order = obj.field;  //当前排序的字段名
-                    PageParam.desc = obj.type;   //当前排序类型：desc（降序）、asc（升序）、null（空对象，默认排序）
+                    _this.pageParam.order = obj.field;  //当前排序的字段名
+                    _this.pageParam.desc = obj.type;   //当前排序类型：desc（降序）、asc（升序）、null（空对象，默认排序）
 
                     // var params = getSearchParams()
 
@@ -305,7 +206,7 @@
 
                     layui.table.reload('referenceAudioList', {
                         initSort: obj //记录初始排序，如果不设的话，将无法标记表头的排序状态。
-                        ,where: PageParam
+                        ,where: _this.pageParam
                     });
 
                 });
@@ -315,9 +216,68 @@
                 const _this = this
                 console.log(id)
                 _this.compareAudio = this.audioList.find(i => i.id == id)
-                _this.render(2)
+                
+                const compare = ReferenceAudioCompareSpace.getReferenceAudioCompare('audioCompareView', _this.compareAudio)
+
+                const index = layer.open({
+                    type: 1,
+                    area: ['95%', '95%'],
+                    content: `<div id="audioCompareView"></div>`,
+                    btn: ['确定', '取消'],
+                    yes: function(){
+                        refreshListData('referenceAudioList')
+                        layui.layer.close(index)
+                    }
+                });
+
+                compare.loadData()
+                
             }
             
+            openImportDialog(){
+                const _this = this
+                const index = layer.open({
+                    type: 1,
+                    area: ['500px', '300px'],
+                    content: `
+                    <div class="layui-input-block" style="display: flex">
+                        <input type="text" id="listFile" autocomplete="off" placeholder="请输入list路径" class="layui-input" style="width: 100%;">
+                    </div>
+                    `,
+                    btn: ['确定', '取消'],
+                    yes: function(){
+                        _this.extractReferenceFile(index)
+                    }
+                });
+            }
+
+            extractReferenceFile(){
+                const _this = this
+                const listFile = $('#listFile').val()
+                if (!listFile) {
+                    layer.msg('请先选择音频列表文件')
+                    return
+                }
+                $.customAjax({
+                    url: BaseUrl+'audio/load_audio_list_file',
+                    type: 'post',
+                    data: {
+                        audioListFile: listFile
+                    },
+                    success: function(res){
+                        layer.msg(res.msg)
+                        if (res.code == 0) {
+                            refreshListData('referenceAudioList')
+                            layui.layer.close(index)
+                        }
+                    },
+                    error: function(res, msg){
+                        layer.msg(msg)
+                    }
+                })
+            }
+
+
         }
         
         function getReferenceAudio(viewId) {
@@ -331,80 +291,31 @@
 </script>
 
 <script id="referenceAudioTemplate" type="text/html">
+
+    <table class="table3" id="searchHeader">
+        <tr>
+            <td>音频名称：</td>
+            <td><input type="text" autocomplete="off" id="searchAudioName" placeholder="音频名称" class="layui-input" style="width: auto;"></td>
+            <td>音频分类：</td>
+            <td>
+                <select class="customSelect" id="searchCategory">
+                    <option value="">请选择</option>
+                    {{# layui.each(d.categoryList, function(index,item){ }}
+                        <option value="{{item.name}}">{{item.name}}</option>
+                    {{# }) }}
+                </select>
+            </td>
+            <td>音频内容：</td>
+            <td><input type="text" autocomplete="off" id="searchContent" placeholder="音频内容" class="layui-input" style="width: auto;"></td>
+            <td colspan="2">
+                <button type="submit" class="layui-btn layui-btn-sm" id="searchAudio">搜索</button>
+                <button type="submit" class="layui-btn layui-btn-sm" id="addAudio">新增</button>
+                <button type="submit" class="layui-btn layui-btn-sm" id="importAudio">导入</button>
+            </td>
+        </tr>
+    </table>
     
-    <div style="display: flex;justify-content: space-between;padding: 20px">
-        <div class="layui-form-item" style="flex-grow: 1;margin-right: 20px">
-            <label class="layui-form-label">输入list路径</label>
-            <div class="layui-input-block" style="display: flex">
-                <input type="text" id="listFile" autocomplete="off" placeholder="请输入list路径" class="layui-input" style="width: 100%;">
-            </div>
-        </div>
-        <button type="submit" class="layui-btn" id="extractReferenceFile">提取参考</button>
-    </div>
 
-    <div class="layui-tab layui-tab-card" style="margin: 0 5px" lay-filter="referenceAudioTabBrief">
-        <ul class="layui-tab-title">
-            <li class="layui-this" lay-id="1">参考列表</li>
-            <li lay-id="2">参考分类</li>
-        </ul>
-        <div class="layui-tab-content" style="height: 550px;padding: 5px;">
-            <div class="layui-tab-item layui-show" style="height: 100%">
-                <table class="layui-hide" id="referenceAudioList" lay-filter="referenceAudioList" style="height: 100%"></table>
-            </div>
-            <div class="layui-tab-item">
-                
-                <table class="table1">
-                    <tr>
-                        <td class="vertical-center">
-                            
-                            {{# if (d.compareAudio != null) { }}
-
-                                待比较的音频：
-                                <audio controls>
-                                    <source src="{{d.compareAudio.audioPath}}" type="audio/wav">
-                                    <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
-                                    您的浏览器不支持 HTML5 audio 标签。
-                                </audio>
-                            
-                            {{# } }}
-
-                        </td>
-                        <td>
-                            比对目录：
-                            <select class="customSelect" id="compareCategory">
-                                {{# layui.each(d.categoryList, function(index,item){ }}
-                                    <option value="{{item.name}}">{{item.name}}</option>
-                                {{# }) }}
-                            </select>
-                        </td>
-                        <td>
-                            <button type="submit" class="layui-btn" id="startCompareAudio">开始比对</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="3">
-                            <button type="submit" class="layui-btn" id="openReportResult">打开报告结果</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div style="display: flex">
-                                <input type="number" autocomplete="off" id="limitScore" placeholder="请输入待分割值" class="layui-input" style="width: auto;">
-                                <button type="submit" class="layui-btn" id="clearLimitScore">清空分割值</button>
-                            </div>
-                        </td>
-                        <td>
-                            <input type="text" autocomplete="on" id="targetCategory" placeholder="请输入目标分类名称" class="layui-input" style="width: auto;">
-                        </td>
-                        <td>
-                            <button type="submit" class="layui-btn" id="changeCategory">将分割值及以上的音频转入目标分类</button>
-                        </td>
-                    </tr>
-                </table>
-                
-            </div>
-        </div>
-    </div>
-    
+    <table class="layui-hide" id="referenceAudioList" lay-filter="referenceAudioList" style="height: 100%"></table>
    
 </script>
