@@ -3,8 +3,6 @@ import sys
 import time
 import webbrowser
 
-from server.service.system.system_service import SystemService
-
 sys.path.append(os.getcwd())
 
 from fastapi import FastAPI, Request
@@ -24,6 +22,8 @@ from server.controller.result_evaluation.result_evaluation_controller import rou
 from server.controller.audio_packaging.audio_packaging_controller import router as audio_packaging_router
 from server.controller.system.system_controller import router as system_router
 from server.dao.data_base_manager import db_config
+from server.common import config_params
+from server.service.system.system_service import SystemService
 
 app = FastAPI()
 app.add_middleware(
@@ -64,11 +64,11 @@ app.mount("/static", StaticFiles(directory="."), name="static")
 if __name__ == "__main__":
     import uvicorn
 
-    url = "http://localhost:8000/static/main.html"
-    # webbrowser.open(url)
+    url = f"http://localhost:{config_params.service_port}/static/main.html?apiPort={config_params.api_port}"
+    webbrowser.open(url)
     # 测试
     db_config.init_master_db_path()
     role_name = SystemService.get_valid_role_name()
     if role_name:
         db_config.update_db_path(role_name)
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=config_params.service_port)

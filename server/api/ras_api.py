@@ -169,4 +169,4 @@ async def tts_endpoint(
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8001, workers=1)
+    uvicorn.run(app, host="0.0.0.0", port=params.api_port, workers=1)

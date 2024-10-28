@@ -7,6 +7,10 @@ config = config_manager.get_config()
 gsv2_dir = config.get_base('gsv2_dir')
 # 推理任务并发进程数量
 inference_process_num = config.get_base('inference_process_num')
+# service port
+service_port = config.get_base('service_port')
+# api port
+api_port = config.get_base('api_port')
 
 # [Log]
 # 日志保存目录路径

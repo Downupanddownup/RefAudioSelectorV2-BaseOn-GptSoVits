@@ -51,3 +51,14 @@ const SysConfig = (function () {
         languageList: languageList
     }
 })()
+
+const BaseUrl = `http://localhost:${window.location.port}/`
+const RasApiUrl = (() => {
+    const url = window.location.href;
+    const params = new URLSearchParams(url.split('?')[1]);
+    const apiPort = params.get('apiPort'); // 假设apiPort总是存在
+
+    console.log('API Port:', apiPort);
+
+    return `http://localhost:${apiPort}/`;
+})()

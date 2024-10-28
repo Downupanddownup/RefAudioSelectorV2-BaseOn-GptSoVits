@@ -8,6 +8,7 @@ from future.moves import subprocess
 
 from server.bean.inference_task.gpt_model import GptModel
 from server.bean.inference_task.vits_model import VitsModel
+from server.common import config_params
 from server.common.log_config import logger
 from server.util.util import get_absolute_path
 
@@ -57,8 +58,7 @@ class RasApiMonitor:
 
     @staticmethod
     def get_api_service_url() -> str:
-        port = 8001
-        return f'http://localhost:{port}'
+        return f'http://localhost:{config_params.api_port}'
 
     @staticmethod
     def start_service(stream_mode:bool) -> bool:
