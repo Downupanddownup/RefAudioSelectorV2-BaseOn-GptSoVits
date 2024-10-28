@@ -65,10 +65,11 @@ if __name__ == "__main__":
     import uvicorn
 
     url = f"http://localhost:{config_params.service_port}/static/main.html?apiPort={config_params.api_port}"
+    print(f"Open url: {url}")
     webbrowser.open(url)
     # 测试
     db_config.init_master_db_path()
     role_name = SystemService.get_valid_role_name()
     if role_name:
         db_config.update_db_path(role_name)
-    uvicorn.run(app, host="0.0.0.0", port=config_params.service_port)
+    uvicorn.run(app, host="0.0.0.0", port=int(config_params.service_port))

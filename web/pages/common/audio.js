@@ -300,3 +300,77 @@ async function fetchAndPlayAudio(audio_url, requestBody, audioId) {
 
     audioElement.play(); // 播放音频
 }
+
+
+
+async function fetchAudioBlob(audio_url) {
+
+    // 通过 fetch 请求流式获取音频数据
+    const response = await fetch(audio_url); // 后端返回流式音频的 URL
+    const reader = response.body.getReader();
+    let chunks = []; // 用于存储音频数据的所有片段
+    let receivedLength = 0; // 记录接收的字节总数
+
+    // 循环读取每个数据块，直到读取完成
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+            break; // 读取完成
+        }
+        chunks.push(value); // 将每个数据块存储到 chunks 数组中
+        receivedLength += value.length; // 更新接收到的数据总长度
+    }
+
+    // 将所有数据块合并成一个完整的 Uint8Array
+    let audioArray = new Uint8Array(receivedLength);
+    let position = 0;
+    for (let chunk of chunks) {
+        audioArray.set(chunk, position);
+        position += chunk.length;
+    }
+
+    // 将 Uint8Array 转换为 Blob
+    const audioBlob = new Blob([audioArray], { type: 'audio/wav' }); // 根据实际的音频类型设置 Blob 类型
+    const audioUrl = URL.createObjectURL(audioBlob);
+
+    return {
+        audioBlob: audioBlob,
+        audioUrl: audioUrl
+    }
+
+}
+
+
+async function extractAudioSegment(blob, startTime, endTime) {
+    const arrayBuffer = await blob.arrayBuffer();
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    // 解码音频数据
+    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+    // 计算提取的样本范围
+    const startSample = Math.floor(startTime * audioBuffer.sampleRate);
+    const endSample = Math.floor(endTime * audioBuffer.sampleRate);
+
+    // 创建新的 AudioBuffer
+    const segmentBuffer = audioCtx.createBuffer(
+        audioBuffer.numberOfChannels,
+        endSample - startSample,
+        audioBuffer.sampleRate
+    );
+
+    // 拷贝样本到新缓冲区
+    for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
+        segmentBuffer.copyToChannel(audioBuffer.getChannelData(channel).subarray(startSample, endSample), channel);
+    }
+
+    // 使用 wavefile 库将新的 AudioBuffer 转换为 Blob
+    const wav = new wavefile.WaveFile();
+    wav.fromScratch(segmentBuffer.numberOfChannels, segmentBuffer.sampleRate, '32', segmentBuffer.getChannelData(0));
+
+    for (let channel = 1; channel < segmentBuffer.numberOfChannels; channel++) {
+        wav.fromScratch(channel, segmentBuffer.sampleRate, '32', segmentBuffer.getChannelData(channel));
+    }
+
+    return new Blob([wav.toBuffer()], { type: 'audio/wav' });
+}

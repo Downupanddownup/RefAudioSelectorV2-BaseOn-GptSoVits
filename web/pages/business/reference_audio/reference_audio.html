@@ -42,11 +42,7 @@
                     obj.html(html)
 
                     _this.loadReferenceList()
-                    
-                    obj.find('#openReportResult').on('click', function(){
-                        _this.openReportResult()
-                    })
-                    
+
                     obj.find('#searchAudio').on('click', function(){
                         _this.reloadReferenceList()
                     })
@@ -60,26 +56,6 @@
                 return _this
             }
            
-            openReportResult(){
-                const _this = this
-
-                const C_ReportResult$1 = ReportResultSpace.getReportResult('reportResultView', _this.compareAudio.id)
-                
-                const index = layer.open({
-                    type: 1,
-                    area: ['90%', '90%'],
-                    content: `<div id="reportResultView"></div>`,
-                    btn: ['确定', '取消'],
-                    yes: function(){
-                        const score = C_ReportResult$1.getSelectedScore()
-                        $('#' + _this.viewId + ' #limitScore').val(score)
-                        layui.layer.close(index)
-                    }
-                });
-               
-                C_ReportResult$1.loadAudios()
-            }
-
             getSearchParams(){
                 const _this = this
                 const obj = $('#'+_this.viewId)
@@ -162,6 +138,8 @@
                                  const html = []
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm">编辑</button>`)
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-compare="${d.id}">开始比对</button>`)
+                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-split="${d.id}">分割</button>`)
+                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-download="${d.id}">下载</button>`)
                                 return html.join(' ');
                             }},
                     ]],
@@ -184,6 +162,11 @@
                         $('#' + _this.viewId + ' button[data-go-to-compare]').on('click', function(){
                             const id = $(this).attr('data-go-to-compare')
                             _this.goToCompare(id)
+                        })
+                        
+                        $('#' + _this.viewId + ' button[data-go-to-split]').on('click', function(){
+                            const id = $(this).attr('data-go-to-split')
+                            _this.goToOpenSplitDialog(id)
                         })
                         
                     },
@@ -231,6 +214,28 @@
                 });
 
                 compare.loadData()
+                
+            }
+
+            goToOpenSplitDialog(id){
+                const _this = this
+                console.log(id)
+                const audio = this.audioList.find(i => i.id == id)
+                
+                const audioSplit = ReferenceAudioSplitSpace.getReferenceAudioSplit('audioSplitView', audio)
+
+                const index = layer.open({
+                    type: 1,
+                    area: ['95%', '95%'],
+                    content: `<div id="audioSplitView"></div>`,
+                    btn: ['确定', '取消'],
+                    yes: function(){
+                        refreshListData('referenceAudioList')
+                        layui.layer.close(index)
+                    }
+                });
+
+                audioSplit.render()
                 
             }
             
