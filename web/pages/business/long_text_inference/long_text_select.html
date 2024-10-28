@@ -307,10 +307,11 @@
             <td>语种：</td>
             <td>
                 <select class="customSelect" id="textLanguage">
-                    <option value="ZH">ZH</option>
-                    <option value="0">待推理</option>
-                    <option value="1">部分推理</option>
-                    <option value="2">已完成</option>
+                    
+                    {{# layui.each(SysConfig.languages, function(index, item) { }}
+                        <option {{isTrue(item.value==d.textLanguage,'selected','')}} value="{{item.value}}">{{item.name}}</option>
+                    {{# }) }}
+                    
                 </select>
             </td>
         </tr>
