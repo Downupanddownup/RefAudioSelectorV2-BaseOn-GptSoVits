@@ -374,3 +374,27 @@ async function extractAudioSegment(blob, startTime, endTime) {
 
     return new Blob([wav.toBuffer()], { type: 'audio/wav' });
 }
+
+function downloadAudio(audioPath, filename) {
+    fetch(audioPath, {
+        method: 'GET',
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Network response was not ok ${response.status}`);
+            }
+            // 创建一个 Blob 对象，并使用 URL.createObjectURL 方法创建一个临时的 URL
+            return response.blob();
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', filename); // 自定义下载的文件名
+            document.body.appendChild(link);
+            link.click(); // 触发点击下载
+            document.body.removeChild(link); // 移除下载链接
+            window.URL.revokeObjectURL(url); // 释放 URL 对象
+        })
+        .catch(e => console.error('There has been a problem with your fetch operation:', e));
+}

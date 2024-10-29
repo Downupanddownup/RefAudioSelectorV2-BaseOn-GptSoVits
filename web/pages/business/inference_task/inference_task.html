@@ -149,6 +149,7 @@
                                     html.push(`<button type="button" class="layui-btn layui-btn-sm" data-task-start-inference="${d.id}">开始执行</button>`)
                                     html.push(`<button type="button" class="layui-btn layui-btn-sm" data-task-start-analysis="${d.id}">分析结果</button>`)
                                 }
+                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-task-result-audio="${d.id}">结果</button>`)
                                 return html.join(' ');
                             }},//查看详情，执行推理
                     ]],
@@ -173,6 +174,11 @@
                         obj.find('button[data-task-start-analysis]').on('click', function () {
                             const taskId = $(this).attr('data-task-start-analysis')
                             _this.startTaskAnalysis(taskId)
+                        })
+                        
+                        obj.find('button[data-task-result-audio]').on('click', function () {
+                            const taskId = $(this).attr('data-task-result-audio')
+                            _this.lookTaskResultAudioList(taskId)
                         })
                         
                     },
@@ -254,6 +260,25 @@
 
                 
                 C_TaskDetail$1.loadData()
+            }
+
+            lookTaskResultAudioList(taskId){
+                
+                const _this = this
+                const dialog = InferenceTaskResultAudioListSpace.getInferenceTaskResultAudioList('resultAudioListView', taskId)
+                
+                const dialogIndex = layer.open({
+                    type: 1,
+                    area: ['95%', '95%'],
+                    content: `<div id="resultAudioListView" style="overflow-x: hidden"></div>`,
+                    btn: ['关闭'],
+                    yes: function(){
+                        layui.layer.close(dialogIndex)
+                    }
+                });
+
+
+                dialog.render()
             }
 
             lookInferenceTaskDetail(taskId){

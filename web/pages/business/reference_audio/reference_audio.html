@@ -46,6 +46,10 @@
                     obj.find('#searchAudio').on('click', function(){
                         _this.reloadReferenceList()
                     })
+
+                    obj.find('#addAudio').on('click', function(){
+                        _this.openEditDialog(0)
+                    })
                     
                     obj.find('#importAudio').on('click', function(){
                         _this.openImportDialog()
@@ -136,7 +140,7 @@
                             }},
                         {field:'opt', width:'20%', title: '操作', templet: function(d){
                                  const html = []
-                                html.push(`<button type="button" class="layui-btn layui-btn-sm">编辑</button>`)
+                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-edit="${d.id}">编辑</button>`)
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-compare="${d.id}">开始比对</button>`)
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-split="${d.id}">分割</button>`)
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-download="${d.id}">下载</button>`)
@@ -159,6 +163,11 @@
                             })
                         })
                         
+                        $('#' + _this.viewId + ' button[data-go-to-edit]').on('click', function(){
+                            const id = $(this).attr('data-go-to-edit')
+                            _this.openEditDialog(id)
+                        })
+                        
                         $('#' + _this.viewId + ' button[data-go-to-compare]').on('click', function(){
                             const id = $(this).attr('data-go-to-compare')
                             _this.goToCompare(id)
@@ -167,6 +176,11 @@
                         $('#' + _this.viewId + ' button[data-go-to-split]').on('click', function(){
                             const id = $(this).attr('data-go-to-split')
                             _this.goToOpenSplitDialog(id)
+                        })
+                        
+                        $('#' + _this.viewId + ' button[data-go-to-download]').on('click', function(){
+                            const id = $(this).attr('data-go-to-download')
+                            _this.downloadAudio(id)
                         })
                         
                     },
@@ -214,6 +228,37 @@
                 });
 
                 compare.loadData()
+                
+            }
+
+            openEditDialog(id){
+                const _this = this
+                console.log(id)
+                const audio = id > 0 ? this.audioList.find(i => i.id == id) : null
+                
+                const edit = ReferenceAudioEditSpace.getReferenceAudioEdit('audioEditView', audio)
+
+                const index = layer.open({
+                    type: 1,
+                    area: ['95%', '95%'],
+                    content: `<div id="audioEditView"></div>`,
+                    btn: ['确定', '取消'],
+                    yes: function(){
+                        refreshListData('referenceAudioList')
+                        layui.layer.close(index)
+                    }
+                });
+
+                edit.loadData()
+                
+            }
+
+            downloadAudio(id){
+                const _this = this
+                console.log(id)
+                const audio = this.audioList.find(i => i.id == id)
+                const fileName = `${audio.category}|${audio.language}|${audio.content}.${audio.getAudioExtension()}`
+                downloadAudio(audio.audioPath, fileName)
                 
             }
 

@@ -1,13 +1,38 @@
 <!DOCTYPE html>
 <script>
   const ReferenceAudioSplitSpace = (function () {
-    class C_ReferenceAudioSplit {
-      constructor(viewId, audio) {
-        this.viewId = viewId
-        this.audio = audio
+    
+    class C_AudioFragment {
+      constructor(data) {
+        this.id = data.id || ''
+        this.region = data.region || null
+        this.frament = new C_ObjReferenceAudio(data.originAudio)
+      }
+    }
+    
+    class C_Audio {
+      constructor(data) {
+        this.index = data.index || 0
+        this.blob = data.blob || null
+        this.originAudio = data.originAudio || null
         this.wavesurfer = null
-        this.regions = null
-        this.lastRegion = null
+        this.regionsManager = null
+      }
+    }
+    
+    class C_Region {
+      constructor(data) {
+        this.region = data.region || null
+      }
+    }
+    
+    class C_ReferenceAudioSplit {
+      constructor(viewId, originAudio) {
+        this.viewId = viewId
+        this.originAudio = originAudio
+        this.wavesurfer = null
+        this.regionsManager = null
+        this.regions = []
         this.blob = null
       }
 
@@ -36,29 +61,50 @@
 
       splitAudio(){
         const _this = this
-        extractAudioSegment(_this.blob, this.lastRegion.start, this.lastRegion.end).then(blob => {
-          console.log('blob', blob)
-          const audioElement = document.getElementById('testAudio'); // 使用已有的 audio 元素
-          audioElement.src = URL.createObjectURL(blob); // 更新音频文件的 URL
-          audioElement.play(); // 播放音频
+
+        $('#' + _this.viewId + ' #audioDiv').html(``)
+        
+        _this.regions.forEach(item => {
+
+          extractAudioSegment(_this.blob, item.region.start, item.region.end).then(blob => {
+            console.log('blob', blob)
+            const url = URL.createObjectURL(blob); // 更新音频文件的 URL
+
+            $('#' + _this.viewId + ' #audioDiv').append(`
+              <audio controls class="custom-audio">
+                <source src="${url}" type="audio/wav">
+                <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
+                您的浏览器不支持 HTML5 audio 标签。
+              </audio>
+            `)
+            
+          })
+          
         })
+        
+       
       }
 
       addRegion(){
         const _this = this
-        _this.lastRegion = _this.regions.addRegion({
-          start: 1.5,
-          end: 3.5,
-          content: 'Cramped region',
+        const region = _this.regionsManager.addRegion({
+          start: 0,
+          end: _this.originAudio.audioLength,
+          content: '剪切范围',
           color: _this.randomColor(),
-          minLength: 1,
-          maxLength: 10,
+          // minLength: 1,
+          // maxLength: 10,
         })
+        
+        _this.regions.push(new C_Region({
+          region: region
+        }))
+        
       }
       
       async loadAudio() {
         const _this = this
-        const {audioUrl, audioBlob} = await fetchAudioBlob(_this.audio.audioPath)
+        const {audioUrl, audioBlob} = await fetchAudioBlob(_this.originAudio.audioPath)
         _this.initWaveform(audioUrl, audioBlob)
       }
 
@@ -93,7 +139,7 @@
                   labelSize: '11px',
                 })
 
-        _this.regions = WaveSurfer.Regions.create()
+        _this.regionsManager = WaveSurfer.Regions.create()
 
         // Create an instance of WaveSurfer 
         _this.wavesurfer = WaveSurfer.create({
@@ -103,7 +149,7 @@
           media: audio,
           minPxPerSec: 100,
           // sampleRate: 32000,
-          plugins: [bottomTimeline,hover,_this.regions],
+          plugins: [bottomTimeline,hover,_this.regionsManager],
         })
 
         console.log('wavesurfer')
@@ -122,7 +168,6 @@
       }
 
       randomColor() {
-        // Give regions a random color when they are created
         const random = (min, max) => Math.random() * (max - min) + min
         return `rgba(${random(0, 255)}, ${random(0, 255)}, ${random(0, 255)}, 0.5)`
       }
@@ -133,8 +178,8 @@
 
     }
 
-    function getReferenceAudioSplit(viewId, audio) {
-      return new C_ReferenceAudioSplit(viewId, audio)
+    function getReferenceAudioSplit(viewId, originAudio) {//
+      return new C_ReferenceAudioSplit(viewId, originAudio)
     }
 
     return {
@@ -144,17 +189,49 @@
 </script>
 
 <script id="referenceAudioSplitTemplate" type="text/html">
-  <div id="waveform">
+  <div>
+    是否保留原始音频：
+    <label class="custom-radio" style="margin-right: 30px">
+      <input type="radio" name="streamMode" value="是" title="是" {{d.config.streamMode ? 'checked' : ''}}>
+      <span></span>是
+    </label>
+    <label class="custom-radio">
+      <input type="radio" name="streamMode" value="否" title="否" {{d.config.streamMode ? '' : 'checked'}}>
+      <span></span>否
+    </label>
+  </div>
+  
+  <div id="waveformListView">
     
   </div>
   
-  <button id="addRegion">新增区域</button>
-  <button id="splitAudio">提取音频</button>
+  <button type="submit" class="layui-btn layui-btn-sm" id="splitAudio">添加一个新的</button>
+  <button type="submit" class="layui-btn layui-btn-sm" id="splitAudio">提取音频</button>
+  
+</script>
 
-  <audio controls class="custom-audio" id="testAudio">
-    <source  type="audio/wav">
-    <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
-    您的浏览器不支持 HTML5 audio 标签。
-  </audio>
+<script id="referenceAudioSplitItemTemplate" type="text/html">
+  
+  <div data-wave-form="{{d.index}}"></div>
+  <div>
+    <button type="submit" class="layui-btn layui-btn-sm" data-add-audio-fragment="{{d.index}}">添加片段选择</button>
+  </div>
+  
+  <div data-audio-result="{{d.index}}"></div>
+  
+  <table class="table1">
+    <tr>
+      <td>音频分类：</td>
+      <td><input type="text" autocomplete="off" id="searchAudioName" placeholder="音频分类" class="layui-input" style="width: auto;"></td>
+      <td>音频内容：</td>
+      <td><input type="text" autocomplete="off" id="searchAudioName" placeholder="音频内容" class="layui-input" style="width: auto;"></td>
+      <td>音频语种：</td>
+      <td><input type="text" autocomplete="off" id="searchAudioName" placeholder="音频语种" class="layui-input" style="width: auto;"></td>
+    </tr>
+  </table>
+
+  <div>
+    <button type="submit" class="layui-btn layui-btn-sm" data-delete-audio="{{d.index}}">删除</button>
+  </div>
   
 </script>

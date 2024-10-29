@@ -80,3 +80,16 @@ function initTextarea(id) {
     $('#'+id).css('height',$('#'+id)[0].scrollHeight+'px').css('overflow','hidden')
 }
 
+function getExtension(filePath) {
+    if (!filePath) {
+        return '';
+    }
+    // 从右向左找到第一个点的位置，以此作为扩展名的开始位置
+    const lastDotIndex = filePath.lastIndexOf('.');
+    // 如果找不到点或者点位于文件路径的开头（即没有扩展名），则返回空字符串
+    if (lastDotIndex === -1 || lastDotIndex === filePath.length - 1) {
+        return '';
+    }
+    // 提取扩展名
+    return filePath.substring(lastDotIndex + 1);
+}

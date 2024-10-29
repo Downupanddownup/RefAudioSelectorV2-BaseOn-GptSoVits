@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<script>
+    const ResultAudioAllDetailSpace = (function () {
+        class C_ResultAudioAllDetail {
+            constructor(viewId) {
+                this.viewId = viewId
+            }
+
+            render() {
+                const _this = this
+                const getTpl = $('#resultAudioAllDetailTemplate').html(); // 获取模板字符
+                // 渲染并输出结果
+                layui.laytpl(getTpl).render(_this, function(html){
+                    const obj = $('#'+_this.viewId)
+                    obj.html(html)
+                });
+                return _this
+            }
+        }
+
+        function getResultAudioAllDetail(viewId) {
+            return new C_ResultAudioAllDetail(viewId)
+        }
+
+        return {
+            getResultAudioAllDetail: getResultAudioAllDetail
+        }
+    })()
+</script>
+
+<script id="resultAudioAllDetailTemplate" type="text/html">
+    结果音频明细
+</script>

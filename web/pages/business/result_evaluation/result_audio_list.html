@@ -257,6 +257,11 @@
                         _this.showEditRemarkDialog(id)
                     })
                     
+                    obj.find('[data-result-audio-detail]').on('click', function(){
+                        const id = $(this).attr('data-result-audio-detail')
+                        _this.showResultAudioDetailDialog(id)
+                    })
+                    
                     obj.find('#launch').on('click', function(){
                         _this.order.changeLaunch()
                         _this.changeLevelDataLaunch(_this.order.launch)
@@ -328,6 +333,26 @@
                         })
                     })
                 }
+            }
+
+            showResultAudioDetailDialog(id){
+                const _this = this
+                const resultAudio = _this.taskResultAudioList.find(i => i.id == id)
+
+                const dialog = ResultAudioAllDetailSpace.getResultAudioAllDetail('resultAudioDetailView', resultAudio)
+
+                const dialogIndex = layer.open({
+                    type: 1,
+                    area: ['95%', '95%'],
+                    content: `<div id="resultAudioDetailView" style="overflow-x: hidden"></div>`,
+                    btn: ['关闭'],
+                    yes: function(){
+                        layui.layer.close(dialogIndex)
+                    }
+                });
+                
+                dialog.render()
+                
             }
 
             showEditRemarkDialog(id){
@@ -684,6 +709,7 @@
                                                 <td style="width: 5%;">文本相似度</td>
                                                 <td style="width: 5%;">音频相似度</td>
                                                 <td style="width: 10%;">备注</td>
+                                                <td style="width: 10%;">操作</td>
                                             </tr>
                                         
                                         {{# } }}
@@ -697,6 +723,7 @@
                                         <td>{{item2.resultAudio.asrSimilarScore.toFixed(4)}}</td>
                                         <td>{{item2.resultAudio.audioSimilarScore}}</td>
                                         <td><span id="data-audio-remark-span-{{item2.resultAudio.id}}">{{item2.resultAudio.remark}}</span><i class="layui-icon layui-icon-edit" data-audio-remark-edit="{{item2.resultAudio.id}}"></i> </td>
+                                        <td><button type="button" class="layui-btn layui-btn-sm" data-result-audio-detail="{{item2.resultAudio.id}}">详情</button></td>
                                     </tr>
                                     {{# }) }}
                                 </table>
@@ -739,6 +766,7 @@
                                                                 <td style="width: 5%;">文本相似度</td>
                                                                 <td style="width: 5%;">音频相似度</td>
                                                                 <td style="width: 10%;">备注</td>
+                                                                <td style="width: 10%;">操作</td>
                                                             </tr>
                                                         {{# } }}
                                                         <tr id="result-audio-{{item3.resultAudio.id}}" style="height: 46px">
@@ -750,6 +778,7 @@
                                                             <td>{{item3.resultAudio.asrSimilarScore.toFixed(4)}}</td>
                                                             <td>{{item3.resultAudio.audioSimilarScore}}</td>
                                                             <td><span id="data-audio-remark-span-{{item3.resultAudio.id}}">{{item3.resultAudio.remark}}</span><i class="layui-icon layui-icon-edit" data-audio-remark-edit="{{item3.resultAudio.id}}"></i> </td>
+                                                            <td><button type="button" class="layui-btn layui-btn-sm" data-result-audio-detail="{{item3.resultAudio.id}}">详情</button></td>
                                                         </tr>
                                                     {{# }) }}
                                                 </table>

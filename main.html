@@ -15,10 +15,7 @@
       <div class="layui-colla-title" style="display: flex;justify-content: space-between">
         <div>基础信息</div>
         <div>
-          <select class="customSelect" id="gsvVersion">
-            <option value="v1">v1</option>
-            <option value="v2">v2</option>
-          </select>
+          <div id="roleList"></div>
         </div>
       </div>
       <div class="layui-colla-content">
@@ -141,6 +138,7 @@
             if (res.code == 0) {
               $('#roleName').val(res.data.roleName)
               console.log(res)
+              initRoleList(res.data.roleName, res.data.roleList)
               layui.element.tabChange('docDemoTabBrief', 1);
             } else {
               layui.layer.msg(res.msg)
@@ -149,6 +147,71 @@
           error: function(res, msg){
             layui.layer.msg(msg)
           }
+        })
+      }
+      
+      function initRoleList(roleName, roleList) {
+
+        const data = roleList.map(item => {
+          return {
+            name: item,
+            value: item,
+            selected: item === roleName
+          }
+        })
+
+        xmSelect.render({
+          el: '#roleList',
+          tips: '选择或新建',
+          radio: true,
+          clickClose: true,
+          filterable: true,
+          create: function(val, arr){
+            if(arr.length === 0){
+              return {
+                name: val,
+                value: val
+              }
+            }
+          },
+          model: {
+            icon: 'hidden',
+            label: {
+              type: 'text',
+            }
+          },
+          data: data,
+          on: function(data){
+            //arr:  当前多选已选中的数据
+            const arr = data.arr;
+            //change, 此次选择变化的数据,数组
+            const change = data.change;
+            //isAdd, 此次操作是新增还是删除
+            const isAdd = data.isAdd;
+
+            //可以return一个数组, 代表想选中的数据
+            //return []
+            console.log('xm-select', data)
+            const selectedRoleName = arr[0].name
+            
+            if (selectedRoleName) {
+              $.customAjax({
+                url: BaseUrl + 'system/switch_role_workspace',
+                type: 'POST',
+                data: {
+                  roleName: roleName
+                },
+                success: function (data) {
+                  if (data.code == 0) {
+                    layui.layer.msg('切换成功')
+                  } else {
+                    layui.layer.msg(data.msg)
+                  }
+                }
+              })
+            }
+            
+          },
         })
       }
       

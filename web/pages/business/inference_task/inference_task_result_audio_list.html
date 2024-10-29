@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<script>
+    const InferenceTaskResultAudioListSpace = (function () {
+        class C_InferenceTaskResultAudioList {
+            constructor(viewId) {
+                this.viewId = viewId
+            }
+
+            render() {
+                const _this = this
+                const getTpl = $('#inferenceTaskResultAudioListTemplate').html(); // 获取模板字符
+                // 渲染并输出结果
+                layui.laytpl(getTpl).render(_this, function(html){
+                    const obj = $('#'+_this.viewId)
+                    obj.html(html)
+                });
+                return _this
+            }
+        }
+
+        function getInferenceTaskResultAudioList(viewId) {
+            return new C_InferenceTaskResultAudioList(viewId)
+        }
+
+        return {
+            getInferenceTaskResultAudioList: getInferenceTaskResultAudioList
+        }
+    })()
+</script>
+
+<script id="inferenceTaskResultAudioListTemplate" type="text/html">
+    任务推理结果明细
+</script>

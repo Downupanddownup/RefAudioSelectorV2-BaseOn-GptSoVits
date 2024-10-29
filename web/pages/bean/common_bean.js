@@ -10,6 +10,10 @@ class C_ObjReferenceAudio {//参考音频
         this.audioLength = data.audioLength || 0; // 音频时长
         this.createTime = data.createTime; // 创建时间, 默认为当前时间
     }
+    
+    getAudioExtension(){
+        return getExtension(this.audioPath)
+    }
 }
 
 class C_ObjInferenceTask {//推理任务
