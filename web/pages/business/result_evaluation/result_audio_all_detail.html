@@ -56,7 +56,9 @@
             }
 
             initRefAudioWaveForm(){
+                const _this = this
                 const audio = document.getElementById('referenceAudio');
+                audio.src = _this.refAudio.audioPath
 
                 // Create a second timeline
                 const bottomTimeline = WaveSurfer.Timeline.create({
@@ -102,7 +104,10 @@
             }
 
             initResultAudioWaveForm(){
+                const _this = this
                 const audio = document.getElementById('resultAudio');
+                
+                audio.src = _this.resultAudio.path
 
                 // Create a second timeline
                 const bottomTimeline = WaveSurfer.Timeline.create({
@@ -166,7 +171,7 @@
         </fieldset>
         <div id="resultWaveForm"></div>
         <audio controls class="custom-audio" id="resultAudio">
-            <source src="{{d.resultAudio.path}}" type="audio/wav">
+            <source type="audio/wav">
             <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
             您的浏览器不支持 HTML5 audio 标签。
         </audio>
@@ -178,7 +183,7 @@
     </fieldset>
     <div id="referenceWaveForm"></div>
     <audio controls class="custom-audio" id="referenceAudio">
-        <source src="{{d.refAudio.audioPath}}" type="audio/wav">
+        <source type="audio/wav">
         <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
         您的浏览器不支持 HTML5 audio 标签。
     </audio>
