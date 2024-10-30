@@ -337,9 +337,8 @@
 
             showResultAudioDetailDialog(id){
                 const _this = this
-                const resultAudio = _this.taskResultAudioList.find(i => i.id == id)
 
-                const dialog = ResultAudioAllDetailSpace.getResultAudioAllDetail('resultAudioDetailView', resultAudio)
+                const dialog = ResultAudioAllDetailSpace.getResultAudioAllDetail('resultAudioDetailView', id)
 
                 const dialogIndex = layer.open({
                     type: 1,
@@ -351,7 +350,7 @@
                     }
                 });
                 
-                dialog.render()
+                dialog.loadData()
                 
             }
 

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Request
 
-from server.bean.result_evaluation.obj_inference_task_result_audio import ObjInferenceTaskResultAudioFilter
+from server.bean.result_evaluation.obj_inference_task_result_audio import ObjInferenceTaskResultAudioFilter, \
+    ObjInferenceTaskResultAudio
 from server.common.response_result import ResponseResult
 from server.service.inference_task.inference_task_service import InferenceTaskService
 from server.service.result_evaluation.result_evaluation_service import ResultEvaluationService
@@ -93,3 +94,31 @@ async def update_result_audio_remark(request: Request):
     ResultEvaluationService.update_result_audio_remark(result_audio_id, remark)
 
     return ResponseResult()
+
+
+@router.post("/get_inference_task_result_audio_detail")
+async def get_inference_task_result_audio_detail(request: Request):
+    form_data = await request.form()
+    result_audio_id = form_data.get('id')
+
+    if ValidationUtils.is_empty(result_audio_id):
+        return ResponseResult(code=1, msg="id is required")
+
+    result_audio = ResultEvaluationService.find_one_by_id(result_audio_id)
+
+    if not result_audio:
+        return ResponseResult(code=1, msg="无此记录")
+
+    task = InferenceTaskService.find_whole_inference_task_by_id(result_audio.task_id)
+
+    result_audio.obj_task = task
+    result_audio.obj_text = next((text for text in task.text_list if result_audio.text_id == text.id), None)
+    result_audio.obj_audio = next((audio for audio in task.audio_list if result_audio.audio_id == audio.id), None)
+    result_audio.obj_param = next((param for param in task.param_list if result_audio.compare_param_id == param.id),
+                                  None)
+
+    task.text_list = []
+    task.audio_list = []
+    task.param_list = []
+
+    return ResponseResult(data=result_audio)

@@ -2,8 +2,41 @@
 <script>
     const ResultAudioAllDetailSpace = (function () {
         class C_ResultAudioAllDetail {
-            constructor(viewId) {
+            constructor(viewId, resultId) {
                 this.viewId = viewId
+                this.resultId = resultId
+                this.resultAudio = null
+                this.task = null
+                this.refAudio = null
+                this.text = null;
+                this.param = null;
+            }
+
+            loadData() {
+                const _this = this
+                $.customAjax({
+                    url: BaseUrl+'evaluation/get_inference_task_result_audio_detail',
+                    type: 'post',
+                    data:{
+                      id: _this.resultId  
+                    },
+                    success: function(res){
+                        if (res.code == 0) {
+                            _this.resultAudio = new C_ObjInferenceTaskResultAudio(res.data)
+                            _this.task = _this.resultAudio.objTask
+                            _this.refAudio = _this.resultAudio.objAudio
+                            _this.text = _this.resultAudio.objText
+                            _this.param = _this.resultAudio.objParam
+                            _this.task.setParams(_this.param)
+                            _this.render()
+                        } else {
+                            layui.layer.msg(res.msg)
+                        }
+                    },
+                    error: function(res, msg){
+                        layui.layer.msg(msg)
+                    }
+                })
             }
 
             render() {
@@ -13,13 +46,108 @@
                 layui.laytpl(getTpl).render(_this, function(html){
                     const obj = $('#'+_this.viewId)
                     obj.html(html)
+                    
+                    _this.initResultAudioWaveForm()
+                    _this.initRefAudioWaveForm()
+                    
                 });
                 return _this
             }
+
+            initRefAudioWaveForm(){
+                const audio = document.getElementById('referenceAudio');
+
+                // Create a second timeline
+                const bottomTimeline = WaveSurfer.Timeline.create({
+                    height: 10,
+                    timeInterval: 0.1,
+                    primaryLabelInterval: 1,
+                    style: {
+                        fontSize: '10px',
+                        color: '#6A3274',
+                    },
+                })
+
+                const hover =  WaveSurfer.Hover.create({
+                    lineColor: '#ff0000',
+                    lineWidth: 2,
+                    labelBackground: '#555',
+                    labelColor: '#fff',
+                    labelSize: '11px',
+                })
+
+                const regionsManager = WaveSurfer.Regions.create()
+
+                // Create an instance of WaveSurfer 
+                const wavesurfer = WaveSurfer.create({
+                    container: '#referenceWaveForm',
+                    waveColor: 'rgb(200, 0, 200)',
+                    progressColor: 'rgb(100, 0, 100)',
+                    media: audio,
+                    minPxPerSec: 100,
+                    // sampleRate: 32000,
+                    plugins: [bottomTimeline,hover,regionsManager],
+                })
+
+                // Initialize the Spectrogram plugin
+                 wavesurfer.registerPlugin(
+                         WaveSurfer.Spectrogram.create({
+                           labels: true,
+                           height: 200,
+                           splitChannels: true,
+                         })
+                 )
+
+            }
+
+            initResultAudioWaveForm(){
+                const audio = document.getElementById('resultAudio');
+
+                // Create a second timeline
+                const bottomTimeline = WaveSurfer.Timeline.create({
+                    height: 10,
+                    timeInterval: 0.1,
+                    primaryLabelInterval: 1,
+                    style: {
+                        fontSize: '10px',
+                        color: '#6A3274',
+                    },
+                })
+
+                const hover =  WaveSurfer.Hover.create({
+                    lineColor: '#ff0000',
+                    lineWidth: 2,
+                    labelBackground: '#555',
+                    labelColor: '#fff',
+                    labelSize: '11px',
+                })
+
+                const regionsManager = WaveSurfer.Regions.create()
+
+                // Create an instance of WaveSurfer 
+                const wavesurfer = WaveSurfer.create({
+                    container: '#resultWaveForm',
+                    waveColor: 'rgb(200, 0, 200)',
+                    progressColor: 'rgb(100, 0, 100)',
+                    media: audio,
+                    minPxPerSec: 100,
+                    // sampleRate: 32000,
+                    plugins: [bottomTimeline,hover,regionsManager],
+                })
+
+                // Initialize the Spectrogram plugin
+                wavesurfer.registerPlugin(
+                    WaveSurfer.Spectrogram.create({
+                        labels: true,
+                        height: 200,
+                        splitChannels: true,
+                    })
+                )
+            }
         }
 
-        function getResultAudioAllDetail(viewId) {
-            return new C_ResultAudioAllDetail(viewId)
+        function getResultAudioAllDetail(viewId, resultId) {
+            return new C_ResultAudioAllDetail(viewId, resultId)
         }
 
         return {
@@ -29,5 +157,76 @@
 </script>
 
 <script id="resultAudioAllDetailTemplate" type="text/html">
-    结果音频明细
+
+    {{# if (d.resultAudio.status == 1) { }}
+
+        <fieldset class="layui-elem-field layui-field-title">
+            <legend>结果音频</legend>
+        </fieldset>
+        <div id="resultWaveForm"></div>
+        <audio controls class="custom-audio" id="resultAudio">
+            <source src="{{d.resultAudio.path}}" type="audio/wav">
+            <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
+            您的浏览器不支持 HTML5 audio 标签。
+        </audio>
+    
+    {{# } }}
+
+    <fieldset class="layui-elem-field layui-field-title">
+        <legend>参考音频</legend>
+    </fieldset>
+    <div id="referenceWaveForm"></div>
+    <audio controls class="custom-audio" id="referenceAudio">
+        <source src="{{d.refAudio.audioPath}}" type="audio/wav">
+        <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
+        您的浏览器不支持 HTML5 audio 标签。
+    </audio>
+    
+    <table class="table1">
+        <tr>
+            <td>音频名称：{{d.refAudio.audioName}}</td>
+            <td>音频分类：{{d.refAudio.audioCategory}}</td>
+            <td>音频内容：{{d.refAudio.audioLanguage}} {{d.refAudio.audioContent}}</td>
+        </tr>
+        <tr>
+            <td>Gpt-Sovits模型版本：{{d.task.gptSovitsVersion}}</td>
+            <td>Gpt模型：{{d.task.gptModelName}}</td>
+            <td>Vits模型：{{d.task.vitsModelName}}</td>
+        </tr>
+        <tr>
+            <td>top_k：{{d.task.topK}}</td>
+            <td>top_p：{{d.task.topP}}</td>
+            <td>temperature：{{d.task.temperature}}</td>
+        </tr>
+        <tr>
+            <td>文本分隔符：{{d.task.textDelimiter}}</td>
+            <td>speed：{{d.task.speed}}</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>文本分类：{{d.text.category}}</td>
+            <td>文本语种：{{d.text.textLanguage}}</td>
+            <td>文本内容：{{d.text.textContent}}</td>
+        </tr>
+    </table>
+    {{# if (d.resultAudio.status == 1) { }}
+
+        <fieldset class="layui-elem-field layui-field-title">
+            <legend>结果分析</legend>
+        </fieldset>
+        <table class="table1">
+            <tr>
+                <td>文本相似度：{{d.resultAudio.asrSimilarScore.toFixed(4)}}</td>
+                <td>asr文本：{{d.resultAudio.asrText}}</td>
+                <td>音频相似度：{{d.resultAudio.audioSimilarScore.toFixed(4)}}</td>
+            </tr>
+            <tr>
+                <td>评分：{{d.resultAudio.score}}</td>
+                <td>长文评分：{{d.resultAudio.longTextScore}}</td>
+                <td>备注：{{d.resultAudio.remark}}</td>
+            </tr>
+        </table>
+    
+    {{# } }}
+
 </script>

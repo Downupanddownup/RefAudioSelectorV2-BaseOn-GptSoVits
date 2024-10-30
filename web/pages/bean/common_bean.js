@@ -39,6 +39,44 @@ class C_ObjInferenceTask {//推理任务
         this.taskAudioList = data.audioList ? data.audioList.map(item => new C_ObjInferenceTaskAudio(item)) : [];
         this.compareParams = data.paramList ? data.paramList.map(item => new C_ObjInferenceTaskCompareParams(item)) : [];
     }
+
+    setParams(C_ObjInferenceTaskCompareParams$1){
+        const param = C_ObjInferenceTaskCompareParams$1
+        const compareType = this.compareType
+        if (compareType === 'refer_audio') {
+            return
+        }
+        if (compareType === 'gpt_model') {
+            this.gptSovitsVersion = param.gptSovitsVersion
+            this.gptModelName = param.gptModelName
+            return
+        }
+        if (compareType === 'vits_model') {
+            this.gptSovitsVersion = param.gptSovitsVersion
+            this.vitsModelName = param.vitsModelName
+            return
+        }
+        if (compareType === 'top_k') {
+            this.topK = param.topK
+            return
+        }
+        if (compareType === 'top_p') {
+            this.topP = param.topP
+            return
+        }
+        if (compareType === 'temperature') {
+            this.temperature = param.temperature
+            return
+        }
+        if (compareType === 'text_delimiter') {
+            this.textDelimiter = param.textDelimiter
+            return
+        }
+        if (compareType === 'speed') {
+            this.speed = param.speed
+            return
+        }
+    }
 }
 class C_ObjInferenceTaskText {//推理任务中，相关推理文本
     constructor(data) {
