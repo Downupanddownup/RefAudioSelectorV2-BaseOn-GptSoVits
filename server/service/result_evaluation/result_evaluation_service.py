@@ -53,6 +53,14 @@ class ResultEvaluationService:
         return ResultEvaluationDao.find_list(audio_filter)
 
     @staticmethod
+    def find_one_by_id(result_audio_id: int):
+        if not result_audio_id:
+            return None
+        audio_filter = ObjInferenceTaskResultAudioFilter({"id": result_audio_id})
+        audio_list = ResultEvaluationService.find_list(audio_filter)
+        return audio_list[0] if len(audio_list) > 0 else None
+
+    @staticmethod
     def find_whole_list(audio_filter: ObjInferenceTaskResultAudioFilter) -> list[ObjInferenceTaskResultAudio]:
         from server.service.inference_task.inference_task_service import InferenceTaskService
         result_list = []

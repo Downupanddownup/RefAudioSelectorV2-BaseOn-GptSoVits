@@ -59,6 +59,8 @@
             loadResultList(){
                 const _this = this
 
+                const params = _this.getSearchParams()
+
                 const windowHeight = window.innerHeight;
 
                 const height = windowHeight - $('#contentHeader').height() - $('#searchHeader').height() - 50
@@ -70,6 +72,7 @@
                     height: height, // 最大高度减去其他容器已占有的高度差
                     // cellMinWidth: 80,
                     page: true,
+                    where:params,
                     limit:50,
                     limits:[50,100,150,200],
                     autoSort:false,
@@ -210,6 +213,7 @@
                 const searchStatus = obj.find('#searchStatus').val()
                 return {
                     status: searchStatus,
+                    taskId: _this.taskId,
                     order: _this.pageParam.order,
                     desc: _this.pageParam.desc
                 }
