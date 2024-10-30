@@ -26,7 +26,7 @@ class ResponseResult:
             if data is not None:
                 if isinstance(data, BaseModel):
                     self.data = data.to_camel_case_dict()
-                if isinstance(data, dict):
+                elif isinstance(data, dict):
                     self.data = convert_dict_to_camel_case_dicts(data)
                 else:
                     self.data = data
