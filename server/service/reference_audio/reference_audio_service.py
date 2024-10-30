@@ -104,6 +104,14 @@ class ReferenceAudioService:
     def update_audio_category(change_audio_id_str: str, target_category: str) -> int:
         return ReferenceAudioDao.update_audio_category(change_audio_id_str, target_category)
 
+    @staticmethod
+    def add_reference_audio(audio: ObjReferenceAudio):
+        ReferenceAudioService.insert_reference_audio_list([audio])
+
+    @staticmethod
+    def update_reference_audio(audio):
+        ReferenceAudioDao.update_reference_audio(audio)
+
 
 def check_audio_duration(duration, min_duration=3, max_duration=10):
     # 判断时长是否在3s至10s之间

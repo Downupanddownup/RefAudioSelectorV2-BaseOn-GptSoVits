@@ -1,9 +1,12 @@
 import sys
-
+import os
+import librosa
+import uuid
+import time
 from fastapi import APIRouter, Request
 
 from server.bean.reference_audio.obj_inference_category import ObjInferenceCategory
-from server.bean.reference_audio.obj_reference_audio import ObjReferenceAudioFilter
+from server.bean.reference_audio.obj_reference_audio import ObjReferenceAudioFilter, ObjReferenceAudio
 from server.bean.reference_audio.obj_reference_audio_compare_task import ObjReferenceAudioCompareTask
 from server.common.response_result import ResponseResult
 from server.dao.data_base_manager import db_config
@@ -123,3 +126,63 @@ async def start_compare_audio(request: Request):
     p_similarity = None
 
     return ResponseResult(msg='完成音频比较')
+
+
+@router.post("/update_reference_audio")
+async def update_reference_audio(request: Request):
+    form_data = await request.form()
+
+    audio = ObjReferenceAudio(
+        id=str_to_int(form_data.get('id'), 0),
+        audio_name=form_data.get('audioName'),
+        content=form_data.get('content'),
+        language=form_data.get('language'),
+        category=form_data.get('category'),
+    )
+
+    if audio.id < 1:
+        return ResponseResult(code=1, msg='参数错误')
+    ReferenceAudioService.update_reference_audio(audio)
+
+    return ResponseResult()
+
+
+@router.post("/add_reference_audio")
+async def add_reference_audio(request: Request):
+    form_data = await request.form()
+
+    file = form_data.get('file')
+
+    audio = ObjReferenceAudio(
+        audio_name=form_data.get('audioName'),
+        content=form_data.get('content'),
+        language=form_data.get('language'),
+        category=form_data.get('category'),
+    )
+
+    output_dir = f'{db_config.get_work_dir()}\\refer_audio'
+    unique_id_time_based = uuid.uuid1()
+    new_filename = str(unique_id_time_based) + '.wav'
+    new_path = os.path.join(output_dir, new_filename)
+
+    audio.audio_path = new_path
+
+    # 将文件内容写入指定路径
+    with open(new_path, "wb") as buffer:
+        while True:
+            chunk = await file.read(1024 * 8)  # 每次读取8KB
+            if not chunk:
+                break
+            buffer.write(chunk)
+
+        os.fsync(buffer.fileno())
+            # Give some time for the filesystem to update if necessary
+            # 这里添加一个小的等待时间，根据实际情况调整
+        time.sleep(1)  # 可选
+
+        # 直接计算音频文件的时长（单位：秒）
+        audio.audio_length = librosa.get_duration(filename=new_path)
+
+    ReferenceAudioService.add_reference_audio(audio)
+
+    return ResponseResult()

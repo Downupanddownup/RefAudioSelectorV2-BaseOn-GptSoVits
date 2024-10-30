@@ -72,3 +72,16 @@ class ReferenceAudioDao:
         UPDATE tab_obj_reference_audio SET Category = ? WHERE Id IN ({change_audio_id_str})
         '''
         return DBSlaveSQLExecutor.execute_update(sql, (target_category,))
+
+    @staticmethod
+    def update_reference_audio(audio: ObjReferenceAudio) -> int:
+        sql = f'''
+        UPDATE tab_obj_reference_audio SET AudioName=?,Content=?,Language=?,Category=? WHERE Id = ? 
+        '''
+        return DBSlaveSQLExecutor.execute_update(sql, (
+            audio.audio_name,
+            audio.content,
+            audio.language,
+            audio.category,
+            audio.id
+        ))
