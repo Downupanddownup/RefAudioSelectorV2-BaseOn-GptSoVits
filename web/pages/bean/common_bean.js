@@ -133,6 +133,7 @@ class C_ObjInferenceTaskResultAudio {//推理任务的推理结果音频
         this.compareParamId = data.compareParamId || 0; // 比对参数id
         this.path = data.path || ''; // 音频地址
         this.audioLength = data.audioLength || 0; // 时长
+        this.status = data.status || 0; // 生成状态 1 成功；2 失败
         this.asrText = data.asrText || ''; // asr文本
         this.asrSimilarScore = data.asrSimilarScore || 0; // 文本相似度
         this.audioSimilarScore = data.audioSimilarScore || 0; // 音频相似度
@@ -140,6 +141,11 @@ class C_ObjInferenceTaskResultAudio {//推理任务的推理结果音频
         this.longTextScore = data.longTextScore || 0; // 长文评分
         this.remark = data.remark || ''; // 备注
         this.createTime = data.createTime ? new Date(data.createTime) : null; // 创建时间, 默认为当前时间
+        
+        this.objTask = data.objTask ? new C_ObjInferenceTask(data.objTask) : null;
+        this.objText = data.objText ? new C_ObjInferenceText(data.objText) : null;
+        this.objAudio = data.objAudio ? new C_ObjInferenceTaskAudio(data.objAudio) : null;
+        this.objParam = data.objParam ? new C_ObjInferenceTaskCompareParams(data.objParam) : null;
     }
 }
 

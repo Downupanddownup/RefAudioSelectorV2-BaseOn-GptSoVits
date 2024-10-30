@@ -2,8 +2,40 @@
 <script>
     const InferenceTaskResultAudioListSpace = (function () {
         class C_InferenceTaskResultAudioList {
-            constructor(viewId) {
+            constructor(viewId, taskId) {
                 this.viewId = viewId
+                this.audioList = []
+                this.taskId = taskId
+                this.task = null
+                this.pageParam = {
+                    order:'',
+                    desc:''
+                }
+            }
+
+            loadData(){
+                const _this = this
+
+                $.customAjax({
+                    url: BaseUrl+'task/load_inference_task_detail',
+                    type: 'post',
+                    data:{
+                        task_id: _this.taskId
+                    },
+                    success: function(res){
+                        if (res.code == 0) {
+                            _this.task = new C_ObjInferenceTask(res.data.task)
+
+                            _this.render()
+                        } else {
+                            layui.layer.msg(res.msg)
+                        }
+                    },
+                    error: function(res, msg){
+                        layui.layer.msg(msg)
+                    }
+                })
+
             }
 
             render() {
@@ -13,13 +45,187 @@
                 layui.laytpl(getTpl).render(_this, function(html){
                     const obj = $('#'+_this.viewId)
                     obj.html(html)
+
+                    _this.loadResultList()
+
+                    obj.find('#searchAudio').on('click', function(){
+                        _this.reloadResultList()
+                    })
+                    
                 });
                 return _this
             }
+
+            loadResultList(){
+                const _this = this
+
+                const windowHeight = window.innerHeight;
+
+                const height = windowHeight - $('#contentHeader').height() - $('#searchHeader').height() - 50
+                // 创建渲染实例
+                layui.table.render({
+                    elem: '#resultAudioList',
+                    url: BaseUrl+'evaluation/get_inference_task_result_audio_list', // 此处为静态模拟数据，实际使用时需换成真实接口
+                    method: 'post',
+                    height: height, // 最大高度减去其他容器已占有的高度差
+                    // cellMinWidth: 80,
+                    page: true,
+                    limit:50,
+                    limits:[50,100,150,200],
+                    autoSort:false,
+                    initSort: {
+                        order: 'audioLength', // 按 id 字段排序
+                        desc: 'desc' // 降序排序
+                    },
+                    // lineStyle: 'height: 50px;', // 定义表格的多行样式
+                    parseData: function(res){ //res 即为原始返回的数据
+                        const list = res.data ? res.data.map(i => new C_ObjInferenceTaskResultAudio(i)) : []
+                        _this.audioList = list
+                        return {
+                            "code": res.code, //解析接口状态
+                            "msg": res.msg, //解析提示文本
+                            "count": res.count, //解析数据长度
+                            "data": list //解析数据列表
+                        };
+                    },
+                    cols: [[
+                        {field:'index', width:'5%', title: '序号', type: 'numbers'},
+                        {field:'textId', width:'10%', title: '推理文本', templet: function(d){
+                                const text = _this.task.taskTextList.find(i => i.id == d.textId)
+                                return text.textContent;
+                            }},
+                        {field:'compareParamId', width:'8%', title: '对比参数', templet: function(d){
+                                const compare = _this.task.compareParams.find(i => i.id == d.compareParamId)
+                                return compare.getShowTxt(_this.task.compareType);
+                            }},
+                        {field:'audioId', width:'20%', title: '参考音频', templet: function(d){
+                                const audio = _this.task.taskAudioList.find(i => i.id == d.audioId)
+                                return ` 
+                                 <audio controls class="custom-audio" data-reference-audio="${d.id}">
+                                    <source src="${audio.audioPath}" type="audio/wav">
+                                    <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
+                                    您的浏览器不支持 HTML5 audio 标签。
+                                </audio>`
+                            }},
+                        {field:'path', width:'20%', title: '结果音频', templet: function(d){
+                                return ` 
+                                 <audio controls class="custom-audio" data-result-audio="${d.id}">
+                                    <source src="${d.path}" type="audio/wav">
+                                    <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
+                                    您的浏览器不支持 HTML5 audio 标签。
+                                </audio>`
+                            }},
+                        {field:'status', width:'20%', title: '生成状态', templet: function(d){
+                                if (d.status == 0) {
+                                    return '待生成'
+                                }
+                                if (d.status == 1) {
+                                    return '已生成'
+                                }
+                                if (d.status == 2) {
+                                    return '生成失败'
+                                }
+                                return '';
+                            }},
+                        {field:'asrSimilarScore', width:'20%', title: '文本相似度', templet: function(d){
+                                return d.asrSimilarScore.toFixed(4);
+                            }},
+                        {field:'audioSimilarScore', width:'20%', title: '音频相似度', templet: function(d){
+                                return d.audioSimilarScore.toFixed(4);
+                            }},
+                        {field:'score', width:'8%', title: '评分', templet: function(d){
+                                return d.score;
+                            }},
+                        {field:'longTextScore', width:'8%', title: '长文评分', templet: function(d){
+                                return d.longTextScore;
+                            }},
+                        {field:'audioLength', width:'8%', title: '音频时长', sort: true, templet: function(d){
+                                return d.audioLength.toFixed(1);
+                            }},
+                        {field:'remark', width:'8%', title: '备注', sort: true, templet: function(d){
+                                return d.remark;
+                            }},
+                        {field:'opt', width:'20%', title: '操作', templet: function(d){
+                                const html = []
+                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-detail="${d.id}">详情</button>`)
+                                return html.join(' ');
+                            }},
+                    ]],
+                    done: function(){
+                        const audioElements = $('#'+_this.viewId+' audio.custom-audio');
+                        // 创建 AudioController 实例并传入音频元素集合
+                        const audioController = new AudioController(Array.from(audioElements));
+                        
+
+                        $('#' + _this.viewId + ' button[data-go-to-detail]').on('click', function(){
+                            const id = $(this).attr('data-go-to-detail')
+                            _this.openDetailDialog(id)
+                        })
+
+                    },
+                    error: function(res, msg){
+                        console.log(res, msg)
+                    }
+                });
+                
+                //排序
+                layui.table.on('sort(resultAudioList)', function(obj){ //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
+
+                    _this.pageParam.order = obj.field;  //当前排序的字段名
+                    _this.pageParam.desc = obj.type;   //当前排序类型：desc（降序）、asc（升序）、null（空对象，默认排序）
+
+                    // var params = getSearchParams()
+
+                    // loadLayuiList(params);
+
+                    layui.table.reload('resultAudioList', {
+                        initSort: obj //记录初始排序，如果不设的话，将无法标记表头的排序状态。
+                        ,where: _this.pageParam
+                    });
+
+                });
+            }
+            
+            openDetailDialog(id){
+                const _this = this
+                const resultAudio = _this.audioList.find(i => i.id == id)
+
+                const dialog = ResultAudioAllDetailSpace.getResultAudioAllDetail('resultAudioDetailView', resultAudio)
+
+                const dialogIndex = layer.open({
+                    type: 1,
+                    area: ['95%', '95%'],
+                    content: `<div id="resultAudioDetailView" style="overflow-x: hidden"></div>`,
+                    btn: ['关闭'],
+                    yes: function(){
+                        layui.layer.close(dialogIndex)
+                    }
+                });
+
+                dialog.render()
+            }
+
+            getSearchParams(){
+                const _this = this
+                const obj = $('#'+_this.viewId)
+                const searchStatus = obj.find('#searchStatus').val()
+                return {
+                    status: searchStatus,
+                    order: _this.pageParam.order,
+                    desc: _this.pageParam.desc
+                }
+            }
+
+            reloadResultList() {
+                const _this = this
+                const params = _this.getSearchParams()
+                reloadListDataBySearchParams('resultAudioList',params)
+            }
+            
         }
 
-        function getInferenceTaskResultAudioList(viewId) {
-            return new C_InferenceTaskResultAudioList(viewId)
+        function getInferenceTaskResultAudioList(viewId, taskId) {
+            return new C_InferenceTaskResultAudioList(viewId, taskId)
         }
 
         return {
@@ -29,5 +235,22 @@
 </script>
 
 <script id="inferenceTaskResultAudioListTemplate" type="text/html">
-    任务推理结果明细
+    <table class="table3" id="searchHeader">
+        <tr>
+            <td>生成状态：</td>
+            <td>
+                <select class="customSelect" id="searchStatus">
+                    <option value="-1">请选择</option>
+                    <option value="0">待生成</option>
+                    <option value="1">已生成</option>
+                    <option value="2">生成失败</option>
+                </select>
+            </td>
+            <td colspan="2">
+                <button type="submit" class="layui-btn layui-btn-sm" id="searchAudio">搜索</button>
+            </td>
+        </tr>
+    </table>
+
+    <table class="layui-hide" id="resultAudioList" lay-filter="resultAudioList" style="height: 100%"></table>
 </script>

@@ -8,7 +8,7 @@ from server.bean.inference_task.obj_inference_task_text import ObjInferenceTaskT
 from server.common.filter import Filter
 from server.common.ras_api_monitor import InferenceParams
 from server.dao.data_base_manager import db_config
-from server.util.util import ValidationUtils
+from server.util.util import ValidationUtils, str_to_int
 
 
 class ObjInferenceTaskResultAudio(BaseModel):
@@ -82,7 +82,7 @@ class ObjInferenceTaskResultAudioFilter(Filter):
         self.long_text_score_start = form_data.get('longTextScoreStart')
         self.long_text_score_end = form_data.get('longTextScoreEnd')
         self.remark = form_data.get('remark')
-        self.status = form_data.get('status')
+        self.status = str_to_int(form_data.get('status'), -1)
 
     def make_sql(self) -> []:
         sql = ''
@@ -132,7 +132,7 @@ class ObjInferenceTaskResultAudioFilter(Filter):
         if not ValidationUtils.is_empty(self.remark):
             sql += f" and remark like ? "
             condition.append(f"%{self.remark}%")
-        if not ValidationUtils.is_empty(self.status):
+        if self.status > -1:
             sql += f" and status = ? "
             condition.append(f"{self.status}")
 
