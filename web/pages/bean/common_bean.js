@@ -148,6 +148,18 @@ class C_ObjInferenceTaskCompareParams {//推理任务中，对比的变量
         if (compareType == 'speed') {
             return `语速：${this.speed}`
         }
+        if (compareType == 'kpt') {
+            return `top_k:${this.topK};top_p:${this.topP};temperature:${this.temperature}`
+        }
+        if (compareType == 'gv') {
+            return `版本:${this.gptSovitsVersion};gpt模型:${this.gptModelName};vits模型:${this.vitsModelName}`
+        }
+        if (compareType == 'all') {
+            return `版本:${this.gptSovitsVersion};gpt模型:${this.gptModelName};vits模型:${this.vitsModelName};
+            top_k:${this.topK};top_p:${this.topP};temperature:${this.temperature};
+            文本分隔符:${this.textDelimiter};语速:${this.speed}
+            `
+        }
         return '--'
     }
 }
