@@ -145,10 +145,11 @@ class InferenceTaskService:
     def start_execute_inference_task(task: ObjInferenceTask, num_processes: int):
         if task.inference_status != 2:
             if RasApiMonitor.start_service(False):
+                RasApiMonitor.set_stream_mode_to_off()
                 task_cell_list = create_task_cell_list_if_not_inference(task)
                 result = True
                 for task_cell in task_cell_list:
-                    result = result and generate_audio_files_parallel(task_cell, 5)
+                    result = result and generate_audio_files_parallel(task_cell, num_processes)
                 RasApiMonitor.stop_service()
                 if result:
                     InferenceTaskService.change_inference_task_inference_status_to_finish_if_all_finish(task.id)
@@ -193,6 +194,18 @@ def create_task_cell_list_if_not_inference(task: ObjInferenceTask) -> list[TaskC
     elif task.compare_type == 'vits_model':
         gpt_model = ModelManagerService.get_gpt_model_by_name(task.gpt_sovits_version, task.gpt_model_name)
         for param in param_list:
+            vits_model = ModelManagerService.get_vits_model_by_name(param.gpt_sovits_version, param.vits_model_name)
+            task_cell_list.append(TaskCell(gpt_model, vits_model, [audio for audio in task_result_audio_list if
+                                                                   audio.compare_param_id == param.id]))
+    elif task.compare_type == 'gv':
+        for param in param_list:
+            gpt_model = ModelManagerService.get_gpt_model_by_name(param.gpt_sovits_version, param.gpt_model_name)
+            vits_model = ModelManagerService.get_vits_model_by_name(param.gpt_sovits_version, param.vits_model_name)
+            task_cell_list.append(TaskCell(gpt_model, vits_model, [audio for audio in task_result_audio_list if
+                                                                   audio.compare_param_id == param.id]))
+    elif task.compare_type == 'all':
+        for param in param_list:
+            gpt_model = ModelManagerService.get_gpt_model_by_name(param.gpt_sovits_version, param.gpt_model_name)
             vits_model = ModelManagerService.get_vits_model_by_name(param.gpt_sovits_version, param.vits_model_name)
             task_cell_list.append(TaskCell(gpt_model, vits_model, [audio for audio in task_result_audio_list if
                                                                    audio.compare_param_id == param.id]))

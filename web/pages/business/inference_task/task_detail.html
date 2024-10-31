@@ -377,7 +377,9 @@
                 <option {{isTrue(d.task.compareType=="temperature",'selected','')}} value="temperature">temperature值</option>
                 <option {{isTrue(d.task.compareType=="speed",'selected','')}} value="speed">speed值</option>
                 <option {{isTrue(d.task.compareType=="text_delimiter",'selected','')}} value="text_delimiter">文本分隔符</option>
-<!--                <option {{isTrue(d.task.compareType=="other",'selected','')}} value="other">其余参数</option>-->
+                <option {{isTrue(d.task.compareType=="kpt",'selected','')}} value="kpt">top_k、top_p、temperature</option>
+                <option {{isTrue(d.task.compareType=="gv",'selected','')}} value="gv">Gpt与Vits模型</option>
+                <option {{isTrue(d.task.compareType=="all",'selected','')}} value="all">所有参数</option>
               </select>
             </td>
           </tr>
@@ -513,20 +515,129 @@
               <button type="button" class="layui-btn layui-btn-sm" data-delete="{{index}}"><i class="layui-icon"></i></button>
             </td>
           </tr>
-            {{# } else if (d.task.compareType == 'other') { }}
-          <tr>
-            <td>
-              第{{index+1}}组：
-            </td>
-            <td>
-              <input type="text" autocomplete="off" data-params-other="{{index}}" placeholder="其余参数" 
-                     class="layui-input" style="width: auto;" value="{{item.otherParameters}}">
-            </td>
-            <td>
-              <button type="button" class="layui-btn layui-btn-sm" data-add="{{index}}"><i class="layui-icon"></i></button>
-              <button type="button" class="layui-btn layui-btn-sm" data-delete="{{index}}"><i class="layui-icon"></i></button>
-            </td>
-          </tr>
+            {{# } else if (d.task.compareType == 'kpt') { }}
+
+              <tr>
+                <td>
+                  第{{index+1}}组：
+                </td>
+                <td>
+                  <input type="number" autocomplete="off" data-params-top-k="{{index}}" placeholder="top_k值"
+                         class="layui-input" style="width: auto;" value="{{item.topK}}">
+                  <input type="number" autocomplete="off" data-params-top-p="{{index}}" placeholder="top_p值"
+                         class="layui-input" style="width: auto;" value="{{item.topP}}">
+                  <input type="number" autocomplete="off" data-params-temperature="{{index}}" placeholder="temperature值"
+                         class="layui-input" style="width: auto;" value="{{item.temperature}}">
+                </td>
+                <td>
+                  <button type="button" class="layui-btn layui-btn-sm" data-add="{{index}}"><i class="layui-icon"></i></button>
+                  <button type="button" class="layui-btn layui-btn-sm" data-delete="{{index}}"><i class="layui-icon"></i></button>
+                </td>
+              </tr>
+          
+            {{# } else if (d.task.compareType == 'gv') { }}
+
+              <tr>
+                <td>
+                  第{{index+1}}组：
+                </td>
+                <td>
+                  <select class="customSelect" data-params-gsv-version="{{index}}">
+                    <option {{isTrue('v1'==item.gptSovitsVersion,'selected','')}} value="v1">v1</option>
+                    <option {{isTrue('v2'==item.gptSovitsVersion,'selected','')}} value="v2">v2</option>
+                  </select>
+                  <select class="customSelect" data-params-gpt-model="{{index}}">
+                    <option value="">请选择</option>
+                    {{# layui.each(d.gptModels, function(index, model){ }}
+                      {{# if (item.gptSovitsVersion == model.version) { }}
+                        <option {{isTrue(model.name==item.gptModelName,'selected','')}} value="{{model.name}}">{{model.name}}</option>
+                      {{# } }}
+                    {{# }) }}
+                  </select>
+                  <select class="customSelect" data-params-vits-model="{{index}}">
+                    <option value="">请选择</option>
+                    {{# layui.each(d.vitsModels, function(index, model){ }}
+                      {{# if (item.gptSovitsVersion == model.version) { }}
+                        <option {{isTrue(model.name==item.vitsModelName,'selected','')}} value="{{model.name}}">{{model.name}}</option>
+                      {{# } }}
+                    {{# }) }}
+                  </select>
+                </td>
+                <td>
+                  <button type="button" class="layui-btn layui-btn-sm" data-add="{{index}}"><i class="layui-icon"></i></button>
+                  <button type="button" class="layui-btn layui-btn-sm" data-delete="{{index}}"><i class="layui-icon"></i></button>
+                </td>
+              </tr>
+          
+            {{# } else if (d.task.compareType == 'all') { }}
+
+              <tr>
+                <td>
+                  第{{index+1}}组：
+                </td>
+                <td>
+                  <table class="table1">
+                    <tr>
+                      <td>
+                        <select class="customSelect" data-params-gsv-version="{{index}}">
+                          <option {{isTrue('v1'==item.gptSovitsVersion,'selected','')}} value="v1">v1</option>
+                          <option {{isTrue('v2'==item.gptSovitsVersion,'selected','')}} value="v2">v2</option>
+                        </select>
+                      </td>
+                      <td>
+                        <select class="customSelect" data-params-gpt-model="{{index}}">
+                          <option value="">请选择</option>
+                          {{# layui.each(d.gptModels, function(index, model){ }}
+                            {{# if (item.gptSovitsVersion == model.version) { }}
+                              <option {{isTrue(model.name==item.gptModelName,'selected','')}} value="{{model.name}}">{{model.name}}</option>
+                            {{# } }}
+                          {{# }) }}
+                        </select>
+                      </td>
+                      <td>
+                        <select class="customSelect" data-params-vits-model="{{index}}">
+                          <option value="">请选择</option>
+                          {{# layui.each(d.vitsModels, function(index, model){ }}
+                            {{# if (item.gptSovitsVersion == model.version) { }}
+                              <option {{isTrue(model.name==item.vitsModelName,'selected','')}} value="{{model.name}}">{{model.name}}</option>
+                            {{# } }}
+                          {{# }) }}
+                        </select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <input type="number" autocomplete="off" data-params-top-k="{{index}}" placeholder="top_k值"
+                               class="layui-input" style="width: auto;" value="{{item.topK}}">
+                      </td>
+                      <td>
+                        <input type="number" autocomplete="off" data-params-top-p="{{index}}" placeholder="top_p值"
+                               class="layui-input" style="width: auto;" value="{{item.topP}}">
+                      </td>
+                      <td>
+                        <input type="number" autocomplete="off" data-params-temperature="{{index}}" placeholder="temperature值"
+                               class="layui-input" style="width: auto;" value="{{item.temperature}}">
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <input type="text" autocomplete="off" data-params-text-delimiter="{{index}}" placeholder="文本分隔符"
+                               class="layui-input" style="width: auto;" value="{{item.textDelimiter}}">
+                      </td>
+                      <td>
+                        <input type="number" autocomplete="off" data-params-speed="{{index}}" placeholder="speed值"
+                               class="layui-input" style="width: auto;" value="{{item.speed}}">
+                      </td>
+                      <td></td>
+                    </tr>
+                  </table>
+                </td>
+                <td>
+                  <button type="button" class="layui-btn layui-btn-sm" data-add="{{index}}"><i class="layui-icon"></i></button>
+                  <button type="button" class="layui-btn layui-btn-sm" data-delete="{{index}}"><i class="layui-icon"></i></button>
+                </td>
+              </tr>
+          
             {{# } }}
           
            {{# }) }}
@@ -558,18 +669,26 @@
             GPT-Sovits 版本：
           </td>
           <td>
-            <select class="customSelect" id="gsvVersion">
-              <option {{isTrue(d.task.gptSovitsVersion=="v1",'selected','')}} value="v1">v1</option>
-              <option {{isTrue(d.task.gptSovitsVersion=="v2",'selected','')}} value="v2">v2</option>
-            </select>
-            <button type="button" class="layui-btn layui-btn-sm" id="modelManager">模型管理</button>
+
+            {{# if ( d.task.compareType == 'gv' || d.task.compareType == 'all') { }}
+              已作为对比变量
+            {{# } else { }}
+
+              <select class="customSelect" id="gsvVersion">
+                <option {{isTrue(d.task.gptSovitsVersion=="v1",'selected','')}} value="v1">v1</option>
+                <option {{isTrue(d.task.gptSovitsVersion=="v2",'selected','')}} value="v2">v2</option>
+              </select>
+              <button type="button" class="layui-btn layui-btn-sm" id="modelManager">模型管理</button>
+            
+            {{# } }}
+
           </td>
           <td>
             GPT 模型：
           </td>
           <td>
             
-            {{# if (d.task.compareType == 'gpt_model') { }}
+            {{# if (d.task.compareType == 'gpt_model' || d.task.compareType == 'gv' || d.task.compareType == 'all') { }}
               已作为对比变量
             {{# } else { }}
 
@@ -592,7 +711,7 @@
           </td>
           <td>
 
-            {{# if (d.task.compareType == 'vits_model') { }}
+            {{# if (d.task.compareType == 'vits_model' || d.task.compareType == 'gv' || d.task.compareType == 'all') { }}
             已作为对比变量
             {{# } else { }}
 
@@ -616,7 +735,7 @@
           </td>
           <td>
 
-            {{# if (d.task.compareType == 'top_k') { }}
+            {{# if (d.task.compareType == 'top_k' || d.task.compareType == 'kpt' || d.task.compareType == 'all') { }}
             已作为对比变量
             {{# } else { }}
 
@@ -629,7 +748,7 @@
           </td>
           <td>
 
-            {{# if (d.task.compareType == 'top_p') { }}
+            {{# if (d.task.compareType == 'top_p' || d.task.compareType == 'kpt' || d.task.compareType == 'all') { }}
             已作为对比变量
             {{# } else { }}
 
@@ -642,7 +761,7 @@
           </td>
           <td>
 
-            {{# if (d.task.compareType == 'temperature') { }}
+            {{# if (d.task.compareType == 'temperature' || d.task.compareType == 'kpt' || d.task.compareType == 'all') { }}
             已作为对比变量
             {{# } else { }}
 
@@ -657,7 +776,7 @@
           </td>
           <td>
 
-            {{# if (d.task.compareType == 'text_delimiter') { }}
+            {{# if (d.task.compareType == 'text_delimiter' || d.task.compareType == 'all') { }}
             已作为对比变量
             {{# } else { }}
 
@@ -670,7 +789,7 @@
           </td>
           <td>
 
-            {{# if (d.task.compareType == 'speed') { }}
+            {{# if (d.task.compareType == 'speed' || d.task.compareType == 'all') { }}
             已作为对比变量
             {{# } else { }}
 
@@ -679,17 +798,8 @@
             {{# } }}
           </td>
           <td>
-<!--            其余参数：-->
           </td>
           <td>
-
-<!--            {{# if (d.task.compareType == 'other') { }}
-            已作为对比变量
-            {{# } else { }}
-
-              <input type="text" autocomplete="off" id="other" placeholder="其余参数" class="layui-input" style="width: auto;" value="{{d.task.otherParameters}}">
-
-            {{# } }}-->
           </td>
         </tr>
         <tr>

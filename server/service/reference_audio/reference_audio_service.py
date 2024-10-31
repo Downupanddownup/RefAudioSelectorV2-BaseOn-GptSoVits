@@ -14,6 +14,7 @@ class ReferenceAudioService:
     @staticmethod
     def find_count(audio_filter: ObjReferenceAudioFilter) -> int:
         return ReferenceAudioDao.find_count(audio_filter)
+
     @staticmethod
     def find_list(audio_filter: ObjReferenceAudioFilter) -> list[ObjReferenceAudio]:
         return ReferenceAudioDao.find_list(audio_filter)

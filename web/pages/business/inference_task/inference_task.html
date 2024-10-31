@@ -107,8 +107,14 @@
                                 if (d.compareType === 'text_delimiter') {
                                     return '文本分隔符'
                                 }
-                                if (d.compareType === 'other') {
-                                    return '其余参数'
+                                if (d.compareType === 'kpt') {
+                                    return 'top_k、top_p、temperature'
+                                }
+                                if (d.compareType === 'gv') {
+                                    return 'Gpt与Vits模型'
+                                }
+                                if (d.compareType === 'all') {
+                                    return '所有参数'
                                 }
                                 return d.compareType;
                             }},
@@ -329,7 +335,9 @@
                     <option value="temperature">temperature值</option>
                     <option value="speed">speed值</option>
                     <option value="text_delimiter">文本分隔符</option>
-<!--                    <option value="other">其余参数</option>-->
+                    <option value="kpt">top_k、top_p、temperature</option>
+                    <option value="gv">Gpt与Vits模型</option>
+                    <option value="all">所有参数</option>
                 </select>
             </td>
             <td>推理状态：</td>

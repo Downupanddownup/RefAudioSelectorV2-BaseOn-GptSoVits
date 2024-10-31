@@ -162,6 +162,25 @@ class RasApiMonitor:
                 f"Failed to fetch audio from API. Server responded with status code {response.status_code}.message: {response.json()}")
 
     @staticmethod
+    def set_stream_mode_to_off():
+        url = f'{RasApiMonitor.get_api_service_url()}/ras/set_default_params'
+        json_data = json.dumps({
+            'stream_mode': 0,
+            'media_type': 'wav'
+        })
+        print(json_data)
+        # 发起GET请求
+        response = requests.post(url, data=json_data, headers={'Content-Type': 'application/json'})
+
+        # 检查响应状态码是否正常（例如200表示成功）
+        if response.status_code == 200:
+            # 返回音频数据的字节流
+            return True
+        else:
+            raise Exception(
+                f"Failed to fetch audio from API. Server responded with status code {response.status_code}.message: {response.text}")
+
+    @staticmethod
     def set_api_models(gpt_model: GptModel, sovits_model: VitsModel):
         url = f'{RasApiMonitor.get_api_service_url()}/set_model'
 
