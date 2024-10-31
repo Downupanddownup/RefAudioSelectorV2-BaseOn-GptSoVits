@@ -283,3 +283,39 @@ class C_ResultEvaluationFilter {
     }
 }
 
+class C_ObjSoundFusionAudio {
+    constructor(data) {
+        data = data || {};
+        this.id = data.id || 0; // 自增编号
+        this.roleName = data.roleName || ''; // 角色名称
+        this.audioName = data.audioName || ''; // 音频名称
+        this.audioPath = data.audioPath || ''; // 音频路径
+        this.content = data.content || ''; // 音频内容
+        this.language = data.language || ''; // 音频语种
+        this.category = data.category || ''; // 音频分类
+        this.audioLength = data.audioLength || 0; // 音频时长
+        this.remark = data.remark || ''; // 备注
+        this.createTime = data.createTime; // 创建时间
+    }
+    
+}
+
+class C_ObjInferenceTaskSoundFusionAudio {
+    constructor(data) {
+        data = data || {};
+        this.id = data.id || 0; // 自增编号
+        this.taskId = data.taskId || 0; // 任务ID
+        this.compareParamId = data.compareParamId || 0; // 对比参数ID
+        this.audioId = data.audioId || 0; // 融合音频ID
+        this.roleName = data.roleName || ''; // 角色名称
+        this.audioName = data.audioName || ''; // 音频名称
+        this.audioPath = data.audioPath || ''; // 音频路径
+        this.content = data.content || ''; // 音频内容
+        this.language = data.language || ''; // 音频语种
+        this.category = data.category || ''; // 音频分类
+        this.audioLength = data.audioLength || 0; // 音频时长
+        this.remark = data.remark || ''; // 备注
+        this.createTime = data.createTime; // 创建时间
+    }
+    
+}

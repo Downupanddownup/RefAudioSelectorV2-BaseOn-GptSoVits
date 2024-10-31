@@ -21,6 +21,7 @@ from server.controller.long_text_inference.long_text_inference_controller import
 from server.controller.result_evaluation.result_evaluation_controller import router as result_evaluation_router
 from server.controller.audio_packaging.audio_packaging_controller import router as audio_packaging_router
 from server.controller.system.system_controller import router as system_router
+from server.controller.sound_fusion.sound_fusion_controller import router as sound_fusion_router
 from server.dao.data_base_manager import db_config
 from server.common import config_params
 from server.service.system.system_service import SystemService
@@ -57,6 +58,7 @@ app.include_router(long_text_router)
 app.include_router(result_evaluation_router)
 app.include_router(audio_packaging_router)
 app.include_router(system_router)
+app.include_router(sound_fusion_router)
 
 # Mount static files directory
 app.mount("/static", StaticFiles(directory="."), name="static")
