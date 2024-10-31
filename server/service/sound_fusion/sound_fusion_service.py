@@ -1,2 +1,2 @@
-
 class SoundFusionService:
+    pass

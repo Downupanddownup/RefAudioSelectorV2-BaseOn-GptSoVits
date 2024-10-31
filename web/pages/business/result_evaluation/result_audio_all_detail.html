@@ -87,8 +87,9 @@
                     waveColor: 'rgb(200, 0, 200)',
                     progressColor: 'rgb(100, 0, 100)',
                     media: audio,
-                    minPxPerSec: 100,
+                    // minPxPerSec: 100,
                     // sampleRate: 32000,
+                    // sampleRate: 22050,
                     plugins: [bottomTimeline,hover,regionsManager],
                 })
 
@@ -96,10 +97,17 @@
                  wavesurfer.registerPlugin(
                          WaveSurfer.Spectrogram.create({
                            labels: true,
-                           height: 200,
+                           // height: 200,
                            splitChannels: true,
                          })
                  )
+
+                // Play on click
+                wavesurfer.once('interaction', () => {
+                    wavesurfer.play()
+                })
+                
+                
 
             }
 
@@ -149,6 +157,16 @@
                         splitChannels: true,
                     })
                 )
+
+                wavesurfer.once('decode', () => {
+                    const slider = document.querySelector('input[id=resultWaveFormZoom]')
+
+                    slider.addEventListener('input', (e) => {
+                        const minPxPerSec = e.target.valueAsNumber
+                        wavesurfer.zoom(minPxPerSec)
+                    })
+                })
+
             }
         }
 
@@ -175,6 +193,7 @@
             <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
             您的浏览器不支持 HTML5 audio 标签。
         </audio>
+        <input id="resultWaveFormZoom" type="range" min="10" max="1000" value="100">
     
     {{# } }}
 

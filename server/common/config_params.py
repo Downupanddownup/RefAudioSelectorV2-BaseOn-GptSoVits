@@ -1,4 +1,5 @@
 import server.common.config_manager as config_manager
+from server.util.util import str_to_int
 
 config = config_manager.get_config()
 
@@ -6,7 +7,7 @@ config = config_manager.get_config()
 # Gpt-Sovits2项目路径
 gsv2_dir = config.get_base('gsv2_dir')
 # 推理任务并发进程数量
-inference_process_num = config.get_base('inference_process_num')
+inference_process_num = str_to_int(config.get_base('inference_process_num'), 1)
 # service port
 service_port = config.get_base('service_port')
 # api port

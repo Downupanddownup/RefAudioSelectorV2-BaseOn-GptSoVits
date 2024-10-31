@@ -10,19 +10,19 @@ def init_slave_table(db_path):
 
     # 创建一个新表
     cursor.execute('''
-        CREATE TABLE tab_obj_inference_task_sound_fusion_audio (
+        CREATE TABLE IF NOT EXISTS tab_obj_inference_task_sound_fusion_audio (
             Id INTEGER PRIMARY KEY AUTOINCREMENT, -- 自增编号
-            TaskId INTEGER DEFAULT 0 COMMENT '任务id',
-            CompareParamId INTEGER DEFAULT 0 COMMENT '对比参数id',
-            AudioId INTEGER DEFAULT 0 COMMENT '融合音频id',
-            RoleName TEXT DEFAULT '' COMMENT '角色名称',
-            AudioName TEXT DEFAULT '' COMMENT '音频名称',
-            AudioPath TEXT DEFAULT '' COMMENT '音频路径',
-            Content TEXT DEFAULT '' COMMENT '音频内容',
-            Language TEXT DEFAULT '' COMMENT '音频语种',
-            Category TEXT DEFAULT '' COMMENT '音频分类',
-            AudioLength INTEGER DEFAULT 0 COMMENT '音频时长',
-            Remark TEXT DEFAULT '' COMMENT '备注',
+            TaskId INTEGER DEFAULT 0 ,-- 任务id
+            CompareParamId INTEGER DEFAULT 0 ,-- 对比参数id
+            AudioId INTEGER DEFAULT 0 ,-- 融合音频id
+            RoleName TEXT DEFAULT '' ,-- 角色名称
+            AudioName TEXT DEFAULT '' ,-- 音频名称
+            AudioPath TEXT DEFAULT '' ,-- 音频路径
+            Content TEXT DEFAULT '' ,-- 音频内容
+            Language TEXT DEFAULT '',-- 音频语种
+            Category TEXT DEFAULT '',-- 音频分类
+            AudioLength INTEGER DEFAULT 0 ,-- 音频时长
+            Remark TEXT DEFAULT '' ,-- 备注
             CreateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP -- 创建时间
         );
     ''')

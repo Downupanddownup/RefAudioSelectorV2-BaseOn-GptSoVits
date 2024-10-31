@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<script>
+    const SoundFusionEditSpace = (function () {
+        class C_SoundFusionEdit {
+            constructor(viewId) {
+                this.viewId = viewId
+            }
+
+            render() {
+                const _this = this
+                const getTpl = $('#soundFusionEditTemplate').html(); // 获取模板字符
+                // 渲染并输出结果
+                layui.laytpl(getTpl).render(_this, function(html){
+                    const obj = $('#'+_this.viewId)
+                    obj.html(html)
+                });
+                return _this
+            }
+        }
+
+        function getSoundFusionEdit(viewId) {
+            return new C_SoundFusionEdit(viewId)
+        }
+
+        return {
+            getSoundFusionEdit: getSoundFusionEdit
+        }
+    })()
+</script>
+
+<script id="soundFusionEditTemplate" type="text/html">
+    音频打包
+</script>
