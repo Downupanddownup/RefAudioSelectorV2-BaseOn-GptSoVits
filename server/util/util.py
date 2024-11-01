@@ -1,6 +1,9 @@
 import subprocess
 import sys
 import os
+import time
+
+from fastapi import UploadFile
 
 
 class ValidationUtils:
@@ -161,3 +164,20 @@ def get_absolute_path(relative_path):
     """
     absolute_path = os.path.join(os.getcwd(), relative_path)
     return os.path.normpath(absolute_path)
+
+
+def save_file(file: UploadFile, new_path: str):
+
+    # 将文件内容写入指定路径
+    with open(new_path, "wb") as buffer:
+        while True:
+            chunk = file.read(1024 * 8)  # 每次读取8KB
+            if not chunk:
+                break
+            buffer.write(chunk)
+
+        os.fsync(buffer.fileno())
+        # Give some time for the filesystem to update if necessary
+        # 这里添加一个小的等待时间，根据实际情况调整
+        time.sleep(1)  # 可选
+

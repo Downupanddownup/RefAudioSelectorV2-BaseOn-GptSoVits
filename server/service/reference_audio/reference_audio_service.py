@@ -6,6 +6,7 @@ from typing import Dict
 import librosa
 
 from server.bean.reference_audio.obj_reference_audio import ObjReferenceAudio, ObjReferenceAudioFilter
+from server.dao.data_base_manager import db_config
 from server.dao.reference_audio.reference_audio_dao import ReferenceAudioDao
 from server.common.log_config import logger
 
@@ -20,13 +21,24 @@ class ReferenceAudioService:
         return ReferenceAudioDao.find_list(audio_filter)
 
     @staticmethod
-    def convert_from_list(list_file: str, output_dir: str) -> list[ObjReferenceAudio]:
-
-        audio_list = []
-
+    def get_reference_dir():
+        output_dir = f'{db_config.get_work_dir()}\\refer_audio'
         # 创建输出目录，如果它不存在的话
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
+        return output_dir
+
+    @staticmethod
+    def get_new_reference_audio_path():
+        unique_id_time_based = uuid.uuid1()
+        new_filename = str(unique_id_time_based) + '.wav'
+        new_path = os.path.join(ReferenceAudioService.get_reference_dir(), new_filename)
+        return new_path
+
+    @staticmethod
+    def convert_from_list(list_file: str) -> list[ObjReferenceAudio]:
+
+        audio_list = []
 
         # 解析.list文件，并操作文件
         with open(list_file, 'r', encoding='utf-8') as file:
@@ -40,14 +52,7 @@ class ReferenceAudioService:
 
             audio_path, _, language, transcription = parts
 
-            # 生成基于时间戳的 UUID
-            unique_id_time_based = uuid.uuid1()
-
-            # 构建新的文件名和路径
-            new_filename = str(unique_id_time_based) + '.wav'
-            # new_filename = new_filename.replace(' ', '_')  # 移除空格
-            # new_filename = ''.join(e for e in new_filename if e.isalnum() or e in ['_', '.'])  # 移除非法字符
-            new_path = os.path.join(output_dir, new_filename)
+            new_path = ReferenceAudioService.get_new_reference_audio_path()
 
             # 如果目标文件已存在，不要覆盖
             if os.path.exists(new_path):

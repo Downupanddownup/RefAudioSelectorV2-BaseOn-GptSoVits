@@ -13,7 +13,7 @@ from server.dao.data_base_manager import db_config
 from server.service.reference_audio.reference_audio_compare_sevice import ReferenceAudioCompareService
 from server.service.reference_audio.reference_audio_service import ReferenceAudioService
 from server.service.reference_audio.reference_category_service import ReferenceCategoryService
-from server.util.util import ValidationUtils, clean_path, str_to_int, str_to_float
+from server.util.util import ValidationUtils, clean_path, str_to_int, str_to_float, save_file
 from server.common.log_config import logger
 from subprocess import Popen
 
@@ -32,7 +32,7 @@ async def load_audio_list_file(request: Request):
         return ResponseResult(code=1, msg="audioListFile is empty")
     audio_list_file = clean_path(audio_list_file)
 
-    audio_list = ReferenceAudioService.convert_from_list(audio_list_file, f'{db_config.get_work_dir()}\\refer_audio')
+    audio_list = ReferenceAudioService.convert_from_list(audio_list_file)
     count = ReferenceAudioService.insert_reference_audio_list(audio_list)
 
     return ResponseResult(msg=f'导入{count}个音频')
@@ -160,28 +160,14 @@ async def add_reference_audio(request: Request):
         category=form_data.get('category'),
     )
 
-    output_dir = f'{db_config.get_work_dir()}\\refer_audio'
-    unique_id_time_based = uuid.uuid1()
-    new_filename = str(unique_id_time_based) + '.wav'
-    new_path = os.path.join(output_dir, new_filename)
+    new_path = ReferenceAudioService.get_new_reference_audio_path()
 
     audio.audio_path = new_path
 
-    # 将文件内容写入指定路径
-    with open(new_path, "wb") as buffer:
-        while True:
-            chunk = await file.read(1024 * 8)  # 每次读取8KB
-            if not chunk:
-                break
-            buffer.write(chunk)
+    save_file(file, new_path)
 
-        os.fsync(buffer.fileno())
-            # Give some time for the filesystem to update if necessary
-            # 这里添加一个小的等待时间，根据实际情况调整
-        time.sleep(1)  # 可选
-
-        # 直接计算音频文件的时长（单位：秒）
-        audio.audio_length = librosa.get_duration(filename=new_path)
+    # 直接计算音频文件的时长（单位：秒）
+    audio.audio_length = librosa.get_duration(filename=new_path)
 
     ReferenceAudioService.add_reference_audio(audio)
 
