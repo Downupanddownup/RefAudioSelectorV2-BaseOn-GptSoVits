@@ -57,115 +57,24 @@
 
             initRefAudioWaveForm(){
                 const _this = this
-                const audio = document.getElementById('referenceAudio');
-                audio.src = _this.refAudio.audioPath
 
-                // Create a second timeline
-                const bottomTimeline = WaveSurfer.Timeline.create({
-                    height: 10,
-                    timeInterval: 0.1,
-                    primaryLabelInterval: 1,
-                    style: {
-                        fontSize: '10px',
-                        color: '#6A3274',
-                    },
-                })
-
-                const hover =  WaveSurfer.Hover.create({
-                    lineColor: '#ff0000',
-                    lineWidth: 2,
-                    labelBackground: '#555',
-                    labelColor: '#fff',
-                    labelSize: '11px',
-                })
-
-                const regionsManager = WaveSurfer.Regions.create()
-
-                // Create an instance of WaveSurfer 
-                const wavesurfer = WaveSurfer.create({
+                WavesurferSpace.createWave({
                     container: '#referenceWaveForm',
-                    waveColor: 'rgb(200, 0, 200)',
-                    progressColor: 'rgb(100, 0, 100)',
-                    media: audio,
-                    // minPxPerSec: 100,
-                    // sampleRate: 32000,
-                    // sampleRate: 22050,
-                    plugins: [bottomTimeline,hover,regionsManager],
-                })
-
-                // Initialize the Spectrogram plugin
-                 wavesurfer.registerPlugin(
-                         WaveSurfer.Spectrogram.create({
-                           labels: true,
-                           // height: 200,
-                           splitChannels: true,
-                         })
-                 )
-
-                // Play on click
-                wavesurfer.once('interaction', () => {
-                    wavesurfer.play()
+                    audioId: 'referenceAudio',
+                    audioSrc: _this.refAudio.audioPath,
+                    type: 'all',
                 })
                 
-                
-
             }
 
             initResultAudioWaveForm(){
                 const _this = this
-                const audio = document.getElementById('resultAudio');
                 
-                audio.src = _this.resultAudio.path
-
-                // Create a second timeline
-                const bottomTimeline = WaveSurfer.Timeline.create({
-                    height: 10,
-                    timeInterval: 0.1,
-                    primaryLabelInterval: 1,
-                    style: {
-                        fontSize: '10px',
-                        color: '#6A3274',
-                    },
-                })
-
-                const hover =  WaveSurfer.Hover.create({
-                    lineColor: '#ff0000',
-                    lineWidth: 2,
-                    labelBackground: '#555',
-                    labelColor: '#fff',
-                    labelSize: '11px',
-                })
-
-                const regionsManager = WaveSurfer.Regions.create()
-
-                // Create an instance of WaveSurfer 
-                const wavesurfer = WaveSurfer.create({
+                WavesurferSpace.createWave({
                     container: '#resultWaveForm',
-                    waveColor: 'rgb(200, 0, 200)',
-                    progressColor: 'rgb(100, 0, 100)',
-                    media: audio,
-                    minPxPerSec: 100,
-                    // sampleRate: 32000,
-                    plugins: [bottomTimeline,hover,regionsManager],
-                })
-
-                // Initialize the Spectrogram plugin
-                wavesurfer.registerPlugin(
-                    WaveSurfer.Spectrogram.create({
-                        labels: true,
-                        height: 1000,
-                        scale: 'linear',
-                        splitChannels: true,
-                    })
-                )
-
-                wavesurfer.once('decode', () => {
-                    const slider = document.querySelector('input[id=resultWaveFormZoom]')
-
-                    slider.addEventListener('input', (e) => {
-                        const minPxPerSec = e.target.valueAsNumber
-                        wavesurfer.zoom(minPxPerSec)
-                    })
+                    audioId: 'resultAudio',
+                    audioSrc: _this.resultAudio.path,
+                    type: 'all',
                 })
 
             }
@@ -188,25 +97,28 @@
         <fieldset class="layui-elem-field layui-field-title">
             <legend>结果音频</legend>
         </fieldset>
+        <div style="text-align: center;margin: 10px">
+            <audio controls class="custom-audio" id="resultAudio">
+                <source type="audio/wav">
+                <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
+                您的浏览器不支持 HTML5 audio 标签。
+            </audio>
+        </div>
         <div id="resultWaveForm"></div>
-        <audio controls class="custom-audio" id="resultAudio">
-            <source type="audio/wav">
-            <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
-            您的浏览器不支持 HTML5 audio 标签。
-        </audio>
-        <input id="resultWaveFormZoom" type="range" min="10" max="1000" value="100">
     
     {{# } }}
 
     <fieldset class="layui-elem-field layui-field-title">
         <legend>参考音频</legend>
     </fieldset>
+    <div style="text-align: center;margin: 10px">
+        <audio controls class="custom-audio" id="referenceAudio">
+            <source type="audio/wav">
+            <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
+            您的浏览器不支持 HTML5 audio 标签。
+        </audio>
+    </div>
     <div id="referenceWaveForm"></div>
-    <audio controls class="custom-audio" id="referenceAudio">
-        <source type="audio/wav">
-        <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
-        您的浏览器不支持 HTML5 audio 标签。
-    </audio>
     
     <table class="table1">
         <tr>

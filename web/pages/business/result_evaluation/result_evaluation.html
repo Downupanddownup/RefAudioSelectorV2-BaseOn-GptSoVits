@@ -121,6 +121,7 @@
                 _this.filter.includeSort = obj.find('#includeSort').val()
                 _this.filter.audioSort = obj.find('#audioSort').val()
                 _this.filter.audioUpDown = obj.find('#audioUpDown').val()
+                _this.filter.visualization = obj.find('#visualization').val()
                 return _this.filter
             }
 
@@ -263,6 +264,21 @@
                         <option value="asc" {{d.filter.audioUpDown=='asc'?'selected':''}}>升序</option>
                     </select>
                 </td>
+            </tr>
+            <tr>
+                <td>音频可视化：</td>
+                <td>
+                    <select class="customSelect" id="visualization">
+                        <option value="close" {{d.filter.visualization=='close'?'selected':''}}>关闭</option>
+                        <option value="waveform" {{d.filter.visualization=='waveform'?'selected':''}}>波形图</option>
+                        <option value="spectrogram" {{d.filter.visualization=='spectrogram'?'selected':''}}>频谱图</option>
+                        <option value="all" {{d.filter.visualization=='all'?'selected':''}}>波形图+频谱图</option>
+                    </select>
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
             </tr>
             <tr>
                 <td colspan="6">

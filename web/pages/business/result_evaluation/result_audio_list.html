@@ -460,9 +460,11 @@
                     return
                 }
                 const entry = _this.taskResultAudioList.find(item => item.id == resultId)
+                const path = entry.path.replace(/\\/g, '/')
                 divElement.html(`
                          <audio id="audio-${entry.id}" controls style="width: 350px;height: 30px;margin: 0 0">
-                            <source src="${entry.path.replace(/\\/g, '/')}" type="audio/mpeg">
+<!--                            <source src="${entry.path.replace(/\\/g, '/')}" type="audio/mpeg">-->
+                            <source type="audio/wav">
                             您的浏览器不支持音频播放。
                         </audio>
                 `)
@@ -477,6 +479,22 @@
                 });
 
                 _this.audioController.registerEventListener(audioElement)
+                
+                $(`#visualization-div-${entry.id}`).width($(`#result-audio-${entry.id}`).width()*0.98)
+                $(`#visualization-div-${entry.id}`).css('margin','0 1%')
+
+                if (_this.audioFilter.visualization !== 'close') {
+                    $(`#visualization-tr-${entry.id}`).show()
+                    WavesurferSpace.createWave({
+                        container: `#visualization-div-${entry.id}`,
+                        audioId: `audio-${entry.id}`,
+                        audioSrc: path,
+                        type: _this.audioFilter.visualization,
+                        zoom:'close'
+                    })
+                } else {
+                    audioElement.src = path
+                }
             }
             
             sortLevelData() {
@@ -724,6 +742,13 @@
                                         <td><span id="data-audio-remark-span-{{item2.resultAudio.id}}">{{item2.resultAudio.remark}}</span><i class="layui-icon layui-icon-edit" data-audio-remark-edit="{{item2.resultAudio.id}}"></i> </td>
                                         <td><button type="button" class="layui-btn layui-btn-sm" data-result-audio-detail="{{item2.resultAudio.id}}">详情</button></td>
                                     </tr>
+                                    
+                                    <tr id="visualization-tr-{{item2.resultAudio.id}}" style="display: none">
+                                        <td colspan="9">
+                                            <div id="visualization-div-{{item2.resultAudio.id}}"></div>
+                                        </td>
+                                    </tr>
+                                    
                                     {{# }) }}
                                 </table>
                                 
@@ -779,6 +804,13 @@
                                                             <td><span id="data-audio-remark-span-{{item3.resultAudio.id}}">{{item3.resultAudio.remark}}</span><i class="layui-icon layui-icon-edit" data-audio-remark-edit="{{item3.resultAudio.id}}"></i> </td>
                                                             <td><button type="button" class="layui-btn layui-btn-sm" data-result-audio-detail="{{item3.resultAudio.id}}">详情</button></td>
                                                         </tr>
+
+                                                        <tr id="visualization-tr-{{item3.resultAudio.id}}" style="display: none">
+                                                            <td colspan="9" >
+                                                                <div id="visualization-div-{{item3.resultAudio.id}}"></div>
+                                                            </td>
+                                                        </tr>
+                                                    
                                                     {{# }) }}
                                                 </table>
                                                 
