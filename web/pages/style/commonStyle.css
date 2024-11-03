@@ -199,3 +199,82 @@
     color: #333; /* 深灰色文字 */
 }
 
+.container {
+    display: flex;
+    flex-wrap: wrap; /* 允许子元素换行 */
+    gap: 10px; /* 子元素之间的间隔 */
+    padding: 10px; /* 容器内边距 */
+    background-color: #f8f9fa; /* 背景色 */
+    border: 1px solid #dee2e6; /* 边框 */
+    border-radius: 4px; /* 圆角 */
+}
+
+.container .item {
+    flex: 1 1 calc(25% - 20px); /* 每个子项占据25%的空间减去间距 */
+    min-width: 100px; /* 最小宽度 */
+    max-width: 200px; /* 最大宽度 */
+    height: 50px; /* 固定高度 */
+    background-color: white; /* 背景色 */
+    border: 1px solid #ced4da; /* 边框 */
+    border-radius: 4px; /* 圆角 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: move; /* 鼠标指针变为移动图标，提示可拖拽 */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* 微弱阴影，增加立体感 */
+}
+/* 基础样式 */
+.custom-checkbox {
+    display: inline-block;
+    position: relative;
+    padding-left: 35px; /* 为复选框留出空间 */
+    /*margin-bottom: 12px;*/
+    cursor: pointer;
+    font-size: 16px;
+    user-select: none;
+}
+
+/* 隐藏默认的复选框 */
+.custom-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+/* 创建自定义的复选框样式 */
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px; /* 调整复选框的高度 */
+    width: 20px; /* 调整复选框的宽度 */
+    background-color: #eee;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 当复选框被选中时的样式 */
+.custom-checkbox input:checked ~ .checkmark {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+/* 在复选框被选中时添加勾号 */
+.checkmark:after {
+    content: "";
+    display: none;
+    width: 8px; /* 调整勾号的宽度 */
+    height: 12px; /* 调整勾号的高度 */
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.custom-checkbox input:checked ~ .checkmark:after {
+    display: block;
+}

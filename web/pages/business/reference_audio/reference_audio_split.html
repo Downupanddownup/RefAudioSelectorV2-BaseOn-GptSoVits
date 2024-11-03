@@ -32,8 +32,11 @@
         this.originAudio = originAudio
         this.wavesurfer = null
         this.regionsManager = null
+        this.audioElement = null
         this.regions = []
         this.blob = null
+        this.loop = true
+        this.currentIntervalIndex = 0
       }
 
       render() {
@@ -47,11 +50,21 @@
           _this.loadAudio()
           
           obj.find('#addRegion').on('click',function(){
-            _this.addRegion()
+            console.log('regions', _this.regionsManager.getRegions())
+
+            _this.loop = false
+            obj.find('#loop').prop("checked", false)
+           
+            _this.playIntervals()
+            
           })
           
           obj.find('#splitAudio').on('click',function(){
             _this.splitAudio()
+          })
+          
+          obj.find('#loop').on('change',function(){
+            _this.loop = $(this).is(':checked')
           })
 
           
@@ -59,112 +72,195 @@
         return _this
       }
 
-      splitAudio(){
+      playIntervals() {
+        const _this = this
+        const audio = _this.audioElement
+
+        // 重置音频播放
+        audio.currentTime = 0;
+        audio.pause();
+        _this.currentIntervalIndex = 0
+
+        // 定义更新播放状态的函数
+        function updatePlayback() {
+          const currentInterval = _this.regions[_this.currentIntervalIndex];
+
+          // 检查当前时间是否超过当前区间结束时间
+          if (audio.currentTime >= currentInterval.end) {
+            audio.pause();
+            _this.currentIntervalIndex++;
+            if (_this.currentIntervalIndex < _this.regions.length) {
+              playNextInterval();
+            } else {
+              // 所有区间播放完毕，可以做一些结束处理
+              console.log("All intervals played.");
+            }
+          }
+
+          // 请求下一帧更新
+          requestAnimationFrame(updatePlayback);
+        }
+
+        // 播放下一个区间
+        function playNextInterval() {
+          const nextInterval = _this.regions[_this.currentIntervalIndex];
+          audio.currentTime = nextInterval.start;
+          
+          audio.play();
+          // 开始更新播放状态
+          requestAnimationFrame(updatePlayback);
+        }
+
+        // 开始播放第一个区间
+        playNextInterval();
+      }
+      
+      regionsDiv(){
+        const _this = this
+
+        $('#' + _this.viewId + ' #regionsDiv').html(``)
+
+        for (const region of _this.regions) {
+
+          $('#' + _this.viewId + ' #regionsDiv').append(`
+              <div class="item"><span style="display: block;margin-right: 15px">${region.content}</span> <i class="layui-icon layui-icon-clear" data-region-delete="${region.id}" style="cursor: pointer"></i> </div>
+            `)
+
+        }
+
+        new Sortable(regionsDiv, {
+          animation: 150,
+          ghostClass: 'blue-background-class',
+          // 结束拖拽
+          onEnd: function (/**Event*/evt) {
+            // 取得旧索引和新索引
+            const oldIndex = evt.oldIndex;
+            const newIndex = evt.newIndex;
+
+            // 对列表进行重排序
+            const movedItem = _this.regions.splice(oldIndex, 1)[0]; // 移除旧位置的元素
+            _this.regions.splice(newIndex, 0, movedItem); // 在新位置插入元素
+
+            console.log('更新后的列表:', _this.regions);
+          },
+        });
+
+        $('#' + _this.viewId + ' #regionsDiv').on('click', 'i[data-region-delete]', function() {
+          const regionId = $(this).attr('data-region-delete')
+          const region = _this.regions.find(region => region.id === regionId)
+          region.remove()
+          _this.regions = _this.regions.filter(region => region.id !== regionId)
+          _this.regionsDiv()
+        })
+
+      }
+
+      async splitAudio() {
         const _this = this
 
         $('#' + _this.viewId + ' #audioDiv').html(``)
-        
-        _this.regions.forEach(item => {
 
-          extractAudioSegment(_this.blob, item.region.start, item.region.end).then(blob => {
-            console.log('blob', blob)
-            const url = URL.createObjectURL(blob); // 更新音频文件的 URL
+        /*for (const region of _this.regions) {
 
-            $('#' + _this.viewId + ' #audioDiv').append(`
+          const newBlob = await sliceBlob(_this.blob, region.start, region.end)
+          console.log('newBlob', newBlob)
+          const url = URL.createObjectURL(newBlob); // 更新音频文件的 URL
+
+          $('#' + _this.viewId + ' #audioDiv').append(`
               <audio controls class="custom-audio">
                 <source src="${url}" type="audio/wav">
                 <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
                 您的浏览器不支持 HTML5 audio 标签。
               </audio>
             `)
-            
-          })
-          
-        })
-        
-       
-      }
 
-      addRegion(){
-        const _this = this
-        const region = _this.regionsManager.addRegion({
-          start: 0,
-          end: _this.originAudio.audioLength,
-          content: '剪切范围',
-          color: _this.randomColor(),
-          // minLength: 1,
-          // maxLength: 10,
-        })
+        }*/
         
-        _this.regions.push(new C_Region({
-          region: region
-        }))
-        
+        const timeRanges = _this.regions.map(region => ({ start: region.start, end: region.end }))
+
+        const newBlob = await mergeSlices(_this.blob, timeRanges)
+        console.log('newBlob', newBlob)
+        const url = URL.createObjectURL(newBlob); // 更新音频文件的 URL
+
+        $('#' + _this.viewId + ' #audioDiv').append(`
+              <audio controls class="custom-audio">
+                <source src="${url}" type="audio/wav">
+                <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
+                您的浏览器不支持 HTML5 audio 标签。
+              </audio>
+            `)
+
+
       }
       
       async loadAudio() {
         const _this = this
-        const {audioUrl, audioBlob} = await fetchAudioBlob(_this.originAudio.audioPath)
+        const {audioBlob, audioUrl} = await fetchAudioBlob(_this.originAudio.audioPath)
         _this.initWaveform(audioUrl, audioBlob)
       }
 
       initWaveform(audioUrl, audioBlob){
         const _this = this
 
-        const audio = new Audio()
-
-
-        audio.src = audioUrl; // 更新音频文件的 URL
-        
-        
-        
         _this.blob = audioBlob
-        
-        // Create a second timeline
-        const bottomTimeline = WaveSurfer.Timeline.create({
-          height: 10,
-          timeInterval: 0.1,
-          primaryLabelInterval: 1,
-          style: {
-            fontSize: '10px',
-            color: '#6A3274',
-          },
-        })
-        
-        const hover =  WaveSurfer.Hover.create({
-                  lineColor: '#ff0000',
-                  lineWidth: 2,
-                  labelBackground: '#555',
-                  labelColor: '#fff',
-                  labelSize: '11px',
-                })
 
-        _this.regionsManager = WaveSurfer.Regions.create()
-
-        // Create an instance of WaveSurfer 
-        _this.wavesurfer = WaveSurfer.create({
+        const {wavesurfer, regions, shadowRoot, audioElement} = WavesurferSpace.createWave({
           container: '#waveform',
-          waveColor: 'rgb(200, 0, 200)',
-          progressColor: 'rgb(100, 0, 100)',
-          media: audio,
-          minPxPerSec: 100,
-          // sampleRate: 32000,
-          plugins: [bottomTimeline,hover,_this.regionsManager],
+          audioId: 'referenceAudio',
+          audioSrc: audioUrl,
+          type: 'all',
         })
 
-        console.log('wavesurfer')
-        document.body.appendChild(audio)
+        _this.regionsManager = regions
+        _this.wavesurfer = wavesurfer
+        _this.audioElement = audioElement
 
-        // Initialize the Spectrogram plugin
-   /*     _this.wavesurfer.registerPlugin(
-                WaveSurfer.Spectrogram.create({
-                  labels: true,
-                  height: 200,
-                  splitChannels: true,
-                })
-        )*/
-        
-        
+        regions.on('region-created', (region) => {
+          console.log('region-created', region)
+          region.content = `区域${_this.regions.length + 1}`
+          const regionObj = $(shadowRoot).find(`div[part='region ${region.id}']`)
+          regionObj.find('div[part=region-content]').html(region.content)
+          regionObj.css('background-color', _this.randomColor())
+          _this.regions.push(region)
+          _this.regionsDiv()
+        })
+
+        regions.on('region-updated', (region) => {
+          console.log('Updated region', region)
+        })
+
+        regions.enableDragSelection({
+          content: `标题`,
+          color: _this.randomColor(),
+        })
+
+       _this.registerLoop()
+
+      }
+      
+      registerLoop(){
+        const _this = this
+        let activeRegion = null
+        _this.regionsManager.on('region-in', (region) => {
+          console.log('region-in', region)
+          activeRegion = region
+        })
+        _this.regionsManager.on('region-out', (region) => {
+          console.log('region-out', region)
+          if (activeRegion === region) {
+            if (_this.loop) {
+              region.play()
+            } else {
+              activeRegion = null
+            }
+          }
+        })
+        _this.regionsManager.on('region-clicked', (region, e) => {
+          e.stopPropagation() // prevent triggering a click on the waveform
+          activeRegion = region
+          region.play()
+          region.setOptions({ color: _this.randomColor() })
+        })
       }
 
       randomColor() {
@@ -189,24 +285,53 @@
 </script>
 
 <script id="referenceAudioSplitTemplate" type="text/html">
-  <div>
-    是否保留原始音频：
-    <label class="custom-radio" style="margin-right: 30px">
-      <input type="radio" name="streamMode" value="是" title="是" {{d ? 'checked' : ''}}>
-      <span></span>是
-    </label>
-    <label class="custom-radio">
-      <input type="radio" name="streamMode" value="否" title="否" {{d ? '' : 'checked'}}>
-      <span></span>否
-    </label>
-  </div>
   
   <div id="waveformListView">
     
+    <table class="table1">
+      <tr>
+        <td>
+          <div style="margin: 10px;display: flex;justify-content: center;align-items: center">
+            <audio controls class="custom-audio" id="referenceAudio">
+              <source type="audio/wav">
+              <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
+              您的浏览器不支持 HTML5 audio 标签。
+            </audio>
+
+            <label class="custom-checkbox" style="margin-left: 10px">
+              <input type="checkbox" id="loop" checked/>
+              <span class="checkmark"></span>
+              循环播放
+            </label>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <div id="waveform"></div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <div id="regionsDiv" class="container"></div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <div id="audioDiv"></div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <button type="submit" class="layui-btn layui-btn-sm" id="addRegion">播放区间队列</button>
+          <button type="submit" class="layui-btn layui-btn-sm" id="splitAudio">提取音频</button>
+        </td>
+      </tr>
+    </table>
+
   </div>
   
-  <button type="submit" class="layui-btn layui-btn-sm" id="splitAudio">添加一个新的</button>
-  <button type="submit" class="layui-btn layui-btn-sm" id="splitAudio">提取音频</button>
+
   
 </script>
 

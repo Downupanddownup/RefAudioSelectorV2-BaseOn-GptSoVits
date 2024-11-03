@@ -340,40 +340,146 @@ async function fetchAudioBlob(audio_url) {
 
 }
 
+async function mergeSlices(blob, timeRanges) {
+    console.log('timeRanges', timeRanges)
+    const arrayBuffer = await blob.arrayBuffer();
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
 
-async function extractAudioSegment(blob, startTime, endTime) {
+    const channels = audioBuffer.numberOfChannels;
+    const rate = audioBuffer.sampleRate;
+
+    // 计算最终合并后的AudioBuffer长度
+    const totalFrames = timeRanges.reduce((sum, {start, end}) => sum + (Math.floor(end * rate) - Math.floor(start * rate)), 0);
+    console.log('totalFrames', totalFrames)
+    // const newAudioBuffer = audioCtx.createBuffer(channels, totalFrames, rate);
+    const newAudioBuffer = new AudioContext().createBuffer(channels, totalFrames, rate);
+
+    let currentOffset = 0;
+
+    for (const {start, end} of timeRanges) {
+        const startOffset = Math.floor(start * rate);
+        const endOffset = Math.floor(end * rate);
+        const frameCount = endOffset - startOffset;
+        
+        console.log('startOffset', startOffset)
+        const tempArray = new Float32Array(frameCount);
+
+        // 创建临时Array存放复制的buffer数据
+        for (let channel = 0; channel < channels; channel++) {
+            audioBuffer.copyFromChannel(tempArray, channel, startOffset);
+            newAudioBuffer.copyToChannel(tempArray, channel, currentOffset);
+        }
+
+        currentOffset += frameCount;
+    }
+
+    return bufferToWave(newAudioBuffer, totalFrames);
+}
+
+
+async function sliceBlob(blob, startTime, endTime) {
     const arrayBuffer = await blob.arrayBuffer();
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     // 解码音频数据
     const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
 
-    // 计算提取的样本范围
-    const startSample = Math.floor(startTime * audioBuffer.sampleRate);
-    const endSample = Math.floor(endTime * audioBuffer.sampleRate);
+    // 声道数量和采样率
+    const channels = audioBuffer.numberOfChannels;
+    const rate = audioBuffer.sampleRate;
 
-    // 创建新的 AudioBuffer
-    const segmentBuffer = audioCtx.createBuffer(
-        audioBuffer.numberOfChannels,
-        endSample - startSample,
-        audioBuffer.sampleRate
-    );
+    //  计算提取的样本范围
+    const startOffset = Math.floor(startTime * rate);
+    const endOffset = Math.floor(endTime * rate);
+    // 对应的帧数
+    const frameCount = endOffset - startOffset;
 
-    // 拷贝样本到新缓冲区
-    for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
-        segmentBuffer.copyToChannel(audioBuffer.getChannelData(channel).subarray(startSample, endSample), channel);
+    // 创建同样采用率、同样声道数量，长度是前3秒的空的AudioBuffer
+    const newAudioBuffer = new AudioContext().createBuffer(channels, endOffset - startOffset, rate);
+    // 创建临时的Array存放复制的buffer数据
+    const anotherArray = new Float32Array(frameCount);
+    // 声道的数据的复制和写入
+    const offset = 0;
+    for (let channel = 0; channel < channels; channel++) {
+        audioBuffer.copyFromChannel(anotherArray, channel, startOffset);
+        newAudioBuffer.copyToChannel(anotherArray, channel, offset);
     }
 
-    // 使用 wavefile 库将新的 AudioBuffer 转换为 Blob
-    const wav = new wavefile.WaveFile();
-    wav.fromScratch(segmentBuffer.numberOfChannels, segmentBuffer.sampleRate, '32', segmentBuffer.getChannelData(0));
-
-    for (let channel = 1; channel < segmentBuffer.numberOfChannels; channel++) {
-        wav.fromScratch(channel, segmentBuffer.sampleRate, '32', segmentBuffer.getChannelData(channel));
-    }
-
-    return new Blob([wav.toBuffer()], { type: 'audio/wav' });
+    // newAudioBuffer就是全新的复制的3秒长度的AudioBuffer对象
+    return bufferToWave(newAudioBuffer, frameCount);
 }
+
+
+// Convert AudioBuffer to a Blob using WAVE representation
+function bufferToWave(abuffer, len) {
+    let numOfChan = abuffer.numberOfChannels,
+        length = len * numOfChan * 2 + 44,
+        buffer = new ArrayBuffer(length),
+        view = new DataView(buffer),
+        channels = [], i, sample,
+        offset = 0,
+        pos = 0;
+
+    // write WAVE header
+    // "RIFF"
+    setUint32(0x46464952);
+    // file length - 8                      
+    setUint32(length - 8);
+    // "WAVE"                     
+    setUint32(0x45564157);
+    // "fmt " chunk
+    setUint32(0x20746d66);
+    // length = 16                       
+    setUint32(16);
+    // PCM (uncompressed)                               
+    setUint16(1);
+    setUint16(numOfChan);
+    setUint32(abuffer.sampleRate);
+    // avg. bytes/sec
+    setUint32(abuffer.sampleRate * 2 * numOfChan);
+    // block-align
+    setUint16(numOfChan * 2);
+    // 16-bit (hardcoded in this demo)
+    setUint16(16);
+    // "data" - chunk
+    setUint32(0x61746164);
+    // chunk length                   
+    setUint32(length - pos - 4);
+
+    // write interleaved data
+    for(i = 0; i < abuffer.numberOfChannels; i++)
+        channels.push(abuffer.getChannelData(i));
+
+    while(pos < length) {
+        // interleave channels
+        for(i = 0; i < numOfChan; i++) {
+            // clamp
+            sample = Math.max(-1, Math.min(1, channels[i][offset]));
+            // scale to 16-bit signed int
+            sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767)|0;
+            // write 16-bit sample
+            view.setInt16(pos, sample, true);
+            pos += 2;
+        }
+        // next source sample
+        offset++
+    }
+
+    // create Blob
+    return new Blob([buffer], {type: "audio/wav"});
+
+    function setUint16(data) {
+        view.setUint16(pos, data, true);
+        pos += 2;
+    }
+
+    function setUint32(data) {
+        view.setUint32(pos, data, true);
+        pos += 4;
+    }
+}
+
 
 function downloadAudio(audioPath, filename) {
     fetch(audioPath, {

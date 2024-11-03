@@ -18,7 +18,7 @@ const WavesurferSpace = (function () {
         audio.src = param.audioSrc
 
         // Create a second timeline
-        const bottomTimeline = WaveSurfer.Timeline.create({
+        const timeline = WaveSurfer.Timeline.create({
             height: 10,
             timeInterval: 0.1,
             primaryLabelInterval: 1,
@@ -36,7 +36,7 @@ const WavesurferSpace = (function () {
             labelSize: '11px',
         })
 
-        const regionsManager = WaveSurfer.Regions.create()
+        const regions = WaveSurfer.Regions.create()
 
         // Create an instance of WaveSurfer 
         const wavesurfer = WaveSurfer.create({
@@ -47,7 +47,8 @@ const WavesurferSpace = (function () {
             height: param.waveHeight,
             // minPxPerSec: 100,
             // sampleRate: 32000,
-            plugins: [bottomTimeline,hover,regionsManager]
+            // interact:true,
+            plugins: [timeline,hover,regions]
         })
 
         if (param.zoom === 'open') {
@@ -75,17 +76,25 @@ const WavesurferSpace = (function () {
             )
         }
 
+        // 获取宿主元素
+        const resultWaveForm = document.querySelector(param.container);
+
+        // 获取第一个子 div
+        const hostElement = resultWaveForm.querySelector('div:first-child');
+
+        // 获取 Shadow Root
+        const shadowRoot = hostElement.shadowRoot;
 
         if (param.type === 'spectrogram') {
-            // 获取宿主元素
-            const resultWaveForm = document.querySelector(param.container);
-
-            // 获取第一个子 div
-            const hostElement = resultWaveForm.querySelector('div:first-child');
-
-            // 获取 Shadow Root
-            const shadowRoot = hostElement.shadowRoot;
+          
             $(shadowRoot).find('div[part=canvases]').hide()
+        }
+        
+        return {
+            wavesurfer: wavesurfer,
+            regions: regions,
+            shadowRoot: shadowRoot,
+            audioElement: audio
         }
 
     }
