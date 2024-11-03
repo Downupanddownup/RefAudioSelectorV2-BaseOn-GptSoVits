@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<script>
+  const ReferenceAudioSplitItemSpace = (function () {
+    
+    class C_ReferenceAudioSplitItem {
+      constructor(viewId, originAudio, blob, index, parent) {
+        this.viewId = viewId
+        this.originAudio = originAudio
+        this.regions = []
+        this.blob = blob
+        this.index = index
+        this.parent = parent
+
+        this.wavesurferManager = null
+        
+        console.log(this)
+        
+      }
+
+      render() {
+        const _this = this
+        const getTpl = $('#referenceAudioSplitItemTemplate').html(); // 获取模板字符
+        // 渲染并输出结果
+        layui.laytpl(getTpl).render(_this, function(html){
+          const obj = $('#'+_this.viewId)
+          obj.html(html)
+
+          layui.element.render('collapse');
+
+          _this.initWaveform(_this.blob)
+          
+          obj.find('#playRegions').on('click',function(){
+
+            _this.wavesurferManager.loop = false
+            obj.find('#loop').prop("checked", false)
+           
+            _this.wavesurferManager.playIntervals(_this.regions.map(region => region.id))
+            
+          })
+          
+          obj.find('#splitAudio').on('click',function(){
+            _this.splitAudio()
+          })
+          
+          obj.find('#loop').on('change',function(){
+            _this.wavesurferManager.loop = $(this).is(':checked')
+          })
+          
+          obj.find('[data-delete-audio]').on('click',function(){
+            const index = $(this).attr('data-delete-audio')
+            _this.parent.removeItem(index)
+          })
+
+          
+        });
+        return _this
+      }
+
+     
+      
+      regionsDiv(){
+        const _this = this
+        
+        console.log('regionsDiv')
+
+        const regionsDiv =  $('#' + _this.viewId + ' #regionsDiv-' + _this.viewId)
+
+        regionsDiv.html(``)
+
+        for (const region of _this.regions) {
+
+          regionsDiv.append(`
+              <div class="item"><span style="display: block;margin-right: 15px">${region.content}</span> <i class="layui-icon layui-icon-clear" data-region-delete="${region.id}" style="cursor: pointer"></i> </div>
+            `)
+
+        }
+
+        new Sortable(document.getElementById('regionsDiv-'+_this.viewId), {
+          animation: 150,
+          ghostClass: 'blue-background-class',
+          // 结束拖拽
+          onEnd: function (/**Event*/evt) {
+            // 取得旧索引和新索引
+            const oldIndex = evt.oldIndex;
+            const newIndex = evt.newIndex;
+
+            // 对列表进行重排序
+            const movedItem = _this.regions.splice(oldIndex, 1)[0]; // 移除旧位置的元素
+            _this.regions.splice(newIndex, 0, movedItem); // 在新位置插入元素
+
+            console.log('更新后的列表:', _this.regions);
+          },
+        });
+
+        regionsDiv.on('click', 'i[data-region-delete]', function() {
+          const regionId = $(this).attr('data-region-delete')
+        
+          _this.wavesurferManager.removeRegion(regionId)
+          _this.regions = _this.regions.filter(region => region.id !== regionId)
+          _this.regionsDiv()
+        })
+
+      }
+
+      async splitAudio() {
+        const _this = this
+
+        $('#' + _this.viewId + ' #audioDiv').html(``)
+        
+        const timeRanges = _this.regions.map(region => ({ start: region.start, end: region.end }))
+
+        const newBlob = await mergeSlices(_this.blob, timeRanges)
+        console.log('newBlob', newBlob)
+        const url = URL.createObjectURL(newBlob); // 更新音频文件的 URL
+
+        $('#' + _this.viewId + ' #audioDiv').append(`
+              <audio controls class="custom-audio">
+                <source src="${url}" type="audio/wav">
+                <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
+                您的浏览器不支持 HTML5 audio 标签。
+              </audio>
+            `)
+
+
+      }
+
+      initWaveform(audioBlob){
+        const _this = this
+        
+        const audioUrl = URL.createObjectURL(audioBlob)
+
+        _this.wavesurferManager = WavesurferSpace.createWave({
+          container: '#waveform-'+_this.viewId,
+          audioId: 'referenceAudio-'+_this.viewId,
+          audioSrc: audioUrl,
+          type: 'all',
+          zoom: 'close',
+        })
+
+      _this.wavesurferManager.registerDragSelection(region => {
+        _this.regions.push(region)
+        _this.regionsDiv()
+      })
+
+       _this.wavesurferManager.registerLoop()
+
+      }
+      
+    }
+
+    function getReferenceAudioSplitItem(viewId, originAudio, blob, index, parent) {//
+      return new C_ReferenceAudioSplitItem(viewId, originAudio, blob, index, parent)
+    }
+
+    return {
+      getReferenceAudioSplitItem: getReferenceAudioSplitItem
+    }
+  })()
+</script>
+
+<script id="referenceAudioSplitItemTemplate" type="text/html">
+
+  <div class="layui-collapse">
+    <div class="layui-colla-item">
+      <div class="layui-colla-title" style="display: flex;justify-content: space-between">
+        第{{d.index+1}}组
+      </div>
+      <div class="layui-colla-content layui-show">
+        <!--        layui-show-->
+        <table class="table1">
+            <tr>
+              <td>第{{d.index+1}}组</td>
+              <td colspan="2">
+                <div style="margin: 10px;display: flex;justify-content: center;align-items: center">
+                  <audio controls class="custom-audio" id="referenceAudio-{{d.viewId}}">
+                    <source type="audio/wav">
+                    <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
+                    您的浏览器不支持 HTML5 audio 标签。
+                  </audio>
+        
+                  <label class="custom-checkbox" style="margin-left: 10px">
+                    <input type="checkbox" id="loop" checked/>
+                    <span class="checkmark"></span>
+                    循环播放
+                  </label>
+                </div>
+              </td>
+              <td>
+                {{# if (d.index > 0) { }}
+        
+                    <button type="submit" class="layui-btn layui-btn-sm" data-delete-audio="{{d.index}}">删除</button>
+            
+                {{# } }}
+              </td>
+            </tr>
+            <tr>
+              <td colspan="4">
+                <div id="waveform-{{d.viewId}}" style="width: 98%;margin: 0 1%"></div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <button type="submit" class="layui-btn layui-btn-sm" id="playRegions">播放区间队列</button>
+              </td>
+              <td colspan="3">
+                <div id="regionsDiv-{{d.viewId}}" class="container"></div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <button type="submit" class="layui-btn layui-btn-sm" id="splitAudio">提取音频</button>
+              </td>
+              <td colspan="3">
+                <div id="audioDiv"></div>
+              </td>
+            </tr>
+            <tr>
+              <td>音频分类：</td>
+              <td><input type="text" autocomplete="off" id="searchAudioName" placeholder="音频分类" class="layui-input" style="width: auto;"></td>
+              <td>音频语种：</td>
+              <td><input type="text" autocomplete="off" id="searchAudioName" placeholder="音频语种" class="layui-input" style="width: auto;"></td>
+            </tr>
+            <tr>
+              <td>音频内容：</td>
+              <td colspan="3">
+                <textarea placeholder="音频内容" class="layui-textarea"></textarea>
+              </td>
+            </tr>
+          </table>
+      </div>
+    </div>
+  </div>
+
+  
+  
+</script>
