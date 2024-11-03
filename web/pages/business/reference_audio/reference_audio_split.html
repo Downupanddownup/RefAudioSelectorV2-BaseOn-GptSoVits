@@ -192,11 +192,11 @@
   <div>
     是否保留原始音频：
     <label class="custom-radio" style="margin-right: 30px">
-      <input type="radio" name="streamMode" value="是" title="是" {{d.config.streamMode ? 'checked' : ''}}>
+      <input type="radio" name="streamMode" value="是" title="是" {{d ? 'checked' : ''}}>
       <span></span>是
     </label>
     <label class="custom-radio">
-      <input type="radio" name="streamMode" value="否" title="否" {{d.config.streamMode ? '' : 'checked'}}>
+      <input type="radio" name="streamMode" value="否" title="否" {{d ? '' : 'checked'}}>
       <span></span>否
     </label>
   </div>

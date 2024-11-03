@@ -15,18 +15,15 @@
       <div class="layui-colla-title" style="display: flex;justify-content: space-between">
         <div>基础信息</div>
         <div>
-          <div id="roleList"></div>
+          
         </div>
       </div>
       <div class="layui-colla-content">
 <!--        layui-show-->
         <table class="table1">
           <tr>
-            <td>
-              角色名称：<input type="text" id="roleName" autocomplete="on" placeholder="角色名称" class="layui-input" style="width: auto;display: inline" value="七七">
-            </td>
-            <td>
-              <button type="submit" class="layui-btn" onclick="switchAndRefreshWorkspace()">切换并刷新</button>
+            <td style="text-align: center">
+              <div id="roleList" style="width: 200px"></div>
             </td>
           </tr>
         </table>
@@ -143,7 +140,6 @@
           type: 'post',
           success: function(res){
             if (res.code == 0) {
-              $('#roleName').val(res.data.roleName)
               console.log(res)
               initRoleList(res.data.roleName, res.data.roleList)
               layui.element.tabChange('docDemoTabBrief', 1);
@@ -157,6 +153,8 @@
         })
       }
       
+      let SelectDataList = []
+      
       function initRoleList(roleName, roleList) {
 
         const data = roleList.map(item => {
@@ -166,10 +164,15 @@
             selected: item === roleName
           }
         })
+        SelectDataList = data
+        
+        
+        console.log(data)
 
         xmSelect.render({
           el: '#roleList',
           tips: '选择或新建',
+          searchTips: '选择或新建',
           radio: true,
           clickClose: true,
           filterable: true,
@@ -177,7 +180,7 @@
             if(arr.length === 0){
               return {
                 name: val,
-                value: val
+                value: val,
               }
             }
           },
@@ -206,11 +209,23 @@
                 url: BaseUrl + 'system/switch_role_workspace',
                 type: 'POST',
                 data: {
-                  roleName: roleName
+                  roleName: selectedRoleName
                 },
                 success: function (data) {
                   if (data.code == 0) {
                     layui.layer.msg('切换成功')
+                    if (!SelectDataList.find(item => item.value === selectedRoleName)) {
+                      SelectDataList.forEach(item => item.selected = false)
+                      SelectDataList.push({
+                        name: selectedRoleName,
+                        value: selectedRoleName,
+                        selected: true
+                      })
+                    }
+                    xmSelect.get('#roleList', true).update({
+                      data:SelectDataList
+                    })
+                    layui.element.tabChange('docDemoTabBrief', 1);
                   } else {
                     layui.layer.msg(data.msg)
                   }
@@ -236,31 +251,6 @@
       });
       
     });
-  }
-  
-  function switchAndRefreshWorkspace() {
-    
-    const roleName = $('#roleName').val()
-    if (roleName == '') {
-      layer.msg('请输入完整信息')
-      return
-    }
-    
-    $.customAjax({
-      url: BaseUrl + 'system/switch_role_workspace',
-      type: 'POST',
-      data: {
-        roleName: roleName
-      },
-      success: function (data) {
-        if (data.code == 0) {
-          layui.layer.msg('切换成功')
-        } else {
-          layui.layer.msg(data.msg)
-        }
-      }
-    })
-    
   }
   
 </script>
