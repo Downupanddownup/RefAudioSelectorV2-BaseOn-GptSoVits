@@ -295,7 +295,7 @@
                 音频语种
                 <select class="customSelect" id="language">
                     <option value="">请选择</option>
-                    {{# layui.each(SysConfig.languages, function(index, item) { }}
+                    {{# layui.each(SysConfig.languageList, function(index, item) { }}
                     <option {{isTrue(item.value==d.audio.language,'selected','')}} value="{{item.value}}">{{item.name}}</option>
                     {{# }) }}
                 </select>

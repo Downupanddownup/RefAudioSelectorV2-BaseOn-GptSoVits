@@ -68,7 +68,7 @@ async def add_sound_fusion_audio(request: Request):
 
     new_path = SoundFusionService.get_new_sound_fusion_path()
 
-    save_file(file, new_path)
+    await save_file(file, new_path)
 
     audio.audio_path = new_path
 

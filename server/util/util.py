@@ -166,12 +166,12 @@ def get_absolute_path(relative_path):
     return os.path.normpath(absolute_path)
 
 
-def save_file(file: UploadFile, new_path: str):
+async def save_file(file: UploadFile, new_path: str):
 
     # 将文件内容写入指定路径
     with open(new_path, "wb") as buffer:
         while True:
-            chunk = file.read(1024 * 8)  # 每次读取8KB
+            chunk = await file.read(1024 * 8)  # 每次读取8KB
             if not chunk:
                 break
             buffer.write(chunk)

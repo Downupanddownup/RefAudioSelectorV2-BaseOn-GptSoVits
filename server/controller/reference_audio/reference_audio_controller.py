@@ -164,10 +164,12 @@ async def add_reference_audio(request: Request):
 
     audio.audio_path = new_path
 
-    save_file(file, new_path)
+    await save_file(file, new_path)
 
     # 直接计算音频文件的时长（单位：秒）
     audio.audio_length = librosa.get_duration(filename=new_path)
+
+    ReferenceCategoryService.add_category(audio.category)
 
     ReferenceAudioService.add_reference_audio(audio)
 

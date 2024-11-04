@@ -124,6 +124,7 @@
           TabManager.AudioPackaging = AudioPackagingSpace.getAudioPackaging('tabContentView')
           TabManager.AudioPackaging.render()
         }
+        TabManager.tab = tab
       }
       
       
@@ -214,11 +215,11 @@
                         value: selectedRoleName,
                         selected: true
                       })
+                      xmSelect.get('#roleList', true).update({
+                        data:SelectDataList
+                      })
                     }
-                    xmSelect.get('#roleList', true).update({
-                      data:SelectDataList
-                    })
-                    switchTab(1)
+                    switchTab(TabManager.tab)
                   } else {
                     layui.layer.msg(data.msg)
                   }

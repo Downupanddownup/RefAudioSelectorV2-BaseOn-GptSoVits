@@ -92,13 +92,17 @@
           layui.layer.alert(e)
           return
         }
+        // 加载层
+        const loadIndex = layui.layer.load(0);
         for (const item of _this.items) {
           await item.submit()
         }
-        layui.layer.msg('提交成功')
+       
         if (successFun) {
           successFun()
         }
+        layui.layer.msg('提交成功')
+        layui.layer.close(loadIndex)
       }
 
     }

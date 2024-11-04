@@ -95,7 +95,7 @@ function getExtension(filePath) {
 }
 
 function createXmSelect(el, dataList, callback) {
-    const data = dataList.map(item => {
+    const choiceList = dataList.map(item => {
         return {
             name: item.name,
             value: item.name,
@@ -124,7 +124,7 @@ function createXmSelect(el, dataList, callback) {
                 type: 'text',
             }
         },
-        data: data,
+        data: choiceList,
         on: function(data){
             //arr:  当前多选已选中的数据
             const arr = data.arr;
@@ -139,16 +139,16 @@ function createXmSelect(el, dataList, callback) {
             const selectedName = arr[0].value
 
             if (selectedName) {
-                if (!data.find(item => item.value === selectedName)) {
-                    data.forEach(item => item.selected = false)
-                    data.push({
+                if (!choiceList.find(item => item.value === selectedName)) {
+                    choiceList.forEach(item => item.selected = false)
+                    choiceList.push({
                         name: selectedName,
                         value: selectedName,
                         selected: true
                     })
                 }
                 xmSelect.get(el, true).update({
-                    data:data
+                    data:choiceList
                 })
             }
             

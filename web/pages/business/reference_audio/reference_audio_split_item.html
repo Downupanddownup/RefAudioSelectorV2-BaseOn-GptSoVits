@@ -66,7 +66,12 @@
             _this.newAudio.content = $(this).val()
           })
           
-          createXmSelect('#' + _this.viewId + ' #category', _this.categoryList, data => {
+          createXmSelect('#' + _this.viewId + ' #category', _this.categoryList.map(category => {
+            return {
+              name: category.name,
+              selected: category.name === _this.newAudio.category
+            }
+          }), data => {
             _this.newAudio.category = data.arr[0].value
           })
 
@@ -197,7 +202,7 @@
         formData.append('content', _this.newAudio.content)
         formData.append('category', _this.newAudio.category)
         try {
-          const response = await fetch(BaseUrl+'add_reference_audio', {
+          const response = await fetch(BaseUrl+'audio/add_reference_audio', {
             method: 'POST',
             body: formData
           });
@@ -289,7 +294,7 @@
               <td>音频语种：</td>
               <td>
                 <select class="customSelect" id="language">
-                  {{# layui.each(SysConfig.languages, function(index, item) { }}
+                  {{# layui.each(SysConfig.languageList, function(index, item) { }}
                   <option {{isTrue(item.value==d.newAudio.language,'selected','')}} value="{{item.value}}">{{item.name}}</option>
                   {{# }) }}
                 </select>
@@ -298,7 +303,7 @@
             <tr>
               <td>音频内容：</td>
               <td colspan="5">
-                <textarea placeholder="音频内容" class="layui-textarea" id="content">value="{{d.newAudio.content}}"</textarea>
+                <textarea placeholder="音频内容" class="layui-textarea" id="content">{{d.newAudio.content}}</textarea>
               </td>
             </tr>
           </table>
