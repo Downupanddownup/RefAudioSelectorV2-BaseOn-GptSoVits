@@ -83,10 +83,8 @@
 
             loadReferenceList(){
                 const _this = this
-
-                const windowHeight = window.innerHeight;
                 
-                const height = windowHeight - $('#contentHeader').height() - $('#searchHeader').height() - 50
+                const height = $('#referenceAudioListDiv').height()
                 // 创建渲染实例
                 layui.table.render({
                     elem: '#referenceAudioList',
@@ -370,6 +368,8 @@
     </table>
     
 
-    <table class="layui-hide" id="referenceAudioList" lay-filter="referenceAudioList" style="height: 100%"></table>
+    <div id="referenceAudioListDiv" style="flex: 1;overflow-y: auto">
+        <table class="layui-hide" id="referenceAudioList" lay-filter="referenceAudioList" ></table>
+    </div>
    
 </script>

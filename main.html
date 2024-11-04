@@ -9,45 +9,26 @@
 </head>
 <body>
 
-<div id="contentHeader">
-  <div class="layui-collapse" lay-accordion="">
-    <div class="layui-colla-item">
-      <div class="layui-colla-title" style="display: flex;justify-content: space-between">
-        <div>基础信息</div>
-        <div>
-          
-        </div>
+<div class="container-tab">
+  <div class="custom-tab" id="contentHeader">
+    <div class="tab-left">
+      <button class="tab-link active" data-tab="1">参考音频</button>
+      <button class="tab-link" data-tab="2">推理任务</button>
+      <button class="tab-link" data-tab="3">结果评测</button>
+      <button class="tab-link" data-tab="4">长文推理</button>
+      <button class="tab-link" data-tab="5">音频打包</button>
+    </div>
+    <div class="tab-right">
+      <div class="info-button">工具信息</div>
+      <div class="info-button">
+        <div id="roleList" style="width: 150px"></div>
       </div>
-      <div class="layui-colla-content">
-<!--        layui-show-->
-        <table class="table1">
-          <tr>
-            <td style="text-align: center">
-              <div id="roleList" style="width: 200px"></div>
-            </td>
-          </tr>
-        </table>
-      </div>
+      <div class="info-button">启动API</div>
     </div>
   </div>
-
-  <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
-    <ul class="layui-tab-title">
-      <li class="layui-this" lay-id="1">参考音频</li>
-      <li lay-id="2" >推理任务</li>
-      <li lay-id="3" >结果评测</li>
-      <li lay-id="4" >长文推理</li>
-      <li lay-id="5" >音频打包</li>
-    </ul>
-    <div class="layui-tab-content" style="height: 100px;">
-      <div class="layui-tab-item layui-show"><div id="referenceAudioView"></div></div>
-      <div class="layui-tab-item"><div id="inferenceTaskView"></div></div>
-      <div class="layui-tab-item"><div id="resultEvaluationView"></div></div>
-      <div class="layui-tab-item"><div id="longTextInferenceView"></div></div>
-      <div class="layui-tab-item"><div id="audioPackagingView"></div></div>
-    </div>
-  </div>
+  <div id="tabContentView"></div>
 </div>
+
 
 
 <!-- body 末尾处引入 layui -->
@@ -71,7 +52,11 @@
 <script src="web/pages/common/wavesurfer.js"></script>
 <script>
   
-
+  let TabManager = null
+  
+  function minHeight() {
+    return window.innerHeight - $('#contentHeader').height() - 54
+  }
   
   window.onload = function(){
     layui.use(function(){
@@ -103,37 +88,43 @@
               'web/pages/business/sound_fusion/sound_fusion_manager.html',
               'web/pages/business/sound_fusion/sound_fusion_select.html'
       ],function () {
-        layui.element.on('tab(docDemoTabBrief)', function (data) {
-          console.log($(this).html()); // 当前 tab 标题所在的原始 DOM 元素
-          console.log(data.index); // 得到当前 tab 项的所在下标
-          console.log(data.elem); // 得到当前的 tab 容器
-          console.log(data.id); // 得到当前的 tab ID(2.9.11+)
-          
-          const html = $(this).html()
-          
-          $('#referenceAudioView').html('')
-          $('#inferenceTaskView').html('')
-          $('#resultEvaluationView').html('')
-          $('#longTextInferenceView').html('')
-          $('#audioPackagingView').html('')
-          
-          if (html == '参考音频') {
-            ReferenceAudioSpace.getReferenceAudio('referenceAudioView').loadData()
-          } else if (html == '推理任务') {
-            InferenceTaskSpace.getInferenceTask('inferenceTaskView').render()
-          } else if (html == '结果评测') {
-            ResultEvaluationSpace.getResultEvaluation('resultEvaluationView').loadData()
-          } else if (html == '长文推理') {
-            LongTextInferenceSpace.getLongTextInference('longTextInferenceView').render()
-          } else if (html == '音频打包') {
-            AudioPackagingSpace.getAudioPackaging('audioPackagingView').render()
-          }
-          
-        });
+
+        initTabManager()
 
         loadRoleName()
         
+        // $('#tabContentView').css('min-height', minHeight()+'px')
+        
       })
+      
+      function initTabManager() {
+        TabManager = {}
+        $('button[data-tab]').on('click', function () {
+          const tab = parseInt($(this).data('tab'))
+          $('button[data-tab]').removeClass('active')
+          $(this).addClass('active')
+          switchTab(tab)
+        })
+      }
+      
+      function switchTab(tab) {
+        if (tab === 1) {
+          TabManager.ReferenceAudio = ReferenceAudioSpace.getReferenceAudio('tabContentView')
+          TabManager.ReferenceAudio.loadData()
+        } else if (tab === 2) {
+          TabManager.InferenceTask = InferenceTaskSpace.getInferenceTask('tabContentView')
+          TabManager.InferenceTask.render()
+        } else if (tab === 3) {
+          TabManager.ResultEvaluation = ResultEvaluationSpace.getResultEvaluation('tabContentView')
+          TabManager.ResultEvaluation.loadData()
+        } else if (tab === 4) {
+          TabManager.LongTextInference = LongTextInferenceSpace.getLongTextInference('tabContentView')
+          TabManager.LongTextInference.render()
+        } else if (tab === 5) {
+          TabManager.AudioPackaging = AudioPackagingSpace.getAudioPackaging('tabContentView')
+          TabManager.AudioPackaging.render()
+        }
+      }
       
       
       function loadRoleName() {
@@ -144,7 +135,7 @@
             if (res.code == 0) {
               console.log(res)
               initRoleList(res.data.roleName, res.data.roleList)
-              layui.element.tabChange('docDemoTabBrief', 1);
+              switchTab(1)
             } else {
               layui.layer.msg(res.msg)
             }
@@ -227,7 +218,7 @@
                     xmSelect.get('#roleList', true).update({
                       data:SelectDataList
                     })
-                    layui.element.tabChange('docDemoTabBrief', 1);
+                    switchTab(1)
                   } else {
                     layui.layer.msg(data.msg)
                   }

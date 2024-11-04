@@ -66,9 +66,9 @@
 
             loadInferenceTaskList(){
                 const _this = this
-                const windowHeight = window.innerHeight;
 
-                const height = windowHeight - $('#contentHeader').height() - 30
+                const height = $('#inferenceTaskListDiv').height()
+                
                 // 创建渲染实例
                 layui.table.render({
                     elem: '#inferenceTaskList',
@@ -319,7 +319,7 @@
 
 <script id="inferenceTaskTemplate" type="text/html">
     
-    <table class="table3">
+    <table class="table3" id="searchHeader">
         <tr>
             <td>任务名称：</td>
             <td><input type="text" autocomplete="off" id="searchTaskName" placeholder="任务名称" class="layui-input" style="width: auto;"></td>
@@ -356,9 +356,8 @@
             </td>
         </tr>
     </table>
-    
 
-    <div class="layui-tab-item layui-show" style="height: 500px">
-        <table class="layui-hide" id="inferenceTaskList" lay-filter="inferenceTaskList" style="height: 100%"></table>
+    <div id="inferenceTaskListDiv" style="flex: 1;overflow-y: auto">
+        <table class="layui-hide" id="inferenceTaskList" lay-filter="inferenceTaskList"></table>
     </div>
 </script>
