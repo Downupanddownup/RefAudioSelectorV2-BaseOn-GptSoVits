@@ -3,12 +3,15 @@
   const ReferenceAudioSplitItemSpace = (function () {
     
     class C_ReferenceAudioSplitItem {
-      constructor(viewId, originAudio, blob, index, parent) {
+      constructor(viewId, originAudio, blob, index, categoryList, parent) {
         this.viewId = viewId
         this.originAudio = originAudio
+        this.newAudio = new C_ObjReferenceAudio(originAudio)
         this.regions = []
         this.blob = blob
+        this.resultBlob = null
         this.index = index
+        this.categoryList = categoryList
         this.parent = parent
 
         this.wavesurferManager = null
@@ -49,6 +52,22 @@
           obj.find('[data-delete-audio]').on('click',function(){
             const index = $(this).attr('data-delete-audio')
             _this.parent.removeItem(index)
+          })
+
+          obj.find('#audioName').on('blur',function(){
+            _this.newAudio.audioName = $(this).val()
+          })
+
+          obj.find('#language').on('blur',function(){
+            _this.newAudio.language = $(this).val()
+          })
+
+          obj.find('#content').on('blur',function(){
+            _this.newAudio.content = $(this).val()
+          })
+          
+          createXmSelect('#' + _this.viewId + ' #category', _this.categoryList, data => {
+            _this.newAudio.category = data.arr[0].value
           })
 
           
@@ -110,6 +129,9 @@
         const timeRanges = _this.regions.map(region => ({ start: region.start, end: region.end }))
 
         const newBlob = await mergeSlices(_this.blob, timeRanges)
+        
+        _this.resultBlob = newBlob
+        
         console.log('newBlob', newBlob)
         const url = URL.createObjectURL(newBlob); // 更新音频文件的 URL
 
@@ -146,10 +168,53 @@
 
       }
       
+      check() {
+        const _this = this
+        if (_this.resultBlob == null) {
+          throw '请先提取结果音频'
+        }
+        if (!_this.newAudio.audioName) {
+          throw '请输入音频名称'
+        }
+        if (!_this.newAudio.language) {
+          throw '请选择音频语言'
+        }
+        if (!_this.newAudio.content) {
+          throw '请输入音频内容'
+        }
+        if (!_this.newAudio.category) {
+          throw '请输入音频分类'
+        }
+      }
+      
+      async submit() {
+        const _this = this
+        _this.check()
+        const formData = new FormData()
+        formData.append('file', _this.resultBlob)
+        formData.append('audioName', _this.newAudio.audioName)
+        formData.append('language', _this.newAudio.language)
+        formData.append('content', _this.newAudio.content)
+        formData.append('category', _this.newAudio.category)
+        try {
+          const response = await fetch(BaseUrl+'add_reference_audio', {
+            method: 'POST',
+            body: formData
+          });
+          if (response.ok) {
+            console.log(`File ${_this} uploaded successfully`);
+          } else {
+            console.error(`Failed to upload file ${_this}`);
+          }
+        } catch (error) {
+          console.error(`Error uploading file ${_this}:`, error);
+        }
+      }
+      
     }
 
-    function getReferenceAudioSplitItem(viewId, originAudio, blob, index, parent) {//
-      return new C_ReferenceAudioSplitItem(viewId, originAudio, blob, index, parent)
+    function getReferenceAudioSplitItem(viewId, originAudio, blob, index, categoryList, parent) {//
+      return new C_ReferenceAudioSplitItem(viewId, originAudio, blob, index, categoryList, parent)
     }
 
     return {
@@ -170,7 +235,7 @@
         <table class="table1">
             <tr>
               <td>第{{d.index+1}}组</td>
-              <td colspan="2">
+              <td colspan="4">
                 <div style="margin: 10px;display: flex;justify-content: center;align-items: center">
                   <audio controls class="custom-audio" id="referenceAudio-{{d.viewId}}">
                     <source type="audio/wav">
@@ -194,7 +259,7 @@
               </td>
             </tr>
             <tr>
-              <td colspan="4">
+              <td colspan="6">
                 <div id="waveform-{{d.viewId}}" style="width: 98%;margin: 0 1%"></div>
               </td>
             </tr>
@@ -202,7 +267,7 @@
               <td>
                 <button type="submit" class="layui-btn layui-btn-sm" id="playRegions">播放区间队列</button>
               </td>
-              <td colspan="3">
+              <td colspan="5">
                 <div id="regionsDiv-{{d.viewId}}" class="container"></div>
               </td>
             </tr>
@@ -210,20 +275,30 @@
               <td>
                 <button type="submit" class="layui-btn layui-btn-sm" id="splitAudio">提取音频</button>
               </td>
-              <td colspan="3">
+              <td colspan="5">
                 <div id="audioDiv"></div>
               </td>
             </tr>
             <tr>
+              <td>音频名称：</td>
+              <td><input type="text" autocomplete="off" id="audioName" value="{{d.newAudio.audioName}}-{{d.index}}" placeholder="音频名称" class="layui-input" style="width: auto;"></td>
               <td>音频分类：</td>
-              <td><input type="text" autocomplete="off" id="searchAudioName" placeholder="音频分类" class="layui-input" style="width: auto;"></td>
+              <td>
+                <div id="category" style="width: 200px"></div>
+              </td>
               <td>音频语种：</td>
-              <td><input type="text" autocomplete="off" id="searchAudioName" placeholder="音频语种" class="layui-input" style="width: auto;"></td>
+              <td>
+                <select class="customSelect" id="language">
+                  {{# layui.each(SysConfig.languages, function(index, item) { }}
+                  <option {{isTrue(item.value==d.newAudio.language,'selected','')}} value="{{item.value}}">{{item.name}}</option>
+                  {{# }) }}
+                </select>
+              </td>
             </tr>
             <tr>
               <td>音频内容：</td>
-              <td colspan="3">
-                <textarea placeholder="音频内容" class="layui-textarea"></textarea>
+              <td colspan="5">
+                <textarea placeholder="音频内容" class="layui-textarea" id="content">value="{{d.newAudio.content}}"</textarea>
               </td>
             </tr>
           </table>

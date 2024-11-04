@@ -8,14 +8,33 @@
         this.originAudio = originAudio
         this.blob = null
         this.items = []
-        
+        this.categoryList = []
       }
 
       async loadAudio() {
         const _this = this
         const {audioBlob, audioUrl} = await fetchAudioBlob(_this.originAudio.audioPath)
         _this.blob = audioBlob  
-        _this.render()
+        _this.loadData()
+      }
+
+      loadData() {
+        const _this = this
+        $.customAjax({
+          url: BaseUrl+'audio/get_audio_category_list',
+          type: 'post',
+          success: function(res){
+            if (res.code == 0) {
+              _this.categoryList = res.data ? res.data.map(item=>new C_ObjInferenceCategory(item)) : []
+              _this.render()
+            } else {
+              layui.layer.msg(res.msg)
+            }
+          },
+          error: function(res, msg){
+            layui.layer.msg(msg)
+          }
+        })
       }
 
       render() {
@@ -50,7 +69,7 @@
         
         $('#itemListView').append(html)
         
-        const item = ReferenceAudioSplitItemSpace.getReferenceAudioSplitItem(itemId, _this.originAudio, _this.blob, index, _this)
+        const item = ReferenceAudioSplitItemSpace.getReferenceAudioSplitItem(itemId, _this.originAudio, _this.blob, index, _this.categoryList, _this)
         item.render()
         
         _this.items.push(item)
@@ -65,6 +84,22 @@
       }
 
 
+      async submit(successFun) {
+        const _this = this
+        try {
+          _this.items.forEach(item => item.check())
+        } catch (e) {
+          layui.layer.alert(e)
+          return
+        }
+        for (const item of _this.items) {
+          await item.submit()
+        }
+        layui.layer.msg('提交成功')
+        if (successFun) {
+          successFun()
+        }
+      }
 
     }
 

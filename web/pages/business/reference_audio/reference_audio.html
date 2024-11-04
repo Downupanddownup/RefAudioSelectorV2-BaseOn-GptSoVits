@@ -275,8 +275,12 @@
                     content: `<div id="audioSplitView"></div>`,
                     btn: ['确定', '取消'],
                     yes: function(){
-                        refreshListData('referenceAudioList')
-                        layui.layer.close(index)
+                        
+                        audioSplit.submit(() => {
+                            refreshListData('referenceAudioList')
+                            layui.layer.close(index)
+                        })
+                        
                     }
                 });
 

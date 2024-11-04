@@ -93,3 +93,69 @@ function getExtension(filePath) {
     // 提取扩展名
     return filePath.substring(lastDotIndex + 1);
 }
+
+function createXmSelect(el, dataList, callback) {
+    const data = dataList.map(item => {
+        return {
+            name: item.name,
+            value: item.name,
+            selected: item.selected
+        }
+    })
+
+    xmSelect.render({
+        el: el,
+        tips: '选择或新建',
+        searchTips: '选择或新建',
+        radio: true,
+        clickClose: true,
+        filterable: true,
+        create: function(val, arr){
+            if(arr.length === 0){
+                return {
+                    name: val,
+                    value: val,
+                }
+            }
+        },
+        model: {
+            icon: 'hidden',
+            label: {
+                type: 'text',
+            }
+        },
+        data: data,
+        on: function(data){
+            //arr:  当前多选已选中的数据
+            const arr = data.arr;
+            //change, 此次选择变化的数据,数组
+            const change = data.change;
+            //isAdd, 此次操作是新增还是删除
+            const isAdd = data.isAdd;
+
+            //可以return一个数组, 代表想选中的数据
+            //return []
+            console.log('xm-select', data)
+            const selectedName = arr[0].value
+
+            if (selectedName) {
+                if (!data.find(item => item.value === selectedName)) {
+                    data.forEach(item => item.selected = false)
+                    data.push({
+                        name: selectedName,
+                        value: selectedName,
+                        selected: true
+                    })
+                }
+                xmSelect.get(el, true).update({
+                    data:data
+                })
+            }
+            
+            if (callback) {
+                callback(data)
+            }
+
+        },
+    })
+}
