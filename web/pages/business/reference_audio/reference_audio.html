@@ -290,10 +290,10 @@
                 const _this = this
                 const index = layer.open({
                     type: 1,
-                    area: ['500px', '300px'],
+                    area: ['600px', '300px'],
                     content: `
-                    <div class="layui-input-block" style="display: flex">
-                        <input type="text" id="listFile" autocomplete="off" placeholder="请输入list路径" class="layui-input" style="width: 100%;">
+                    <div style="display: flex;align-items: center;justify-content: center;height: 100%;width: 100%">
+                        <input type="text" id="listFile" autocomplete="off" placeholder="请输入list路径" class="layui-input" style="width: 400px;">
                     </div>
                     `,
                     btn: ['确定', '取消'],
@@ -303,7 +303,7 @@
                 });
             }
 
-            extractReferenceFile(){
+            extractReferenceFile(index){
                 const _this = this
                 const listFile = $('#listFile').val()
                 if (!listFile) {
