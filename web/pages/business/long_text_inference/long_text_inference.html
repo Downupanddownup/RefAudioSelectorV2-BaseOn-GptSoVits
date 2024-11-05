@@ -58,32 +58,17 @@
 
             startApi(){
                 const _this = this
-                $.customAjax({
-                    url: BaseUrl+'inference/start_ras_api',
-                    type: 'post',
-                    data:{
-                        streamMode:_this.config.streamMode ? 1 : 0
-                    },
-                    success: function(res){
-                        layui.layer.msg(res.msg)
-                    },
-                    error: function(res, msg){
-                        layui.layer.msg(msg)
-                    }
+                
+                RasApiSpace.getInstance().startApi(res => {
+                    layui.layer.msg(res.msg)
                 })
+                
             }
 
             stopApi(){
                 const _this = this
-                $.customAjax({
-                    url: BaseUrl+'inference/stop_ras_api',
-                    type: 'post',
-                    success: function(res){
-                        layui.layer.msg(res.msg)
-                    },
-                    error: function(res, msg){
-                        layui.layer.msg(msg)
-                    }
+                RasApiSpace.getInstance().stopApi(res => {
+                    layui.layer.msg(res.msg)
                 })
             }
 

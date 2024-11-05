@@ -47,10 +47,10 @@ const SysConfig = (function () {
         }
     ]
     
-    const defaultGptSovitsVersion = 'v2'
-    const defaultTopK = 1
-    const defaultTopP = 0.1
-    const defaultTemperature = 0.1
+    const defaultGptSovitsVersion = 'v1'
+    const defaultTopK = 12
+    const defaultTopP = 0.6
+    const defaultTemperature = 0.6
     const defaultTextDelimiter = `,.;?!、，。？！；：…"`
     const defaultSpeed = 1.0
     

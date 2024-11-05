@@ -79,6 +79,14 @@ body {
     color: #0056b3; /* 悬停效果 */
 }
 
+.api-open {
+    background-color: #007bff;
+}
+
+.api-close {
+    background-color: #9E9E9E;
+}
+
 #tabContentView {
     background-color: #ffffff; /* 内容框背景色 */
     border: 1px solid #e0e0e0;

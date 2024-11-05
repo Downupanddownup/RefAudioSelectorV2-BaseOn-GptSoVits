@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<script>
+    const HomeSpace = (function () {
+        class C_Home {
+            constructor(viewId) {
+                this.viewId = viewId
+                this.tab = 1
+                this.currentRoleName = ''
+                this.roleList = []
+                this.contentView = 'tabContentView'
+            }
+
+            render() {
+                const _this = this
+                const getTpl = $('#homeTemplate').html(); // 获取模板字符
+                // 渲染并输出结果
+                layui.laytpl(getTpl).render(_this, function(html){
+                    const obj = $('#'+_this.viewId)
+                    obj.append(html)
+                    
+                    console.log('home渲染了？')
+                    
+                    $('#rasApiStatus').on('click', function () {
+                        _this.changeRasApiStatus()
+                    })
+                    
+                    _this.initTab()
+                    
+                    _this.loadRoleName()
+                });
+                return _this
+            }
+
+            initTab() {
+                const _this = this
+                $('button[data-tab]').on('click', function () {
+                    const tab = parseInt($(this).data('tab'))
+                    $('button[data-tab]').removeClass('active')
+                    $(this).addClass('active')
+                    _this.switchTab(tab)
+                })
+            }
+
+            switchTab(tab) {
+                const _this = this
+                if (tab === 1) {
+                    ReferenceAudioSpace.getReferenceAudio(_this.contentView).loadData()
+                } else if (tab === 2) {
+                    InferenceTaskSpace.getInferenceTask(_this.contentView).render()
+                } else if (tab === 3) {
+                    ResultEvaluationSpace.getResultEvaluation(_this.contentView).loadData()
+                } else if (tab === 4) {
+                    LongTextInferenceSpace.getLongTextInference(_this.contentView).render()
+                } else if (tab === 5) {
+                    AudioPackagingSpace.getAudioPackaging(_this.contentView).render()
+                }
+                _this.tab = tab
+            }
+
+            loadRoleName() {
+                const _this = this
+                $.customAjax({
+                    url: BaseUrl+'system/load_last_role_name',
+                    type: 'post',
+                    success: function(res){
+                        if (res.code == 0) {
+                            _this.initRoleList(res.data.roleName, res.data.roleList)
+                            _this.switchTab(1)
+                        } else {
+                            layui.layer.msg(res.msg)
+                        }
+                    },
+                    error: function(res, msg){
+                        layui.layer.msg(msg)
+                    }
+                })
+            }
+
+            initRoleList(roleName, roleList) {
+                
+                const _this = this
+
+                const data = roleList.map(item => {
+                    return {
+                        name: item,
+                        value: item,
+                        selected: item === roleName
+                    }
+                })
+                _this.currentRoleName = roleName
+                _this.roleList = data
+
+                xmSelect.render({
+                    el: '#roleList',
+                    tips: '选择或新建',
+                    searchTips: '选择或新建',
+                    radio: true,
+                    clickClose: true,
+                    filterable: true,
+                    create: function(val, arr){
+                        if(arr.length === 0){
+                            return {
+                                name: val,
+                                value: val,
+                            }
+                        }
+                    },
+                    model: {
+                        icon: 'hidden',
+                        label: {
+                            type: 'text',
+                        }
+                    },
+                    data: data,
+                    on: function(data){
+                        //arr:  当前多选已选中的数据
+                        const arr = data.arr;
+                        //change, 此次选择变化的数据,数组
+                        const change = data.change;
+                        //isAdd, 此次操作是新增还是删除
+                        const isAdd = data.isAdd;
+
+                        //可以return一个数组, 代表想选中的数据
+                        //return []
+                        const selectedRoleName = arr[0].name
+
+                        if (selectedRoleName) {
+                            $.customAjax({
+                                url: BaseUrl + 'system/switch_role_workspace',
+                                type: 'POST',
+                                data: {
+                                    roleName: selectedRoleName
+                                },
+                                success: function (data) {
+                                    if (data.code == 0) {
+                                        layui.layer.msg('切换成功')
+                                        if (!_this.roleList.find(item => item.value === selectedRoleName)) {
+                                            _this.roleList.forEach(item => item.selected = false)
+                                            _this.roleList.push({
+                                                name: selectedRoleName,
+                                                value: selectedRoleName,
+                                                selected: true
+                                            })
+                                            xmSelect.get('#roleList', true).update({
+                                                data:_this.roleList
+                                            })
+                                        }
+                                        _this.currentRoleName = selectedRoleName
+                                        _this.switchTab(_this.tab)
+                                    } else {
+                                        layui.layer.msg(data.msg)
+                                    }
+                                }
+                            })
+                        }
+
+                    },
+                })
+            }
+
+            startApiServer() {
+                RasApiSpace.getInstance().startApi(res => {
+                    const obj = $('#rasApi')
+                    obj.html('关闭API')
+                    obj.removeClass('api-open')
+                    obj.addClass('api-close')
+                    layui.layer.msg(res.msg)
+                })
+            }
+            
+            stopApiServer() {
+                RasApiSpace.getInstance().stopApi(res => {
+                    const obj = $('#rasApi')
+                    obj.html('启动API')
+                    obj.removeClass('api-close')
+                    obj.addClass('api-open')
+                    layui.layer.msg(res.msg)
+                })
+            }
+
+            changeRasApiStatus() {
+                const _this = this
+                if (RasApiSpace.getInstance().isOpen()) {
+                    _this.stopApiServer()
+                } else {
+                    _this.startApiServer()
+                }
+            }
+            
+        }
+
+        function getHome(viewId) {
+            return new C_Home(viewId)
+        }
+
+        return {
+            getHome: getHome
+        }
+    })()
+</script>
+
+<script id="homeTemplate" type="text/html">
+    <div class="container-tab">
+        <div class="custom-tab" id="contentHeader">
+            <div class="tab-left">
+                <button class="tab-link active" data-tab="1">参考音频</button>
+                <button class="tab-link" data-tab="2">推理任务</button>
+                <button class="tab-link" data-tab="3">结果评测</button>
+                <button class="tab-link" data-tab="4">长文推理</button>
+                <button class="tab-link" data-tab="5">音频打包</button>
+            </div>
+            <div class="tab-right">
+                <div class="info-button" id="rasApiStatus">启动API</div>
+                <div class="info-button">
+                    <div id="roleList" style="width: 150px"></div>
+                </div>
+                <div class="info-button">关于</div>
+            </div>
+        </div>
+        <div id="tabContentView"></div>
+    </div>
+</script>

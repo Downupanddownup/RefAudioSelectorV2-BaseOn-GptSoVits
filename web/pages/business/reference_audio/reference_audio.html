@@ -22,6 +22,7 @@
                     success: function(res){
                         if (res.code == 0) {
                             _this.categoryList = res.data ? res.data.map(item=>new C_ObjInferenceCategory(item)) : []
+                            console.log('分类加载完毕')
                             _this.render()
                         } else {
                             layui.layer.msg(res.msg)
@@ -39,6 +40,9 @@
                 // 渲染并输出结果
                 layui.laytpl(getTpl).render(_this, function(html){
                     const obj = $('#'+_this.viewId)
+
+                    console.log('渲染了吗？')
+                    
                     obj.html(html)
 
                     _this.loadReferenceList()

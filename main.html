@@ -3,32 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <title>测试 - Layui</title>
+  <title>RAST-V2 - Layui</title>
   <link rel="stylesheet" href="web/js/layui/css/layui.css">
   <link rel="stylesheet" href="web/pages/style/commonStyle.css">
 </head>
-<body>
-
-<div class="container-tab">
-  <div class="custom-tab" id="contentHeader">
-    <div class="tab-left">
-      <button class="tab-link active" data-tab="1">参考音频</button>
-      <button class="tab-link" data-tab="2">推理任务</button>
-      <button class="tab-link" data-tab="3">结果评测</button>
-      <button class="tab-link" data-tab="4">长文推理</button>
-      <button class="tab-link" data-tab="5">音频打包</button>
-    </div>
-    <div class="tab-right">
-      <div class="info-button">工具信息</div>
-      <div class="info-button">
-        <div id="roleList" style="width: 150px"></div>
-      </div>
-      <div class="info-button">启动API</div>
-    </div>
-  </div>
-  <div id="tabContentView"></div>
-</div>
-
+<body id="homeView">
 
 
 <!-- body 末尾处引入 layui -->
@@ -46,17 +25,14 @@
 <script src="web/js/sortable/Sortable.min.js"></script>
 <script src="web/pages/common/common_jquery.js"></script>
 <script src="web/config.js"></script>
+<script src="web/pages/common/ras_api.js"></script>
 <script src="web/pages/bean/common_bean.js"></script>
 <script src="web/pages/common/util.js"></script>
 <script src="web/pages/common/audio.js"></script>
 <script src="web/pages/common/wavesurfer.js"></script>
 <script>
   
-  let TabManager = null
-  
-  function minHeight() {
-    return window.innerHeight - $('#contentHeader').height() - 54
-  }
+  let Home = null
   
   window.onload = function(){
     layui.use(function(){
@@ -86,151 +62,13 @@
               'web/pages/business/result_evaluation/result_audio_all_detail.html',
               'web/pages/business/sound_fusion/sound_fusion_edit.html',
               'web/pages/business/sound_fusion/sound_fusion_manager.html',
-              'web/pages/business/sound_fusion/sound_fusion_select.html'
+              'web/pages/business/sound_fusion/sound_fusion_select.html',
+              'web/pages/business/home.html',
       ],function () {
 
-        initTabManager()
-
-        loadRoleName()
-        
-        // $('#tabContentView').css('min-height', minHeight()+'px')
+        Home = HomeSpace.getHome('homeView').render()
         
       })
-      
-      function initTabManager() {
-        TabManager = {}
-        $('button[data-tab]').on('click', function () {
-          const tab = parseInt($(this).data('tab'))
-          $('button[data-tab]').removeClass('active')
-          $(this).addClass('active')
-          switchTab(tab)
-        })
-      }
-      
-      function switchTab(tab) {
-        if (tab === 1) {
-          TabManager.ReferenceAudio = ReferenceAudioSpace.getReferenceAudio('tabContentView')
-          TabManager.ReferenceAudio.loadData()
-        } else if (tab === 2) {
-          TabManager.InferenceTask = InferenceTaskSpace.getInferenceTask('tabContentView')
-          TabManager.InferenceTask.render()
-        } else if (tab === 3) {
-          TabManager.ResultEvaluation = ResultEvaluationSpace.getResultEvaluation('tabContentView')
-          TabManager.ResultEvaluation.loadData()
-        } else if (tab === 4) {
-          TabManager.LongTextInference = LongTextInferenceSpace.getLongTextInference('tabContentView')
-          TabManager.LongTextInference.render()
-        } else if (tab === 5) {
-          TabManager.AudioPackaging = AudioPackagingSpace.getAudioPackaging('tabContentView')
-          TabManager.AudioPackaging.render()
-        }
-        TabManager.tab = tab
-      }
-      
-      
-      function loadRoleName() {
-        $.customAjax({
-          url: BaseUrl+'system/load_last_role_name',
-          type: 'post',
-          success: function(res){
-            if (res.code == 0) {
-              console.log(res)
-              initRoleList(res.data.roleName, res.data.roleList)
-              switchTab(1)
-            } else {
-              layui.layer.msg(res.msg)
-            }
-          },
-          error: function(res, msg){
-            layui.layer.msg(msg)
-          }
-        })
-      }
-      
-      let SelectDataList = []
-      
-      function initRoleList(roleName, roleList) {
-
-        const data = roleList.map(item => {
-          return {
-            name: item,
-            value: item,
-            selected: item === roleName
-          }
-        })
-        SelectDataList = data
-        
-        
-        console.log(data)
-
-        xmSelect.render({
-          el: '#roleList',
-          tips: '选择或新建',
-          searchTips: '选择或新建',
-          radio: true,
-          clickClose: true,
-          filterable: true,
-          create: function(val, arr){
-            if(arr.length === 0){
-              return {
-                name: val,
-                value: val,
-              }
-            }
-          },
-          model: {
-            icon: 'hidden',
-            label: {
-              type: 'text',
-            }
-          },
-          data: data,
-          on: function(data){
-            //arr:  当前多选已选中的数据
-            const arr = data.arr;
-            //change, 此次选择变化的数据,数组
-            const change = data.change;
-            //isAdd, 此次操作是新增还是删除
-            const isAdd = data.isAdd;
-
-            //可以return一个数组, 代表想选中的数据
-            //return []
-            console.log('xm-select', data)
-            const selectedRoleName = arr[0].name
-            
-            if (selectedRoleName) {
-              $.customAjax({
-                url: BaseUrl + 'system/switch_role_workspace',
-                type: 'POST',
-                data: {
-                  roleName: selectedRoleName
-                },
-                success: function (data) {
-                  if (data.code == 0) {
-                    layui.layer.msg('切换成功')
-                    if (!SelectDataList.find(item => item.value === selectedRoleName)) {
-                      SelectDataList.forEach(item => item.selected = false)
-                      SelectDataList.push({
-                        name: selectedRoleName,
-                        value: selectedRoleName,
-                        selected: true
-                      })
-                      xmSelect.get('#roleList', true).update({
-                        data:SelectDataList
-                      })
-                    }
-                    switchTab(TabManager.tab)
-                  } else {
-                    layui.layer.msg(data.msg)
-                  }
-                }
-              })
-            }
-            
-          },
-        })
-      }
-      
 
       $(document).keydown(function(event) {
         // 检查是否按下了 Esc 键
