@@ -67,7 +67,7 @@ body {
 
 .info-button {
     /*background-color: #007bff; !* 信息按钮背景色 *!*/
-    /*color: white; !* 字体颜色 *!*/
+    color: white; /* 字体颜色 */
     border-radius: 5px;
     padding: 10px 15px;
     margin-left: 10px;
@@ -75,16 +75,24 @@ body {
     transition: background-color 0.3s;
 }
 
-.info-button:hover {
-    color: #0056b3; /* 悬停效果 */
+.about {
+    background-color: #007bff;
 }
+
+/*.info-button:hover {
+    color: #0056b3; !* 悬停效果 *!
+}*/
 
 .api-open {
     background-color: #007bff;
 }
 
+.api-changing {
+    background-color: #16baaa;
+}
+
 .api-close {
-    background-color: #9E9E9E;
+    background-color: #e64a19;
 }
 
 #tabContentView {

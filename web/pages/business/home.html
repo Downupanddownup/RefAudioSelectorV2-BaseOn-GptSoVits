@@ -159,20 +159,24 @@
             }
 
             startApiServer() {
-                RasApiSpace.getInstance().startApi(res => {
-                    const obj = $('#rasApi')
+                const obj = $('#rasApiStatus')
+                obj.removeClass('api-open')
+                obj.addClass('api-changing')
+                obj.html('启动中')
+                RasApiSpace.getInstance().startApi(true, res => {
                     obj.html('关闭API')
-                    obj.removeClass('api-open')
                     obj.addClass('api-close')
                     layui.layer.msg(res.msg)
                 })
             }
             
             stopApiServer() {
+                const obj = $('#rasApiStatus')
+                obj.removeClass('api-close')
+                obj.addClass('api-changing')
+                obj.html('关闭中')
                 RasApiSpace.getInstance().stopApi(res => {
-                    const obj = $('#rasApi')
                     obj.html('启动API')
-                    obj.removeClass('api-close')
                     obj.addClass('api-open')
                     layui.layer.msg(res.msg)
                 })
@@ -210,11 +214,11 @@
                 <button class="tab-link" data-tab="5">音频打包</button>
             </div>
             <div class="tab-right">
-                <div class="info-button" id="rasApiStatus">启动API</div>
+                <div class="info-button api-open" id="rasApiStatus" >启动API</div>
                 <div class="info-button">
-                    <div id="roleList" style="width: 150px"></div>
+                    <div id="roleList" style="width: 150px;color: #333"></div>
                 </div>
-                <div class="info-button">关于</div>
+                <div class="info-button about">关于</div>
             </div>
         </div>
         <div id="tabContentView"></div>

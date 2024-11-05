@@ -199,6 +199,8 @@
                         const textCategory = obj.find('#textCategory').val()
                         const textLanguage = obj.find('#textLanguage').val()
                         const textContent = obj.find('#textContent').val()
+                        
+                        console.log(textCategory,textLanguage,textContent)
 
                         if (!textCategory) {
                             layui.layer.alert('请输入分类')
@@ -309,7 +311,7 @@
                 <select class="customSelect" id="textLanguage">
                     
                     {{# layui.each(SysConfig.languageList, function(index, item) { }}
-                        <option {{isTrue(item.value==d.textLanguage,'selected','')}} value="{{item.value}}">{{item.name}}</option>
+                        <option {{isTrue(item.value==d.textLanguage,'selected','')}} value="{{item.code}}">{{item.name}}</option>
                     {{# }) }}
                     
                 </select>

@@ -18,6 +18,7 @@ const RasApiSpace = (function ()  {
                     streamMode:streamMode ? 1 : 0
                 },
                 success: function(res){
+                    console.log('为什么')
                     if (res.code == 0) {
                         _this.status = 'open'
                         if (callback) {
@@ -41,6 +42,7 @@ const RasApiSpace = (function ()  {
                 url: BaseUrl+'inference/stop_ras_api',
                 type: 'post',
                 success: function(res){
+                    console.log('为什么')
                     if (res.code == 0) {
                         _this.status = 'close'
                         if (callback) {
