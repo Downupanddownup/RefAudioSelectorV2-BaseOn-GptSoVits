@@ -268,24 +268,11 @@
     
     <table class="table1">
         <tr>
-            <td class="no-wrap">文本语种：</td>
-            <td colspan="5">
-                <select id="textLanguage" class="customSelect">
-                    <option value=""></option>
-                    <option value="0">写作</option>
-                    <option value="ZH" selected>ZH</option>
-                    <option value="2">游戏</option>
-                    <option value="3">音乐</option>
-                    <option value="4">旅行</option>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <td class="no-wrap">
+            <td class="no-wrap" style="width: 20%">
                 长文内容：
                 <button type="button" class="layui-btn layui-btn-sm" id="textManager">选择</button>
             </td>
-            <td colspan="5" style="text-align: left">
+            <td style="text-align: left;width: 80%">
                 <div class="text-context">
                     {{# layui.each(d.setting.subTexts, function(index, text) { }}
                     
@@ -296,7 +283,7 @@
             </td>
         </tr>
         <tr>
-            <td colspan="6" id="playLongTextAudioDiv">
+            <td colspan="2" id="playLongTextAudioDiv">
                 <audio controls id="playLongTextAudio">
                     <source type="audio/mpeg">
                     <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->

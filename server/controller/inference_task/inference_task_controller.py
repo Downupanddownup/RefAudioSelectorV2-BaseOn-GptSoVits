@@ -33,6 +33,11 @@ inference_task_asr_text_analysis = None
 async def get_inference_text_list(request: Request):
     form_data = await request.form()
     text_filter = ObjInferenceTextFilter(form_data)
+    
+    if ValidationUtils.is_empty(text_filter.order_by):
+        text_filter.order_by = "id"
+    if ValidationUtils.is_empty(text_filter.order_by_desc):
+        text_filter.order_by_desc = "desc"
 
     count = InferenceTextService.find_count(text_filter)
     text_list = InferenceTextService.find_list(text_filter)
