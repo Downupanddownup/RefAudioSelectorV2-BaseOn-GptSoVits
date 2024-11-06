@@ -311,7 +311,7 @@
                 <select class="customSelect" id="textLanguage">
                     
                     {{# layui.each(SysConfig.languageList, function(index, item) { }}
-                        <option {{isTrue(item.value==d.textLanguage,'selected','')}} value="{{item.code}}">{{item.name}}</option>
+                        <option {{isTrue(item.code==d.textLanguage,'selected','')}} value="{{item.code}}">{{item.name}}</option>
                     {{# }) }}
                     
                 </select>

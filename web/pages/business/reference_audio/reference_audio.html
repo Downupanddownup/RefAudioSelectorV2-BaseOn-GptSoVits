@@ -147,7 +147,7 @@
                         {field:'opt', width:'20%', title: '操作', templet: function(d){
                                  const html = []
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-edit="${d.id}">编辑</button>`)
-                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-compare="${d.id}">开始比对</button>`)
+                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-compare="${d.id}">比对</button>`)
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-split="${d.id}">分割</button>`)
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-download="${d.id}">下载</button>`)
                                 return html.join(' ');
@@ -250,8 +250,10 @@
                     content: `<div id="audioEditView"></div>`,
                     btn: ['确定', '取消'],
                     yes: function(){
-                        refreshListData('referenceAudioList')
-                        layui.layer.close(index)
+                        edit.submit(() => {
+                            refreshListData('referenceAudioList')
+                            layui.layer.close(index)
+                        })
                     }
                 });
 

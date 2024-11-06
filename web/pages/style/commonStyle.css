@@ -403,3 +403,36 @@ body {
 .custom-checkbox input:checked ~ .checkmark:after {
     display: block;
 }
+
+
+.custom-file-input {
+    position: relative;
+    display: inline-block;
+    margin: 20px;
+    padding: 10px 20px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+.custom-file-input:hover {
+    border-color: #aaa;
+    background-color: #f0f0f0;
+}
+
+.custom-file-input input[type="file"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.custom-file-input label {
+    cursor: pointer;
+    font-size: 16px;
+    color: #333;
+}

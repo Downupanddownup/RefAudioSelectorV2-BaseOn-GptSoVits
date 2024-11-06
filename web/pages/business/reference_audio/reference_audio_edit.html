@@ -6,6 +6,7 @@
                 this.viewId = viewId
                 this.categoryList = []
                 this.audio = new C_ObjReferenceAudio(audio)
+                this.wavesurferManager = null
             }
 
             loadData() {
@@ -35,7 +36,7 @@
                     const obj = $('#'+_this.viewId)
                     obj.html(html)
                     
-                    obj.find('#selectFile').on('click', function () {
+                    obj.find('#fileInput').on('change', function () {
                         _this.selectFile()
                     })
                     
@@ -52,49 +53,15 @@
                 
                 const _this = this
                 
-                const data = _this.categoryList.map(item => {
+                createXmSelect('#' + _this.viewId + ' #category', _this.categoryList.map(category => {
                     return {
-                        name: item.name,
-                        value: item.name,
-                        selected: item.name === _this.audio.category
+                        name: category.name,
+                        selected: category.name === _this.audio.category
                     }
+                }), data => {
+                    _this.audio.category = data.arr[0].value
                 })
                 
-                xmSelect.render({
-                    el: '#category',
-                    tips: '选择或新建',
-                    radio: true,
-                    clickClose: true,
-                    filterable: true,
-                    create: function(val, arr){
-                        if(arr.length === 0){
-                            return {
-                                name: val,
-                                value: val
-                            }
-                        }
-                    },
-                    model: {
-                        icon: 'hidden',
-                        label: {
-                            type: 'text',
-                        }
-                    },
-                    data: data,
-                    on: function(data){
-                        //arr:  当前多选已选中的数据
-                        const arr = data.arr;
-                        //change, 此次选择变化的数据,数组
-                        const change = data.change;
-                        //isAdd, 此次操作是新增还是删除
-                        const isAdd = data.isAdd;
-
-                        //可以return一个数组, 代表想选中的数据
-                        //return []
-                        console.log('xm-select', data)
-                        _this.audio.category = arr[0].name
-                    },
-                })
             }
 
             initWaveForm(){
@@ -103,44 +70,18 @@
                 if (_this.audio.id < 1) {
                     return
                 }
-                // Create a second timeline
-                const bottomTimeline = WaveSurfer.Timeline.create({
-                    height: 10,
-                    timeInterval: 0.1,
-                    primaryLabelInterval: 1,
-                    style: {
-                        fontSize: '10px',
-                        color: '#6A3274',
-                    },
-                })
 
-                const hover =  WaveSurfer.Hover.create({
-                    lineColor: '#ff0000',
-                    lineWidth: 2,
-                    labelBackground: '#555',
-                    labelColor: '#fff',
-                    labelSize: '11px',
-                })
-                
-                // Create an instance of WaveSurfer 
-                const wavesurfer = WaveSurfer.create({
+                const obj = $('#'+_this.viewId)
+                obj.find('#waveForm').show()
+                obj.find('#referenceAudio').show()
+
+                WavesurferSpace.createWave({
                     container: '#waveForm',
-                    waveColor: 'rgb(200, 0, 200)',
-                    progressColor: 'rgb(100, 0, 100)',
-                    url: _this.audio.audioPath,
-                    minPxPerSec: 100,
-                    // sampleRate: 32000,
-                    plugins: [bottomTimeline,hover],
+                    audioId: 'referenceAudio',
+                    audioSrc: _this.audio.audioPath,
+                    type: 'all',
+                    zoom: 'close',
                 })
-                
-                // Initialize the Spectrogram plugin
-                 wavesurfer.registerPlugin(
-                     WaveSurfer.Spectrogram.create({
-                       labels: true,
-                       height: 200,
-                       splitChannels: true,
-                     })
-                 )
             }
 
             selectFile() {
@@ -149,15 +90,47 @@
                 const file = fileInput.files[0];
 
                 if (!file) {
-                    alert('请选择一个文件！');
+                    layui.layer.alert('请选择一个文件！');
                     return;
                 }
+
+                // 检查是否为音频文件
+                if (file.type.indexOf('audio') === -1) {
+                    layui.layer.alert('请选择一个有效的音频文件！');
+                    return;
+                }
+
+                // 创建一个指向文件的 URL
+                const audioUrl = URL.createObjectURL(file);
 
                 // 这里可以添加处理文件上传的具体逻辑
                 console.log('文件名:', file.name);
                 console.log('文件大小:', file.size);
                 console.log('文件类型:', file.type);
+                
+                const obj = $('#'+_this.viewId)
 
+                obj.find('#waveForm').show()
+                obj.find('#referenceAudio').show()
+
+                // obj.find('#waveForm').html('')
+                
+
+                
+                _this.audio.audioName = file.name
+                $('#'+_this.viewId+' #audioName').val(file.name)
+
+                if (_this.wavesurferManager !== null) {
+                    _this.wavesurferManager.wavesurfer.load(audioUrl)
+                } else {
+                    _this.wavesurferManager = WavesurferSpace.createWave({
+                        container: '#waveForm',
+                        audioId: 'referenceAudio',
+                        audioSrc: audioUrl,
+                        type: 'all',
+                        zoom: 'close',
+                    })
+                }
 
             }
             
@@ -268,43 +241,56 @@
 <script id="referenceAudioEditTemplate" type="text/html">
     <table class="table1">
         <tr>
-            <td>
+            <td colspan="6">
                 {{# if (d.audio.id > 0) { }}
-                    <div id="waveForm"></div>
+
                 {{# } else { }}
-                    <h1>选择文件上传</h1>
+                <div class="custom-file-input">
                     <input type="file" id="fileInput" />
-                    <button type="submit" class="layui-btn layui-btn-sm" id="selectFile">上传文件</button>
+                    <label for="fileInput">选择音频</label>
+                </div>
                 {{# } }}
+
+                <div style="margin: 10px;display: flex;justify-content: center;align-items: center">
+                    <audio controls class="custom-audio" id="referenceAudio" style="display: none">
+                        <source type="audio/wav">
+                        <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
+                        您的浏览器不支持 HTML5 audio 标签。
+                    </audio>
+                </div>
+                <div id="waveForm" style="display: none;width: 98%;margin: 0 1%"></div>
+                
             </td>
         </tr>
         <tr>
             <td>
-                音频名称
+                音频名称：
+            </td>
+            <td>
                 <input type="text" autocomplete="off" id="audioName" placeholder="音频名称" class="layui-input" style="width: auto;" value="{{d.audio.audioName}}">
             </td>
-        </tr>
-        <tr>
             <td>
-                音频内容
-                <input type="text" autocomplete="off" id="content" placeholder="音频名称" class="layui-input" style="width: auto;" value="{{d.audio.content}}">
+                音频语种：
             </td>
-        </tr>
-        <tr>
             <td>
-                音频语种
                 <select class="customSelect" id="language">
                     <option value="">请选择</option>
                     {{# layui.each(SysConfig.languageList, function(index, item) { }}
-                    <option {{isTrue(item.value==d.audio.language,'selected','')}} value="{{item.code}}">{{item.name}}</option>
+                    <option {{isTrue(item.code==d.audio.language,'selected','')}} value="{{item.code}}">{{item.name}}</option>
                     {{# }) }}
                 </select>
             </td>
+            <td>
+                音频分类：
+            </td>
+            <td>
+                <div id="category" style="width: 200px"></div>
+            </td>
         </tr>
         <tr>
-            <td>
-                音频分类
-                <div id="category"></div>
+            <td>音频内容：</td>
+            <td colspan="5">
+                <textarea placeholder="音频内容" class="layui-textarea" id="content">{{d.audio.content}}</textarea>
             </td>
         </tr>
     </table>
