@@ -14,8 +14,8 @@ from server.util.util import str_to_int, save_file
 router = APIRouter(prefix="/fusion")
 
 
-@router.post("/get_sound_fusion_audio")
-async def get_sound_fusion_audio(request: Request):
+@router.post("/get_sound_fusion_audio_list")
+async def get_sound_fusion_audio_list(request: Request):
     form_data = await request.form()
     audio_filter = ObjSoundFusionAudioFilter(form_data)
 

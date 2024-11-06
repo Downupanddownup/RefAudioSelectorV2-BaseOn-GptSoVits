@@ -59,6 +59,10 @@
                         _this.openImportDialog()
                     })
                     
+                    obj.find('#soundFusionManager').on('click', function(){
+                        _this.openSoundFusionDialog()
+                    })
+                    
                     
                 });
                 return _this
@@ -333,6 +337,24 @@
                 })
             }
 
+            openSoundFusionDialog() {
+                const _this = this
+
+                const select = SoundFusionManagerSpace.getSoundFusionManager('soundFusionManagerView')
+
+                const dialogId = layer.open({
+                    type: 1,
+                    area: ['95%', '95%'],
+                    content: `<div id="soundFusionManagerView"></div>`,
+                    btn: ['关闭'],
+                    yes: function(){
+                        layui.layer.close(dialogId)
+                    }
+                });
+
+                select.loadData()
+            }
+
 
         }
         
@@ -367,6 +389,7 @@
                 <button type="submit" class="layui-btn layui-btn-sm" id="searchAudio">搜索</button>
                 <button type="submit" class="layui-btn layui-btn-sm" id="addAudio">新增</button>
                 <button type="submit" class="layui-btn layui-btn-sm" id="importAudio">导入</button>
+                <button type="submit" class="layui-btn layui-btn-sm" id="soundFusionManager">融合音频</button>
             </td>
         </tr>
     </table>
