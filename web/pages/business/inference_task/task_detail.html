@@ -116,6 +116,8 @@
           obj.find('select[data-params-gsv-version]').on('change', function(){
             const index = $(this).data('params-gsv-version')
             _this.task.compareParams[index].gptSovitsVersion = $(this).val()
+            _this.task.compareParams[index].gptModelName = ''
+            _this.task.compareParams[index].vitsModelName = ''
             _this.render()
           })
           
@@ -154,6 +156,11 @@
             _this.task.compareParams[index].textDelimiter = $(this).val()
           })
           
+          obj.find('button[data-inp-refs-audio-select]').on('click', function(){
+            const index = $(this).data('inp-refs-audio-select')
+            _this.openParamInpRefsAudioSelectDialog(index)
+          })
+          
           obj.find('input[data-params-other]').on('blur', function(){
             const index = $(this).data('params-other')
             _this.task.compareParams[index].otherParameters = $(this).val()
@@ -161,6 +168,8 @@
           
           obj.find('#gsvVersion').on('change', function() {
             _this.task.gptSovitsVersion = $(this).val()
+            _this.task.gptModelName = ''
+            _this.task.vitsModelName = ''
             _this.render()
           })
           
@@ -198,6 +207,10 @@
           
           obj.find('#audioSelect').on('click', function() {
             _this.openAudioSelectDialog()
+          })
+          
+          obj.find('#inpRefsAudioSelect').on('click', function() {
+            _this.openInpRefsAudioSelectDialog()
           })
           
           obj.find('#textManager').on('click', function() {
@@ -293,6 +306,94 @@
         C_ReferenceSelect$1.loadData()
       }
 
+
+
+      openParamInpRefsAudioSelectDialog(index){
+        const _this = this
+        
+        const param = _this.task.compareParams[index]
+
+        const inpRefsAudioDialog = TaskSoundFusionSelectSpace.getTaskSoundFusionSelect('inpRefsAudioSelectView',param.inpRefsAudioList.map(data=>{
+          return {
+            id:data.audioId, // id
+            audioName:data.audioName, // 音频名称
+            audioPath:data.audioPath, // 音频路径
+            content:data.audioContent, // 音频内容
+            language:data.audioLanguage, // 音频语种
+            category:data.audioCategory, // 音频分类
+            audioLength:data.audioLength, // 音频时长
+          }
+        }))
+
+        const dialogId = layer.open({
+          type: 1,
+          area: ['90%', '90%'],
+          content: `<div id="inpRefsAudioSelectView"></div>`,
+          btn: ['确定', '取消'],
+          yes: function(){
+            const selectedAudioList = inpRefsAudioDialog.getAllSelectedAudioList()
+            param.inpRefsAudioList = selectedAudioList.map(data => {
+              return new C_ObjInferenceTaskSoundFusionAudio({
+                audioId:data.id, // id
+                audioName:data.audioName, // 音频名称
+                audioPath:data.audioPath, // 音频路径
+                audioContent:data.content, // 音频内容
+                audioLanguage:data.language, // 音频语种
+                audioCategory:data.category, // 音频分类
+                audioLength:data.audioLength, // 音频时长
+              })
+            })
+            layui.layer.close(dialogId)
+            $('#' + _this.viewId + ' [data-inp-refs-select-count=' + index + ']').html(param.inpRefsAudioList.length)
+          }
+        });
+
+
+        inpRefsAudioDialog.render()
+      }
+
+      openInpRefsAudioSelectDialog(){
+        const _this = this
+
+        const inpRefsAudioDialog = TaskSoundFusionSelectSpace.getTaskSoundFusionSelect('inpRefsAudioSelectView',_this.task.taskInpRefsAudioList.map(data=>{
+          return {
+            id:data.audioId, // id
+            audioName:data.audioName, // 音频名称
+            audioPath:data.audioPath, // 音频路径
+            content:data.audioContent, // 音频内容
+            language:data.audioLanguage, // 音频语种
+            category:data.audioCategory, // 音频分类
+            audioLength:data.audioLength, // 音频时长
+          }
+        }))
+        
+        const dialogId = layer.open({
+          type: 1,
+          area: ['90%', '90%'],
+          content: `<div id="inpRefsAudioSelectView"></div>`,
+          btn: ['确定', '取消'],
+          yes: function(){
+            const selectedAudioList = inpRefsAudioDialog.getAllSelectedAudioList()
+            _this.task.taskInpRefsAudioList = selectedAudioList.map(data => {
+              return new C_ObjInferenceTaskSoundFusionAudio({
+                audioId:data.id, // id
+                audioName:data.audioName, // 音频名称
+                audioPath:data.audioPath, // 音频路径
+                audioContent:data.content, // 音频内容
+                audioLanguage:data.language, // 音频语种
+                audioCategory:data.category, // 音频分类
+                audioLength:data.audioLength, // 音频时长
+              })
+            })
+            layui.layer.close(dialogId)
+            $('#' + _this.viewId + ' #inpRefsAudioSelectedCount').html(_this.task.taskInpRefsAudioList.length)
+          }
+        });
+
+
+        inpRefsAudioDialog.render()
+      }
+
       openTextManagerDialog(){
         const _this = this
 
@@ -377,6 +478,7 @@
                 <option {{isTrue(d.task.compareType=="temperature",'selected','')}} value="temperature">temperature值</option>
                 <option {{isTrue(d.task.compareType=="speed",'selected','')}} value="speed">speed值</option>
                 <option {{isTrue(d.task.compareType=="text_delimiter",'selected','')}} value="text_delimiter">文本分隔符</option>
+                <option {{isTrue(d.task.compareType=="inp_refs",'selected','')}} value="inp_refs">音色融合</option>
                 <option {{isTrue(d.task.compareType=="kpt",'selected','')}} value="kpt">top_k、top_p、temperature</option>
                 <option {{isTrue(d.task.compareType=="gv",'selected','')}} value="gv">Gpt与Vits模型</option>
                 <option {{isTrue(d.task.compareType=="all",'selected','')}} value="all">所有参数</option>
@@ -515,6 +617,20 @@
               <button type="button" class="layui-btn layui-btn-sm" data-delete="{{index}}"><i class="layui-icon"></i></button>
             </td>
           </tr>
+            {{# } else if (d.task.compareType == 'inp_refs') { }}
+          <tr>
+            <td>
+              第{{index+1}}组：
+            </td>
+            <td>
+              已选中待融合音频数量：<span data-inp-refs-select-count="{{index}}">{{item.inpRefsAudioList.length}}</span>
+              <button type="button" class="layui-btn layui-btn-sm" data-inp-refs-audio-select="{{index}}">音频选择</button>
+            </td>
+            <td>
+              <button type="button" class="layui-btn layui-btn-sm" data-add="{{index}}"><i class="layui-icon"></i></button>
+              <button type="button" class="layui-btn layui-btn-sm" data-delete="{{index}}"><i class="layui-icon"></i></button>
+            </td>
+          </tr>
             {{# } else if (d.task.compareType == 'kpt') { }}
 
               <tr>
@@ -522,12 +638,12 @@
                   第{{index+1}}组：
                 </td>
                 <td>
-                  <input type="number" autocomplete="off" data-params-top-k="{{index}}" placeholder="top_k值"
-                         class="layui-input" style="width: auto;" value="{{item.topK}}">
-                  <input type="number" autocomplete="off" data-params-top-p="{{index}}" placeholder="top_p值"
-                         class="layui-input" style="width: auto;" value="{{item.topP}}">
-                  <input type="number" autocomplete="off" data-params-temperature="{{index}}" placeholder="temperature值"
-                         class="layui-input" style="width: auto;" value="{{item.temperature}}">
+                  top_k：<input type="number" autocomplete="off" data-params-top-k="{{index}}" placeholder="top_k值"
+                         class="layui-input" style="width: auto;" value="{{item.topK}}">  
+                  top_p：<input type="number" autocomplete="off" data-params-top-p="{{index}}" placeholder="top_p值"
+                         class="layui-input" style="width: auto;" value="{{item.topP}}"> 
+                  temperature：<input type="number" autocomplete="off" data-params-temperature="{{index}}" placeholder="temperature值"
+                         class="layui-input" style="width: auto;" value="{{item.temperature}}"> 
                 </td>
                 <td>
                   <button type="button" class="layui-btn layui-btn-sm" data-add="{{index}}"><i class="layui-icon"></i></button>
@@ -542,26 +658,26 @@
                   第{{index+1}}组：
                 </td>
                 <td>
-                  <select class="customSelect" data-params-gsv-version="{{index}}">
+                  gsv版本：<select class="customSelect" data-params-gsv-version="{{index}}">
                     <option {{isTrue('v1'==item.gptSovitsVersion,'selected','')}} value="v1">v1</option>
                     <option {{isTrue('v2'==item.gptSovitsVersion,'selected','')}} value="v2">v2</option>
-                  </select>
-                  <select class="customSelect" data-params-gpt-model="{{index}}">
+                  </select> 
+                  GPT：<select class="customSelect" data-params-gpt-model="{{index}}">
                     <option value="">请选择</option>
                     {{# layui.each(d.gptModels, function(index, model){ }}
                       {{# if (item.gptSovitsVersion == model.version) { }}
                         <option {{isTrue(model.name==item.gptModelName,'selected','')}} value="{{model.name}}">{{model.name}}</option>
                       {{# } }}
                     {{# }) }}
-                  </select>
-                  <select class="customSelect" data-params-vits-model="{{index}}">
+                  </select> 
+                  SoVITS：<select class="customSelect" data-params-vits-model="{{index}}">
                     <option value="">请选择</option>
                     {{# layui.each(d.vitsModels, function(index, model){ }}
                       {{# if (item.gptSovitsVersion == model.version) { }}
                         <option {{isTrue(model.name==item.vitsModelName,'selected','')}} value="{{model.name}}">{{model.name}}</option>
                       {{# } }}
                     {{# }) }}
-                  </select>
+                  </select> 
                 </td>
                 <td>
                   <button type="button" class="layui-btn layui-btn-sm" data-add="{{index}}"><i class="layui-icon"></i></button>
@@ -579,13 +695,13 @@
                   <table class="table1">
                     <tr>
                       <td>
-                        <select class="customSelect" data-params-gsv-version="{{index}}">
+                        gsv版本：<select class="customSelect" data-params-gsv-version="{{index}}">
                           <option {{isTrue('v1'==item.gptSovitsVersion,'selected','')}} value="v1">v1</option>
                           <option {{isTrue('v2'==item.gptSovitsVersion,'selected','')}} value="v2">v2</option>
                         </select>
                       </td>
                       <td>
-                        <select class="customSelect" data-params-gpt-model="{{index}}">
+                        GPT：<select class="customSelect" data-params-gpt-model="{{index}}">
                           <option value="">请选择</option>
                           {{# layui.each(d.gptModels, function(index, model){ }}
                             {{# if (item.gptSovitsVersion == model.version) { }}
@@ -595,7 +711,7 @@
                         </select>
                       </td>
                       <td>
-                        <select class="customSelect" data-params-vits-model="{{index}}">
+                        SoVITS：<select class="customSelect" data-params-vits-model="{{index}}">
                           <option value="">请选择</option>
                           {{# layui.each(d.vitsModels, function(index, model){ }}
                             {{# if (item.gptSovitsVersion == model.version) { }}
@@ -607,28 +723,31 @@
                     </tr>
                     <tr>
                       <td>
-                        <input type="number" autocomplete="off" data-params-top-k="{{index}}" placeholder="top_k值"
+                        top_k：<input type="number" autocomplete="off" data-params-top-k="{{index}}" placeholder="top_k值"
                                class="layui-input" style="width: auto;" value="{{item.topK}}">
                       </td>
                       <td>
-                        <input type="number" autocomplete="off" data-params-top-p="{{index}}" placeholder="top_p值"
+                        top_p：<input type="number" autocomplete="off" data-params-top-p="{{index}}" placeholder="top_p值"
                                class="layui-input" style="width: auto;" value="{{item.topP}}">
                       </td>
                       <td>
-                        <input type="number" autocomplete="off" data-params-temperature="{{index}}" placeholder="temperature值"
+                        temperature：<input type="number" autocomplete="off" data-params-temperature="{{index}}" placeholder="temperature值"
                                class="layui-input" style="width: auto;" value="{{item.temperature}}">
                       </td>
                     </tr>
                     <tr>
                       <td>
-                        <input type="text" autocomplete="off" data-params-text-delimiter="{{index}}" placeholder="文本分隔符"
+                        文本分隔符：<input type="text" autocomplete="off" data-params-text-delimiter="{{index}}" placeholder="文本分隔符"
                                class="layui-input" style="width: auto;" value="{{item.textDelimiter}}">
                       </td>
                       <td>
-                        <input type="number" autocomplete="off" data-params-speed="{{index}}" placeholder="speed值"
+                        speed：<input type="number" autocomplete="off" data-params-speed="{{index}}" placeholder="speed值"
                                class="layui-input" style="width: auto;" value="{{item.speed}}">
                       </td>
-                      <td></td>
+                      <td>
+                        已选中待融合音频数量：<span data-inp-refs-select-count="{{index}}">{{item.inpRefsAudioList.length}}</span>
+                        <button type="button" class="layui-btn layui-btn-sm" data-inp-refs-audio-select="{{index}}">音频选择</button>
+                      </td>
                     </tr>
                   </table>
                 </td>
@@ -816,8 +935,25 @@
             {{# } }}
 
           </td>
+         <td>
+           音色融合
+         </td>
+         <td>
+           {{# if (d.task.compareType == 'inp_refs' || d.task.compareType == 'all') { }}
+            已作为对比变量
+           {{# } else { }}
+
+             已选中待融合音频数量：<span id="inpRefsAudioSelectedCount">{{d.task.taskInpRefsAudioList.length}}</span>
+             <button type="button" class="layui-btn layui-btn-sm" id="inpRefsAudioSelect">音频选择</button>
+
+           {{# } }}
+         </td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
           <td>推理文本：</td>
-          <td colspan="3">
+          <td colspan="5">
             已选中待推理文本数量：<span id="textManagerSelectedCount">{{d.task.taskTextList.length}}</span>
             <button type="button" class="layui-btn layui-btn-sm" id="textManager">文本管理</button>
           </td>

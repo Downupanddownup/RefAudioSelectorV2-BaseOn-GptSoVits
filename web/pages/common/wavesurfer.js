@@ -7,7 +7,7 @@ const WavesurferSpace = (function () {
             this.waveHeight = data.waveHeight || 128;
             this.spectrogramHeight = data.spectrogramHeight || 128;
             this.type = data.type || 'waveform';// waveform, spectrogram, all
-            this.zoom = data.zoom || 'open';// close open
+            this.zoom = data.zoom || 'close';// close open
         }
     }
     
