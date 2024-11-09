@@ -2,8 +2,10 @@
 <script>
     const SoundFusionEditSpace = (function () {
         class C_SoundFusionEdit {
-            constructor(viewId) {
+            constructor(viewId, audio) {
                 this.viewId = viewId
+                this.audio = new C_ObjSoundFusionAudio(audio)
+                this.wavesurferManager = null
             }
 
             render() {
@@ -13,13 +15,184 @@
                 layui.laytpl(getTpl).render(_this, function(html){
                     const obj = $('#'+_this.viewId)
                     obj.html(html)
+
+                    obj.find('#fileInput').on('change', function () {
+                        _this.selectFile()
+                    })
+
+                    _this.initWaveForm()
+                    
                 });
                 return _this
             }
+
+            initWaveForm(){
+                const _this = this
+                console.log('_this.audio',_this.audio)
+                if (_this.audio.id < 1) {
+                    return
+                }
+
+                const obj = $('#'+_this.viewId)
+                obj.find('#waveForm').show()
+                obj.find('#referenceAudio').show()
+
+                WavesurferSpace.createWave({
+                    container: '#waveForm',
+                    audioId: 'referenceAudio',
+                    audioSrc: _this.audio.audioPath,
+                    type: 'all',
+                    zoom: 'close',
+                })
+            }
+
+            selectFile() {
+                const _this = this
+                const fileInput = document.getElementById('fileInput');
+                const file = fileInput.files[0];
+
+                if (!file) {
+                    layui.layer.alert('请选择一个文件！');
+                    return;
+                }
+
+                // 检查是否为音频文件
+                if (file.type.indexOf('audio') === -1) {
+                    layui.layer.alert('请选择一个有效的音频文件！');
+                    return;
+                }
+
+                // 创建一个指向文件的 URL
+                const audioUrl = URL.createObjectURL(file);
+
+                // 这里可以添加处理文件上传的具体逻辑
+                console.log('文件名:', file.name);
+                console.log('文件大小:', file.size);
+                console.log('文件类型:', file.type);
+
+                const obj = $('#'+_this.viewId)
+
+                obj.find('#waveForm').show()
+                obj.find('#referenceAudio').show()
+
+                // obj.find('#waveForm').html('')
+
+
+
+                _this.audio.audioName = file.name
+                $('#'+_this.viewId+' #audioName').val(file.name)
+
+                if (_this.wavesurferManager !== null) {
+                    _this.wavesurferManager.wavesurfer.load(audioUrl)
+                } else {
+                    _this.wavesurferManager = WavesurferSpace.createWave({
+                        container: '#waveForm',
+                        audioId: 'referenceAudio',
+                        audioSrc: audioUrl,
+                        type: 'all',
+                        zoom: 'close',
+                    })
+                }
+
+            }
+
+            submit(successFun) {
+                const _this = this
+                const obj = $('#'+_this.viewId)
+                _this.audio.audioName = obj.find('#audioName').val()
+                if (!_this.audio.audioName) {
+                    layui.layer.alert('音频名称不能为空')
+                    return
+                }
+                _this.audio.content = obj.find('#content').val()
+                if (!_this.audio.content) {
+                    layui.layer.alert('音频内容不能为空')
+                    return
+                }
+                _this.audio.language = obj.find('#language').val()
+                if (!_this.audio.language) {
+                    layui.layer.alert('音频语种不能为空')
+                    return
+                }
+                _this.audio.category = obj.find('#category').val()
+                if (!_this.audio.category) {
+                    layui.layer.alert('音频分类不能为空')
+                    return
+                }
+
+                if (_this.audio.id > 0) {
+                    $.customAjax({
+                        url: BaseUrl + 'fusion/update_sound_fusion_audio',
+                        type: 'POST',
+                        data: {
+                            id: _this.audio.id,
+                            audioName: _this.audio.audioName,
+                            content: _this.audio.content,
+                            language: _this.audio.language,
+                            category: _this.audio.category
+                        },
+                        success: function (data) {
+                            if (data.code == 0) {
+                                layui.layer.msg('保存成功')
+                                if (successFun) {
+                                    successFun()
+                                }
+                            } else {
+                                layui.layer.msg(data.msg)
+                            }
+                        }
+                    })
+                } else {
+                    const fileInput = document.getElementById('fileInput');
+                    const file = fileInput.files[0];
+
+                    if (!file) {
+                        layui.layer.alert('请选择一个文件！')
+                        return;
+                    }
+
+                    _this.handleFileUpload(file, successFun)
+
+                }
+
+            }
+
+            handleFileUpload(file, successFun) {
+
+                const _this = this
+                // 你可以在这里使用 XMLHttpRequest 或 Fetch API 来上传文件
+                // 示例代码如下：
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('audioName', _this.audio.audioName)
+                formData.append('content', _this.audio.content)
+                formData.append('language', _this.audio.language)
+                formData.append('category', _this.audio.category)
+
+                fetch(BaseUrl + 'fusion/add_sound_fusion_audio', {
+                    method: 'POST',
+                    body: formData,
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.code == 0) {
+                            layui.layer.msg('保存成功')
+                            if (successFun) {
+                                successFun()
+                            }
+                        } else {
+                            layui.layer.msg(data.msg)
+                        }
+                    })
+                    .catch(error => {
+                        console.error('上传失败:', error);
+                    });
+            }
+            
         }
 
-        function getSoundFusionEdit(viewId) {
-            return new C_SoundFusionEdit(viewId)
+        function getSoundFusionEdit(viewId, audio) {
+            return new C_SoundFusionEdit(viewId, audio)
         }
 
         return {
@@ -29,5 +202,59 @@
 </script>
 
 <script id="soundFusionEditTemplate" type="text/html">
-    音频打包
+    <table class="table1">
+        <tr>
+            <td colspan="6">
+                {{# if (d.audio.id > 0) { }}
+
+                {{# } else { }}
+                <div class="custom-file-input">
+                    <input type="file" id="fileInput" />
+                    <label for="fileInput">选择音频</label>
+                </div>
+                {{# } }}
+
+                <div style="margin: 10px;display: flex;justify-content: center;align-items: center">
+                    <audio controls class="custom-audio" id="referenceAudio" style="display: none">
+                        <source type="audio/wav">
+                        <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
+                        您的浏览器不支持 HTML5 audio 标签。
+                    </audio>
+                </div>
+                <div id="waveForm" style="display: none;width: 98%;margin: 0 1%"></div>
+
+            </td>
+        </tr>
+        <tr>
+            <td>
+                音频名称：
+            </td>
+            <td>
+                <input type="text" autocomplete="off" id="audioName" placeholder="音频名称" class="layui-input" style="width: auto;" value="{{d.audio.audioName}}">
+            </td>
+            <td>
+                音频语种：
+            </td>
+            <td>
+                <select class="customSelect" id="language">
+                    <option value="">请选择</option>
+                    {{# layui.each(SysConfig.languageList, function(index, item) { }}
+                    <option {{isTrue(item.code==d.audio.language,'selected','')}} value="{{item.code}}">{{item.name}}</option>
+                    {{# }) }}
+                </select>
+            </td>
+            <td>
+                音频分类：
+            </td>
+            <td>
+                <input type="text" autocomplete="off" id="category" placeholder="音频名称" class="layui-input" style="width: auto;" value="{{d.audio.category}}">
+            </td>
+        </tr>
+        <tr>
+            <td>音频内容：</td>
+            <td colspan="5">
+                <textarea placeholder="音频内容" class="layui-textarea" id="content">{{d.audio.content}}</textarea>
+            </td>
+        </tr>
+    </table>
 </script>

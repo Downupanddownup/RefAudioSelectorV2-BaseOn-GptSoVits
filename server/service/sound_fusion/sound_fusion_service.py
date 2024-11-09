@@ -36,6 +36,8 @@ class SoundFusionService:
     @staticmethod
     def get_new_sound_fusion_path():
         output_dir = f'{db_config.get_master_db_dir()}\\sound_fusion_audio'
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
         unique_id_time_based = uuid.uuid1()
         new_filename = str(unique_id_time_based) + '.wav'
         new_path = os.path.join(output_dir, new_filename)

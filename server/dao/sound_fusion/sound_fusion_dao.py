@@ -39,16 +39,16 @@ class SoundFusionDao:
 
         for data in records:
             list.append(ObjSoundFusionAudio(
-                id=data['id'],
-                role_name=data['roleName'],
-                audio_name=data['audioName'],
-                audio_path=data['audioPath'],
-                content=data['content'],
-                language=data['language'],
-                category=data['category'],
-                audio_length=data['audioLength'],
-                remark=data['remark'],
-                create_time=data['createTime']
+                id=data['Id'],
+                role_name=data['RoleName'],
+                audio_name=data['AudioName'],
+                audio_path=data['AudioPath'],
+                content=data['Content'],
+                language=data['Language'],
+                category=data['Category'],
+                audio_length=data['AudioLength'],
+                remark=data['Remark'],
+                create_time=data['CreateTime']
             ))
         return list
 

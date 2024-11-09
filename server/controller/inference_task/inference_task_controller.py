@@ -4,11 +4,13 @@ from subprocess import Popen
 
 from fastapi import APIRouter, Request
 
+from server.bean.inference_task.gpt_model import GptModel
 from server.bean.inference_task.obj_inference_task import ObjInferenceTaskFilter, ObjInferenceTask
 from server.bean.inference_task.obj_inference_task_audio import ObjInferenceTaskAudio
 from server.bean.inference_task.obj_inference_task_compare_params import ObjInferenceTaskCompareParams
 from server.bean.inference_task.obj_inference_task_text import ObjInferenceTaskText
 from server.bean.inference_task.obj_inference_text import ObjInferenceTextFilter, ObjInferenceText
+from server.bean.inference_task.vits_model import VitsModel
 from server.common import config_params
 from server.common.custom_exception import CustomException
 from server.common.log_config import logger
@@ -219,6 +221,8 @@ async def start_execute_inference_task(request: Request):
 
 @router.post("/open_model_file")
 async def open_model_file(request: Request):
+    GptModel.create_dir()
+    VitsModel.create_dir()
     open_file(filepath=db_config.get_model_dir())
     return ResponseResult()
 
