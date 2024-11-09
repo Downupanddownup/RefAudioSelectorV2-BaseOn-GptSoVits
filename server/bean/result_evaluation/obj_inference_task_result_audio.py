@@ -53,6 +53,7 @@ class ObjInferenceTaskResultAudio(BaseModel):
         top_p = self.obj_task.top_p
         temperature = self.obj_task.temperature
         speed = self.obj_task.speed
+        inp_refs_list = self.obj_task.inp_refs_list
         if compare_type in ['text_delimiter', 'all']:
             cut_punc = self.obj_param.text_delimiter
         if compare_type in ['top_k', 'kpt', 'all']:
@@ -61,6 +62,8 @@ class ObjInferenceTaskResultAudio(BaseModel):
             temperature = self.obj_param.temperature
         if compare_type in ['speed', 'all']:
             speed = self.obj_param.speed
+        if compare_type in ['inp_refs', 'all']:
+            inp_refs_list = self.obj_param.inp_refs_list
 
         return InferenceParams(
             refer_wav_path=self.obj_audio.audio_path,
@@ -72,7 +75,8 @@ class ObjInferenceTaskResultAudio(BaseModel):
             top_k=top_k,
             top_p=top_p,
             temperature=temperature,
-            speed=speed
+            speed=speed,
+            inp_refs=[p.audio_path for p in inp_refs_list] if inp_refs_list else []
         )
 
     def equals(self, exist_cell: 'ObjInferenceTaskResultAudio'):

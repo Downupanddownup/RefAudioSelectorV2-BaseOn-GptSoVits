@@ -2,6 +2,7 @@ from server.bean.inference_task.obj_inference_task import ObjInferenceTaskFilter
 from server.bean.inference_task.obj_inference_task_audio import ObjInferenceTaskAudio
 from server.bean.inference_task.obj_inference_task_compare_params import ObjInferenceTaskCompareParams
 from server.bean.inference_task.obj_inference_task_text import ObjInferenceTaskText
+from server.bean.sound_fusion.obj_inference_task_sound_fusion_audio import ObjInferenceTaskSoundFusionAudio
 from server.dao.data_base_manager import DBSlaveSQLExecutor
 
 
@@ -103,6 +104,44 @@ class InferenceTaskDao:
         ) for x in param_list])
 
     @staticmethod
+    def insert_task_param(param: ObjInferenceTaskCompareParams) -> int:
+        sql = '''
+            INSERT INTO tab_obj_inference_task_compare_params(TaskId,AudioCategory,GptSovitsVersion,GptModelName,VitsModelName,TopK,TopP,Temperature,TextDelimiter,Speed,OtherParameters,CreateTime) VALUES (?,?,?,?,?,?,?,?,?,?,?,datetime('now'))
+            '''
+        return DBSlaveSQLExecutor.insert(sql, (
+            param.task_id,
+            param.audio_category,
+            param.gpt_sovits_version,
+            param.gpt_model_name,
+            param.vits_model_name,
+            param.top_k,
+            param.top_p,
+            param.temperature,
+            param.text_delimiter,
+            param.speed,
+            param.other_parameters
+        ))
+
+    @staticmethod
+    def batch_insert_task_sound_fusion_audio(inp_refs_list: list[ObjInferenceTaskSoundFusionAudio]):
+        sql = '''
+        INSERT INTO tab_obj_inference_task_sound_fusion_audio(TaskId,CompareParamId,AudioId,RoleName,AudioName,AudioPath,Content,Language,Category,AudioLength,Remark,CreateTime) VALUES (?,?,?,?,?,?,?,?,?,?,?,datetime('now'))
+        '''
+        return DBSlaveSQLExecutor.batch_execute(sql, [(
+            x.task_id,
+            x.compare_param_id,
+            x.audio_id,
+            x.role_name,
+            x.audio_name,
+            x.audio_path,
+            x.content,
+            x.language,
+            x.category,
+            x.audio_length,
+            x.remark
+        ) for x in inp_refs_list])
+
+    @staticmethod
     def batch_insert_task_audio(audio_list: list[ObjInferenceTaskAudio]) -> int:
         sql = '''
         INSERT INTO tab_obj_inference_task_audio(TaskId,AudioId,AudioName,AudioPath,AudioContent,AudioLanguage,AudioCategory,AudioLength,CreateTime) VALUES (?,?,?,?,?,?,?,?,datetime('now'))
@@ -154,6 +193,33 @@ class InferenceTaskDao:
                 text_delimiter=data.get('TextDelimiter'),
                 speed=data.get('Speed'),
                 other_parameters=data.get('OtherParameters'),
+                create_time=data.get('CreateTime')
+            ))
+        return record_list
+
+    @staticmethod
+    def get_task_sound_fusion_list_by_task_id(task_id: int) -> list[ObjInferenceTaskSoundFusionAudio]:
+        # 查询所有记录的SQL语句
+        select_sql = '''
+            SELECT * FROM tab_obj_inference_task_sound_fusion_audio where TaskId = ?
+            '''
+
+        records = DBSlaveSQLExecutor.execute_query(select_sql, (task_id,))
+        record_list = []
+        for data in records:
+            record_list.append(ObjInferenceTaskSoundFusionAudio(
+                id=data.get('Id'),
+                task_id=data.get('TaskId'),
+                compare_param_id=data.get('CompareParamId'),
+                audio_id=data.get('AudioId'),
+                role_name=data.get('RoleName'),
+                audio_name=data.get('AudioName'),
+                audio_path=data.get('AudioPath'),
+                content=data.get('Content'),
+                language=data.get('Language'),
+                category=data.get('Category'),
+                audio_length=data.get('AudioLength'),
+                remark=data.get('Remark'),
                 create_time=data.get('CreateTime')
             ))
         return record_list
@@ -239,6 +305,15 @@ class InferenceTaskDao:
     def delete_task_param_by_task_id(task_id: int) -> int:
         sql = '''
             DELETE FROM tab_obj_inference_task_compare_params WHERE TaskId = ?
+            '''
+        return DBSlaveSQLExecutor.execute_update(sql, (
+            task_id,
+        ))
+
+    @staticmethod
+    def delete_task_sound_fusion_by_task_id(task_id: int):
+        sql = '''
+            DELETE FROM tab_obj_inference_task_sound_fusion_audio WHERE TaskId = ?
             '''
         return DBSlaveSQLExecutor.execute_update(sql, (
             task_id,

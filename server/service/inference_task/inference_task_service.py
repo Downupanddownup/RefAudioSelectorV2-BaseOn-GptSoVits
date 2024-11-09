@@ -14,6 +14,7 @@ from server.bean.inference_task.task_cell import TaskCell
 from server.bean.reference_audio.obj_reference_audio import ObjReferenceAudioFilter
 from server.bean.result_evaluation.obj_inference_task_result_audio import ObjInferenceTaskResultAudio, \
     ObjInferenceTaskResultAudioFilter
+from server.bean.sound_fusion.obj_inference_task_sound_fusion_audio import ObjInferenceTaskSoundFusionAudio
 from server.common.custom_exception import CustomException
 from server.common.log_config import logger, p_logger
 from server.common.ras_api_monitor import RasApiMonitor
@@ -56,13 +57,17 @@ class InferenceTaskService:
             raise CustomException("添加推理任务失败")
         for param in task.param_list:
             param.task_id = task_id
-        InferenceTaskDao.batch_insert_task_param(task.param_list)
+        InferenceTaskService.batch_insert_task_param(task.param_list)
         for audio in task.audio_list:
             audio.task_id = task_id
         InferenceTaskDao.batch_insert_task_audio(task.audio_list)
         for text in task.text_list:
             text.task_id = task_id
         InferenceTaskDao.batch_insert_task_text(task.text_list)
+        if task.inp_refs_list and len(task.inp_refs_list) > 0:
+            for ref in task.inp_refs_list:
+                ref.task_id = task_id
+            InferenceTaskDao.batch_insert_task_sound_fusion_audio(task.inp_refs_list)
         return task_id
 
     @staticmethod
@@ -87,6 +92,11 @@ class InferenceTaskService:
         task.param_list = InferenceTaskService.get_task_param_list_by_task_id(task_id)
         task.audio_list = InferenceTaskService.get_task_audio_list_by_task_id(task_id)
         task.text_list = InferenceTaskService.get_task_text_list_by_task_id(task_id)
+        inp_refs_list = InferenceTaskService.get_task_sound_fusion_list_by_task_id(task_id)
+        if inp_refs_list:
+            task.inp_refs_list = next((p for p in inp_refs_list if p.compare_param_id == 0), [])
+            for param in task.param_list:
+                param.inp_refs_list = next((p for p in inp_refs_list if p.compare_param_id == param.id), [])
         return task
 
     @staticmethod
@@ -100,6 +110,10 @@ class InferenceTaskService:
     @staticmethod
     def get_task_text_list_by_task_id(task_id: int) -> list[ObjInferenceTaskText]:
         return InferenceTaskDao.get_task_text_list_by_task_id(task_id)
+
+    @staticmethod
+    def get_task_sound_fusion_list_by_task_id(task_id: int) -> list[ObjInferenceTaskSoundFusionAudio]:
+        return InferenceTaskDao.get_task_sound_fusion_list_by_task_id(task_id)
 
     @staticmethod
     def save_inference_task(task: ObjInferenceTask) -> int:
@@ -127,18 +141,23 @@ class InferenceTaskService:
             raise CustomException("修改推理任务失败")
 
         InferenceTaskDao.delete_task_param_by_task_id(task_id)
+        InferenceTaskDao.delete_task_sound_fusion_by_task_id(task_id)
         InferenceTaskDao.delete_task_audio_by_task_id(task_id)
         InferenceTaskDao.delete_task_text_by_task_id(task_id)
 
         for param in task.param_list:
             param.task_id = task_id
-        InferenceTaskDao.batch_insert_task_param(task.param_list)
+        InferenceTaskService.batch_insert_task_param(task.param_list)
         for audio in task.audio_list:
             audio.task_id = task_id
         InferenceTaskDao.batch_insert_task_audio(task.audio_list)
         for text in task.text_list:
             text.task_id = task_id
         InferenceTaskDao.batch_insert_task_text(task.text_list)
+        if task.inp_refs_list and len(task.inp_refs_list) > 0:
+            for ref in task.inp_refs_list:
+                ref.task_id = task_id
+            InferenceTaskDao.batch_insert_task_sound_fusion_audio(task.inp_refs_list)
         return result
 
     @staticmethod
@@ -177,6 +196,17 @@ class InferenceTaskService:
     @staticmethod
     def update_task_execute_text_similarity(task_id: int, execute_text_similarity: int):
         return InferenceTaskDao.update_task_execute_text_similarity(task_id, execute_text_similarity)
+
+    @staticmethod
+    def batch_insert_task_param(param_list: list[ObjInferenceTaskCompareParams]):
+        for param in param_list:
+            param_id = InferenceTaskDao.insert_task_param(param)
+            if param_id > 0 and param.inp_refs_list and len(param.inp_refs_list) > 0:
+                inp_refs_list = param.inp_refs_list
+                for inp_ref in inp_refs_list:
+                    inp_ref.task_id = param.task_id
+                    inp_ref.compare_param_id = param_id
+                InferenceTaskDao.batch_insert_task_sound_fusion_audio(inp_refs_list)
 
 
 def create_task_cell_list_if_not_inference(task: ObjInferenceTask) -> list[TaskCell]:

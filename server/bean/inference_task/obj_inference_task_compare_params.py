@@ -1,11 +1,13 @@
 from server.bean.base_model import BaseModel
+from server.bean.sound_fusion.obj_inference_task_sound_fusion_audio import ObjInferenceTaskSoundFusionAudio
 
 
 class ObjInferenceTaskCompareParams(BaseModel):
     def __init__(self, id=None, task_id=None, audio_category=None, gpt_sovits_version=None,
                  gpt_model_name=None, vits_model_name=None, top_k=None,
                  top_p=None, temperature=None, text_delimiter=None,
-                 speed=None, other_parameters=None, create_time=None):
+                 speed=None, other_parameters=None, create_time=None,
+                 inp_refs_list: list[ObjInferenceTaskSoundFusionAudio] = None):
         self.id = id  # 主键ID，允许从外部传入
         self.task_id = task_id  # 任务id
         self.audio_category = audio_category  # 音频分类
@@ -19,6 +21,7 @@ class ObjInferenceTaskCompareParams(BaseModel):
         self.speed = speed  # 语速
         self.other_parameters = other_parameters  # 其余参数
         self.create_time = create_time  # 创建时间，默认为当前时间
+        self.inp_refs_list = inp_refs_list
 
     def __str__(self):
         return (f"Id: {self.id}, TaskId: {self.task_id}, AudioCategory: {self.audio_category},"

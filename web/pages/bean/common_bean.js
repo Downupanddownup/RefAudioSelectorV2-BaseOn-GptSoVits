@@ -38,7 +38,7 @@ class C_ObjInferenceTask {//推理任务
         this.taskTextList = data.textList ? data.textList.map(item => new C_ObjInferenceTaskText(item)) : [];
         this.taskAudioList = data.audioList ? data.audioList.map(item => new C_ObjInferenceTaskAudio(item)) : [];
         this.compareParams = data.paramList ? data.paramList.map(item => new C_ObjInferenceTaskCompareParams(item)) : [];
-        this.taskInpRefsAudioList = data.inpRefsAudioList ? data.inpRefsAudioList.map(item => new C_ObjInferenceTaskSoundFusionAudio(item)) : [];
+        this.taskInpRefsAudioList = data.inpRefsList ? data.inpRefsList.map(item => new C_ObjInferenceTaskSoundFusionAudio(item)) : [];
     }
 
     setParams(C_ObjInferenceTaskCompareParams$1){
@@ -122,7 +122,7 @@ class C_ObjInferenceTaskCompareParams {//推理任务中，对比的变量
         this.speed = data.speed || 1.0; // 语速
         this.otherParameters = data.otherParameters || ''; // 其余参数
         this.createTime = data.createTime ? new Date(data.createTime) : null; // 创建时间, 默认为当前时间
-        this.inpRefsAudioList = data.inpRefsAudioList ? data.inpRefsAudioList.map(item => new C_ObjInferenceTaskSoundFusionAudio(item)) : [];
+        this.inpRefsAudioList = data.inpRefsList ? data.inpRefsList.map(item => new C_ObjInferenceTaskSoundFusionAudio(item)) : [];
     }
     
     getShowTxt(compareType){

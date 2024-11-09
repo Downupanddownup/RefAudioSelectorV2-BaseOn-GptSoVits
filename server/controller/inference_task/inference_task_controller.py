@@ -11,6 +11,7 @@ from server.bean.inference_task.obj_inference_task_compare_params import ObjInfe
 from server.bean.inference_task.obj_inference_task_text import ObjInferenceTaskText
 from server.bean.inference_task.obj_inference_text import ObjInferenceTextFilter, ObjInferenceText
 from server.bean.inference_task.vits_model import VitsModel
+from server.bean.sound_fusion.obj_inference_task_sound_fusion_audio import ObjInferenceTaskSoundFusionAudio
 from server.common import config_params
 from server.common.custom_exception import CustomException
 from server.common.log_config import logger
@@ -35,7 +36,7 @@ inference_task_asr_text_analysis = None
 async def get_inference_text_list(request: Request):
     form_data = await request.form()
     text_filter = ObjInferenceTextFilter(form_data)
-    
+
     if ValidationUtils.is_empty(text_filter.order_by):
         text_filter.order_by = "id"
     if ValidationUtils.is_empty(text_filter.order_by_desc):
@@ -106,6 +107,7 @@ def get_inference_task_from_json(form_data: dict) -> ObjInferenceTask:
     audio_list = form_data.get('taskAudioList')
     text_list = form_data.get('taskTextList')
     param_list = form_data.get('compareParams')
+    inp_refs_list = form_data.get('taskInpRefsAudioList')
 
     task_audio_list = []
     for audio in audio_list:
@@ -132,6 +134,20 @@ def get_inference_task_from_json(form_data: dict) -> ObjInferenceTask:
 
     task_param_list = []
     for param in param_list:
+        inp_refs = param.get('inpRefsAudioList')
+        param_inp_refs_list = []
+        for audio in inp_refs:
+            param_inp_refs_list.append(ObjInferenceTaskSoundFusionAudio(
+                audio_id=audio.get('audioId'),
+                audio_name=audio.get('audioName'),
+                role_name=audio.get('roleName'),
+                audio_path=audio.get('audioPath'),
+                content=audio.get('content'),
+                language=audio.get('language'),
+                audio_length=audio.get('audioLength'),
+                category=audio.get('category'),
+                remark=audio.get('remark')
+            ))
         task_param_list.append(ObjInferenceTaskCompareParams(
             audio_category=param.get('audioCategory'),
             gpt_sovits_version=param.get('gptSovitsVersion'),
@@ -142,9 +158,27 @@ def get_inference_task_from_json(form_data: dict) -> ObjInferenceTask:
             temperature=param.get('temperature'),
             text_delimiter=param.get('textDelimiter'),
             speed=param.get('speed'),
-            other_parameters=param.get('otherParameters')
+            other_parameters=param.get('otherParameters'),
+            inp_refs_list=param_inp_refs_list
         ))
     task.param_list = task_param_list
+
+    task_inp_refs_list = []
+    for audio in inp_refs_list:
+        task_inp_refs_list.append(ObjInferenceTaskSoundFusionAudio(
+            compare_param_id=0,
+            audio_id=audio.get('audioId'),
+            audio_name=audio.get('audioName'),
+            role_name=audio.get('roleName'),
+            audio_path=audio.get('audioPath'),
+            content=audio.get('content'),
+            language=audio.get('language'),
+            audio_length=audio.get('audioLength'),
+            category=audio.get('category'),
+            remark=audio.get('remark')
+        ))
+    task.inp_refs_list = task_inp_refs_list
+
     return task
 
 
