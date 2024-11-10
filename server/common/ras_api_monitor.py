@@ -207,6 +207,7 @@ def _start_new_service(script_path: str, params: dict) -> subprocess:
     # 对于Windows系统
     if sys.platform.startswith('win'):
         cmd = f'start cmd /c {python_exec} {script_path}'
+        # cmd = f'start cmd /k {python_exec} {script_path}'
     # 对于Mac或者Linux系统
     else:
         cmd = f'xterm -e {python_exec} {script_path}'

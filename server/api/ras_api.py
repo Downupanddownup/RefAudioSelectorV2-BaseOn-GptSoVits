@@ -108,7 +108,8 @@ async def tts_endpoint(request: Request):
         top_k=json_post_raw.get("top_k", None),
         top_p=json_post_raw.get("top_p", None),
         temperature=json_post_raw.get("temperature", None),
-        speed=json_post_raw.get("speed", None)
+        speed=json_post_raw.get("speed", None),
+        inp_refs=json_post_raw.get("inp_refs", [])
     ))
     print(params)
     print(f'text:{json_post_raw.get("text")};text_language:{json_post_raw.get("text_language")}')
@@ -138,7 +139,8 @@ async def tts_endpoint(
         top_k: int = None,
         top_p: float = None,
         temperature: float = None,
-        speed: float = None
+        speed: float = None,
+        inp_refs: list = Query(default=[])
 ):
     params = inference_params_manager.get_real_params(InferenceParams(
         refer_wav_path=refer_wav_path,
@@ -148,7 +150,8 @@ async def tts_endpoint(
         top_k=top_k,
         top_p=top_p,
         temperature=temperature,
-        speed=speed
+        speed=speed,
+        inp_refs=inp_refs
     ))
     print(params)
     print(f'text:{text};text_language:{text_language}')

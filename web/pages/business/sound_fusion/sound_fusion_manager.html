@@ -5,27 +5,6 @@
             constructor(viewId) {
                 this.viewId = viewId
                 this.audioList = []
-                this.categoryList = []
-            }
-
-            loadData() {
-                const _this = this
-                $.customAjax({
-                    url: BaseUrl+'audio/get_audio_category_list',
-                    type: 'post',
-                    success: function(res){
-                        if (res.code == 0) {
-                            _this.categoryList = res.data ? res.data.map(item=>new C_ObjInferenceCategory(item)) : []
-                            _this.categoryList = _this.categoryList.filter(item=>item.name !== '无效')
-                            _this.render()
-                        } else {
-                            layui.layer.msg(res.msg)
-                        }
-                    },
-                    error: function(res, msg){
-                        layui.layer.msg(msg)
-                    }
-                })
             }
 
             render() {
@@ -64,7 +43,7 @@
                     btn: ['确定', '取消'],
                     yes: function(){
                         edit.submit(() => {
-                            refreshListData('referenceAudioList')
+                            refreshListData('soundFusionAudioList')
                             layui.layer.close(index)
                         })
                     }
@@ -135,7 +114,7 @@
                         {field:'audioName', width:'10%', title: '音频名称', templet: function(d){
                                 return d.audioName;
                             }},
-                        {field:'category', width:'12%', title: '音频分类', templet: function(d){
+                        {field:'category', width:'10%', title: '音频分类', templet: function(d){
                                 return d.category;
                             }},
                         {field:'audioPlay', width:'22%', title: '音频播放', templet: function(d){
@@ -146,16 +125,16 @@
                                     您的浏览器不支持 HTML5 audio 标签。
                                 </audio>`
                             }},
-                        {field:'content', width:'22%', title: '音频内容', templet: function(d){
+                        {field:'content', width:'19%', title: '音频内容', templet: function(d){
                                 return `<div data-content-wait-id="${d.id}" style="cursor: pointer">${d.content}</div>`;
                             }},
-                        {field:'language', width:'12%', title: '音频语种', templet: function(d){
+                        {field:'language', width:'10%', title: '音频语种', templet: function(d){
                                 return d.language;
                             }},
-                        {field:'audioLength', width:'12%', title: '音频时长', sort: true, templet: function(d){
+                        {field:'audioLength', width:'9%', title: '音频时长', sort: true, templet: function(d){
                                 return d.audioLength.toFixed(1);
                             }},
-                        {field:'opt', width:'20%', title: '操作', templet: function(d){
+                        {field:'opt', width:'10%', title: '操作', templet: function(d){
                                 const html = []
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-edit="${d.id}">编辑</button>`)
                                 return html.join(' ');
@@ -209,12 +188,7 @@
             <td><input type="text" autocomplete="off" id="searchAudioName" placeholder="音频名称" class="layui-input" style="width: auto;"></td>
             <td>音频分类：</td>
             <td>
-                <select class="customSelect" id="searchCategory">
-                    <option value="">请选择</option>
-                    {{# layui.each(d.categoryList, function(index,item){ }}
-                    <option value="{{item.name}}">{{item.name}}</option>
-                    {{# }) }}
-                </select>
+                <input type="text" autocomplete="off" id="searchCategory" placeholder="音频分类" class="layui-input" style="width: auto;">
             </td>
             <td>音频语种：</td>
             <td>

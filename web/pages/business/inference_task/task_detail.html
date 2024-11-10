@@ -317,11 +317,13 @@
           return {
             id:data.audioId, // id
             audioName:data.audioName, // 音频名称
+            roleName:data.roleName, // 角色名称
             audioPath:data.audioPath, // 音频路径
-            content:data.audioContent, // 音频内容
-            language:data.audioLanguage, // 音频语种
-            category:data.audioCategory, // 音频分类
+            content:data.content, // 音频内容
+            language:data.language, // 音频语种
+            category:data.category, // 音频分类
             audioLength:data.audioLength, // 音频时长
+            remark:data.remark, // 备注
           }
         }))
 
@@ -332,17 +334,21 @@
           btn: ['确定', '取消'],
           yes: function(){
             const selectedAudioList = inpRefsAudioDialog.getAllSelectedAudioList()
+            console.log('selectedAudioList',selectedAudioList)
             param.inpRefsAudioList = selectedAudioList.map(data => {
               return new C_ObjInferenceTaskSoundFusionAudio({
                 audioId:data.id, // id
                 audioName:data.audioName, // 音频名称
+                roleName:data.roleName, // 角色名称
                 audioPath:data.audioPath, // 音频路径
-                audioContent:data.content, // 音频内容
-                audioLanguage:data.language, // 音频语种
-                audioCategory:data.category, // 音频分类
+                content:data.content, // 音频内容
+                language:data.language, // 音频语种
+                category:data.category, // 音频分类
                 audioLength:data.audioLength, // 音频时长
+                remark:data.remark, // 音频时长
               })
             })
+            console.log('task', _this.task)
             layui.layer.close(dialogId)
             $('#' + _this.viewId + ' [data-inp-refs-select-count=' + index + ']').html(param.inpRefsAudioList.length)
           }
@@ -359,11 +365,13 @@
           return {
             id:data.audioId, // id
             audioName:data.audioName, // 音频名称
+            roleName:data.roleName, // 角色名称
             audioPath:data.audioPath, // 音频路径
-            content:data.audioContent, // 音频内容
-            language:data.audioLanguage, // 音频语种
-            category:data.audioCategory, // 音频分类
+            content:data.content, // 音频内容
+            language:data.language, // 音频语种
+            category:data.category, // 音频分类
             audioLength:data.audioLength, // 音频时长
+            remark:data.remark, // 备注
           }
         }))
         
@@ -378,11 +386,13 @@
               return new C_ObjInferenceTaskSoundFusionAudio({
                 audioId:data.id, // id
                 audioName:data.audioName, // 音频名称
+                roleName:data.roleName, // 角色名称
                 audioPath:data.audioPath, // 音频路径
-                audioContent:data.content, // 音频内容
-                audioLanguage:data.language, // 音频语种
-                audioCategory:data.category, // 音频分类
+                content:data.content, // 音频内容
+                language:data.language, // 音频语种
+                category:data.category, // 音频分类
                 audioLength:data.audioLength, // 音频时长
+                remark:data.remark, // 音频时长
               })
             })
             layui.layer.close(dialogId)

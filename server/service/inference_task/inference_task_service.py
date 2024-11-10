@@ -94,9 +94,9 @@ class InferenceTaskService:
         task.text_list = InferenceTaskService.get_task_text_list_by_task_id(task_id)
         inp_refs_list = InferenceTaskService.get_task_sound_fusion_list_by_task_id(task_id)
         if inp_refs_list:
-            task.inp_refs_list = next((p for p in inp_refs_list if p.compare_param_id == 0), [])
+            task.inp_refs_list = [p for p in inp_refs_list if p.compare_param_id == 0]
             for param in task.param_list:
-                param.inp_refs_list = next((p for p in inp_refs_list if p.compare_param_id == param.id), [])
+                param.inp_refs_list = [p for p in inp_refs_list if p.compare_param_id == param.id]
         return task
 
     @staticmethod
