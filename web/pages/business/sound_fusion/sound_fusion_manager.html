@@ -24,9 +24,75 @@
                     obj.find('#addAudio').on('click', function(){
                         _this.openEditDialog(0)
                     })
+
+                    obj.find('#addAudioFromReference').on('click', function(){
+                        _this.openAddAudioFromReferenceDialog()
+                    })
                     
                 });
                 return _this
+            }
+
+            openAddAudioFromReferenceDialog(){
+                const _this = this
+
+                const C_ReferenceSelect$1 = ReferenceSelectSpace.getReferenceSelect('audioSelectView',[])
+
+                const dialogId = layer.open({
+                    type: 1,
+                    area: ['90%', '90%'],
+                    content: `<div id="audioSelectView"></div>`,
+                    btn: ['确定', '取消'],
+                    yes: function(){
+                        const selectedAudioList = C_ReferenceSelect$1.getAllSelectedAudioList()
+                        if (selectedAudioList.length < 1) {
+                            layui.layer.alert('请选择音频')
+                            return
+                        }
+                        if (selectedAudioList.length > 0) {
+                            $.customAjax({
+                                url: BaseUrl + 'fusion/batch_add_sound_fusion_audio',
+                                type: 'POST',
+                                data: {
+                                    refAudioIds:selectedAudioList.map(i => i.id).join(',')
+                                },
+                                success: function (data) {
+                                    if (data.code == 0) {
+                                        layui.layer.msg('保存成功')
+                                        layui.layer.close(dialogId)
+                                        refreshListData('soundFusionAudioList')
+                                    } else {
+                                        layui.layer.msg(data.msg)
+                                    }
+                                }
+                            })
+                        }
+                        
+                    }
+                });
+
+
+                C_ReferenceSelect$1.loadData()
+            }
+
+            deleteSoundFusionAudio(id){
+                layui.layer.confirm('是否确认删除此音频？', () => {
+                    $.customAjax({
+                        url: BaseUrl + 'fusion/delete_sound_fusion_audio',
+                        type: 'POST',
+                        data: {
+                            audioId: id
+                        },
+                        success: function (data) {
+                            if (data.code == 0) {
+                                layui.layer.msg('删除成功')
+                                refreshListData('soundFusionAudioList')
+                            } else {
+                                layui.layer.msg(data.msg)
+                            }
+                        }
+                    })
+                })
             }
 
             openEditDialog(id){
@@ -132,11 +198,17 @@
                                 return d.language;
                             }},
                         {field:'audioLength', width:'9%', title: '音频时长', sort: true, templet: function(d){
-                                return d.audioLength.toFixed(1);
+                                let audioLength = d.audioLength
+                                try {
+                                    audioLength = d.audioLength.toFixed(1)
+                                } catch (e) {
+                                }
+                                return audioLength;
                             }},
                         {field:'opt', width:'10%', title: '操作', templet: function(d){
                                 const html = []
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-edit="${d.id}">编辑</button>`)
+                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-delete="${d.id}">删除</button>`)
                                 return html.join(' ');
                             }},
                     ]],
@@ -159,6 +231,11 @@
                         $('#' + _this.viewId + ' button[data-go-to-edit]').on('click', function(){
                             const id = $(this).attr('data-go-to-edit')
                             _this.openEditDialog(id)
+                        })
+
+                        $('#' + _this.viewId + ' button[data-go-to-delete]').on('click', function(){
+                            const id = $(this).attr('data-go-to-delete')
+                            _this.deleteSoundFusionAudio(id)
                         })
 
                     },
@@ -205,6 +282,7 @@
             <td colspan="2">
                 <button type="submit" class="layui-btn layui-btn-sm" id="searchAudio">搜索</button>
                 <button type="submit" class="layui-btn layui-btn-sm" id="addAudio">新增</button>
+                <button type="submit" class="layui-btn layui-btn-sm" id="addAudioFromReference">从参考加</button>
             </td>
         </tr>
     </table>

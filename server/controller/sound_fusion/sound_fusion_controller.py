@@ -37,11 +37,11 @@ async def batch_add_sound_fusion_audio(request: Request):
 
     for audio in ref_audio_list:
         new_path = SoundFusionService.get_new_sound_fusion_path()
-        shutil.copy2(audio.audio_length, new_path)
+        shutil.copy2(audio.audio_path, new_path)
         sound = ObjSoundFusionAudio(
-            role_name=db_config.role_name, audio_name=audio.audio_name, audio_path=audio.audio_path,
+            role_name=db_config.role_name, audio_name=audio.audio_name, audio_path=new_path,
             content=audio.content,
-            language=audio.language, category=audio.category, audio_length=new_path
+            language=audio.language, category=audio.category, audio_length=audio.audio_length
         )
         sound_fusion_audio_list.append(sound)
 
