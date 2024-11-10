@@ -10,6 +10,7 @@
                 this.refAudio = null
                 this.text = null;
                 this.param = null;
+                this.taskInpRefsAudioList = []
             }
 
             loadData() {
@@ -27,8 +28,10 @@
                             _this.refAudio = _this.resultAudio.objAudio
                             _this.text = _this.resultAudio.objText
                             _this.param = _this.resultAudio.objParam
-                            console.log('resultAudio', _this.resultAudio)
+                            
                             _this.task.setParams(_this.param)
+                            _this.taskInpRefsAudioList = _this.task.taskInpRefsAudioList
+                            console.log('_this', _this)
                             _this.render()
                         } else {
                             layui.layer.msg(res.msg)
@@ -51,8 +54,84 @@
                     _this.initResultAudioWaveForm()
                     _this.initRefAudioWaveForm()
                     
+                    if (_this.taskInpRefsAudioList.length > 0) {
+                        _this.loadSelectedAudioList()
+                    }
+                    
                 });
                 return _this
+            }
+
+            loadSelectedAudioList(){
+                const _this = this
+
+                const windowHeight = window.innerHeight;
+
+                const header = $('#'+_this.viewId+' #audioHeader').height()
+                console.log('header',header)
+
+                const height = windowHeight * 0.95 *0.95 - header - 190
+                // 创建渲染实例
+                layui.table.render({
+                    elem: '#selectedAudioList',
+                    data: _this.taskInpRefsAudioList,
+                    // height: height, // 最大高度减去其他容器已占有的高度差
+                    page: false,
+                    cols: [[
+                        {field:'index', width:'5%', title: '序号', type: 'numbers'},
+                        {field:'roleName', width:'10%', title: '角色名称', templet: function(d){
+                                return d.roleName;
+                            }},
+                        {field:'audioName', width:'10%', title: '音频名称', templet: function(d){
+                                return d.audioName;
+                            }},
+                        {field:'category', width:'12%', title: '音频分类', templet: function(d){
+                                return d.category;
+                            }},
+                        {field:'audioPlay', width:'22%', title: '音频播放', templet: function(d){
+                                return ` 
+                                 <audio controls class="custom-audio" data-audio="${d.id}">
+                                    <source src="${d.audioPath}" type="audio/wav">
+                                    <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
+                                    您的浏览器不支持 HTML5 audio 标签。
+                                </audio>`
+                            }},
+                        {field:'content', width:'23%', title: '音频内容', templet: function(d){
+                                return `<div data-content-id="${d.id}" style="cursor: pointer">${d.content}</div>`;
+                            }},
+                        {field:'language', width:'8%', title: '音频语种', templet: function(d){
+                                return d.language;
+                            }},
+                        {field:'audioLength', width:'8%', title: '音频时长', sort: true, templet: function(d){
+                                return d.audioLength.toFixed(1);
+                            }},
+                    ]],
+                    done: function(){
+
+                        const obj = $('#'+_this.viewId)
+                        
+                        const audioElements = $('#'+_this.viewId+' audio.custom-audio');
+                        // 创建 AudioController 实例并传入音频元素集合
+                        const audioController = new AudioController(Array.from(audioElements));
+
+                        $('#' + _this.viewId + ' div[data-content-id]').on('click', function() {
+                            const audioId = $(this).attr('data-content-id')
+                            _this.audioList.forEach(i => {
+                                if (i.id == audioId) {
+                                    const audioElement = $('#' + _this.viewId + ' audio[data-audio="' + audioId + '"]')[0]
+                                    console.log('audioElement',audioElement)
+                                    audioController.dispatchClickEvent(audioElement)
+                                }
+                            })
+                        })
+
+
+                    },
+                    error: function(res, msg){
+                        console.log(res, msg)
+                    }
+                });
+
             }
 
             initRefAudioWaveForm(){
@@ -120,6 +199,16 @@
     </div>
     <div id="referenceWaveForm"></div>
     
+    {{# if (d.taskInpRefsAudioList.length > 0) { }}
+    <fieldset class="layui-elem-field layui-field-title">
+        <legend>融合音频</legend>
+    </fieldset>
+    <table class="layui-hide" id="selectedAudioList" lay-filter="selectedAudioList"></table>
+    {{# } }}
+
+    <fieldset class="layui-elem-field layui-field-title">
+        <legend>主要参数</legend>
+    </fieldset>
     <table class="table1">
         <tr>
             <td>音频名称：{{d.refAudio.audioName}}</td>

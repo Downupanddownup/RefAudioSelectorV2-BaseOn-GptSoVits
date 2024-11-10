@@ -22,6 +22,7 @@ class ObjInferenceTaskCompareParams(BaseModel):
         self.other_parameters = other_parameters  # 其余参数
         self.create_time = create_time  # 创建时间，默认为当前时间
         self.inp_refs_list = inp_refs_list
+        self.index = 0  # 分组索引
 
     def __str__(self):
         return (f"Id: {self.id}, TaskId: {self.task_id}, AudioCategory: {self.audio_category},"

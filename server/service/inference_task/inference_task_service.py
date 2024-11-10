@@ -90,6 +90,10 @@ class InferenceTaskService:
             return None
         task = task_list[0]
         task.param_list = InferenceTaskService.get_task_param_list_by_task_id(task_id)
+        if task.param_list:
+            for i, param in enumerate(task.param_list):
+                param.index = i + 1
+
         task.audio_list = InferenceTaskService.get_task_audio_list_by_task_id(task_id)
         task.text_list = InferenceTaskService.get_task_text_list_by_task_id(task_id)
         inp_refs_list = InferenceTaskService.get_task_sound_fusion_list_by_task_id(task_id)

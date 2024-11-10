@@ -47,34 +47,38 @@ class C_ObjInferenceTask {//推理任务
         if (compareType === 'refer_audio') {
             return
         }
-        if (compareType === 'gpt_model') {
+        if (['gpt_model','gv','all'].includes(compareType)) {
             this.gptSovitsVersion = param.gptSovitsVersion
             this.gptModelName = param.gptModelName
             return
         }
-        if (compareType === 'vits_model') {
+        if (['vits_model','gv','all'].includes(compareType)) {
             this.gptSovitsVersion = param.gptSovitsVersion
             this.vitsModelName = param.vitsModelName
             return
         }
-        if (compareType === 'top_k') {
+        if (['top_k','kpt','all'].includes(compareType)) {
             this.topK = param.topK
             return
         }
-        if (compareType === 'top_p') {
+        if (['top_p','kpt','all'].includes(compareType)) {
             this.topP = param.topP
             return
         }
-        if (compareType === 'temperature') {
+        if (['temperature','kpt','all'].includes(compareType)) {
             this.temperature = param.temperature
             return
         }
-        if (compareType === 'text_delimiter') {
+        if (['text_delimiter','all'].includes(compareType)) {
             this.textDelimiter = param.textDelimiter
             return
         }
-        if (compareType === 'speed') {
+        if (['speed','all'].includes(compareType)) {
             this.speed = param.speed
+            return
+        }
+        if (['inp_refs','all'].includes(compareType)) {
+            this.taskInpRefsAudioList = param.inpRefsAudioList
             return
         }
     }
@@ -109,6 +113,7 @@ class C_ObjInferenceTaskAudio {//推理任务中，相关参考音频
 class C_ObjInferenceTaskCompareParams {//推理任务中，对比的变量
     constructor(data) {
         data = data || {};
+        this.index = data.index ? data.index : 0; // 自增编号
         this.id = data.id ? data.id : 0; // 自增编号
         this.taskId = data.taskId || 0; // 任务id
         this.audioCategory = data.audioCategory || ''; // 音频分类
@@ -149,6 +154,9 @@ class C_ObjInferenceTaskCompareParams {//推理任务中，对比的变量
         }
         if (compareType == 'speed') {
             return `语速：${this.speed}`
+        }
+        if (compareType == 'inp_refs') {
+            return `融合音频：第${this.index}组`
         }
         if (compareType == 'kpt') {
             return `top_k:${this.topK};top_p:${this.topP};temperature:${this.temperature}`
