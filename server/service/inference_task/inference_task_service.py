@@ -348,9 +348,6 @@ def generate_audio_files_for_group(role_name: str, task_result_audio_list: list[
                     # 这里添加一个小的等待时间，根据实际情况调整
                     time.sleep(1)  # 可选
 
-                    # 直接计算音频文件的时长（单位：秒）
-                    task_result_audio.audio_length = librosa.get_duration(filename=audio_file_path)
-
                 task_result_audio.status = 1
 
                 task_result_audio.path = audio_file_path
@@ -361,6 +358,11 @@ def generate_audio_files_for_group(role_name: str, task_result_audio_list: list[
 
             has_generated_count += 1
             logger.info(f"进程ID: {os.getpid()}, 进度: {has_generated_count}/{all_count}")
+
+        for task_result_audio in task_result_audio_list:
+            if task_result_audio.status == 1:
+                # 直接计算音频文件的时长（单位：秒）
+                task_result_audio.audio_length = librosa.get_duration(filename=task_result_audio.path)
 
         ResultEvaluationService.batch_update_task_result_audio_status_file_length(task_result_audio_list)
 

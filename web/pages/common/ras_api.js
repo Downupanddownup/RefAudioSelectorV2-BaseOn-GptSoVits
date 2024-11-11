@@ -8,6 +8,28 @@ const RasApiSpace = (function ()  {
         isOpen(){
             return this.status === 'open'
         }
+        
+        checkIsRunning(callback){
+            const _this = this
+            const timeout = 1000; // 1秒超时
+            $.customAjax({
+                url: RasApiUrl+'status',
+                method: 'GET',
+                timeout: timeout, // 设置超时时间为1秒
+                success: function(response) {
+                    _this.status = 'open'
+                    if (callback) {
+                        callback(true)
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    _this.status = 'close'
+                    if (callback) {
+                        callback(false)
+                    }
+                }
+            });
+        }
 
         startApi(streamMode,callback){
             const _this = this
@@ -18,7 +40,6 @@ const RasApiSpace = (function ()  {
                     streamMode:streamMode ? 1 : 0
                 },
                 success: function(res){
-                    console.log('为什么')
                     if (res.code == 0) {
                         _this.status = 'open'
                         if (callback) {

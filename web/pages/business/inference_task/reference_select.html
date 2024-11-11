@@ -198,11 +198,16 @@
                             _this.selectedAudioList = _this.selectedAudioList.filter(i => i.id != id)
                         }
                     } else if (obj.type == 'all') {
-                        _this.audioList.forEach(text => {
-                            if (!_this.selectedAudioList.find(i => i.id == text.id)) {
-                                _this.selectedAudioList.push(text)
-                            }
-                        })
+                        if (obj.checked) {
+                            _this.audioList.forEach(text => {
+                                if (!_this.selectedAudioList.find(i => i.id == text.id)) {
+                                    _this.selectedAudioList.push(text)
+                                }
+                            })
+                        } else {
+                            _this.selectedAudioList = _this.selectedAudioList.filter(i => !_this.audioList.find(j => j.id == i.id))
+                        }
+                        
                     }
 
                     $('#' + _this.viewId + ' #selectedAudioCount').html(_this.selectedAudioList.length)

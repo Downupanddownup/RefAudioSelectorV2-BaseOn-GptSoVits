@@ -95,7 +95,7 @@ class RasApiMonitor:
             return False
 
     @staticmethod
-    def check_service_status(timeout: int = 2) -> bool:
+    def check_service_status(timeout: int = 1) -> bool:
         """
         检查服务 B 是否启动。
 

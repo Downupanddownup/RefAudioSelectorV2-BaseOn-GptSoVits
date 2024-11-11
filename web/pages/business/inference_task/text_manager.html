@@ -191,11 +191,16 @@
               _this.selectedTextList = _this.selectedTextList.filter(i => i.id != id)
             }
           } else if (obj.type == 'all') {
-            _this.textList.forEach(text => {
-              if (!_this.selectedTextList.find(i => i.id == text.id)) {
-                _this.selectedTextList.push(text)
-              }
-            })
+            if (obj.checked) {
+              _this.textList.forEach(text => {
+                if (!_this.selectedTextList.find(i => i.id == text.id)) {
+                  _this.selectedTextList.push(text)
+                }
+              })
+            } else {
+              _this.selectedTextList = _this.selectedTextList.filter(i => !_this.textList.find(j => j.id == i.id))
+            }
+
           }
           
           $('#' + _this.viewId + ' #selectedTextCount').html(_this.selectedTextList.length)

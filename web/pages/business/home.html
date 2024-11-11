@@ -27,6 +27,8 @@
                     _this.initTab()
                     
                     _this.loadRoleName()
+                    
+                    _this.checkApiStatus()
                 });
                 return _this
             }
@@ -155,6 +157,21 @@
                         }
 
                     },
+                })
+            }
+            
+            checkApiStatus() {
+                RasApiSpace.getInstance().checkIsRunning(isRunning => {
+                    const obj = $('#rasApiStatus')
+                    obj.removeClass('api-open')
+                    obj.removeClass('api-close')
+                    if (isRunning) {
+                       obj.addClass('api-close')
+                       obj.html('关闭API')
+                    } else {
+                       obj.addClass('api-open')
+                       obj.html('启动API')
+                    }
                 })
             }
 
