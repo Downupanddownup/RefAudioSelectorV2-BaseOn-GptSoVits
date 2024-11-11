@@ -41,6 +41,9 @@ inference_params_manager = InferenceParamsManager()
 
 # 导入模块中的所有内容
 from api import *
+import api
+
+logger.info(f'stream_mode={api.stream_mode}；media_type={api.media_type}')
 
 app.add_middleware(
     CORSMiddleware,
@@ -73,25 +76,25 @@ async def set_default_params(request: Request):
 
     temp_stream_mode = json_post_raw.get("stream_mode", None)
     temp_media_type = json_post_raw.get("media_type", None)
+    
     if temp_stream_mode is not None:
-        global stream_mode
         # 流式返回模式
         if temp_stream_mode == 1:
-            stream_mode = "normal"
+            api.stream_mode = "normal"
             logger.info("流式返回已开启")
         else:
-            stream_mode = "close"
+            api.stream_mode = "close"
             logger.info("流式返回已关闭")
     if temp_media_type is not None:
-        global media_type
+        # global media_type
         # 音频编码格式
         if temp_media_type.lower() in ["aac", "ogg"]:
-            media_type = temp_media_type.lower()
-        elif stream_mode == "close":
-            media_type = "wav"
+            api.media_type = temp_media_type.lower()
+        elif api.stream_mode == "close":
+            api.media_type = "wav"
         else:
-            media_type = "ogg"
-        logger.info(f"编码格式: {media_type}")
+            api.media_type = "ogg"
+        logger.info(f"编码格式: {api.media_type}")
 
     print(inference_params_manager.default_params)
     return 'ok'
