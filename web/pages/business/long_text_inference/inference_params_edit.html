@@ -11,6 +11,7 @@
                 this.vitsModels = []
                 this.config = config
                 this.C_ObjReferenceAudio$1 = null
+                this.C_ObjInferenceTaskResultAudio$1 = null
                 
             }
 
@@ -138,7 +139,7 @@
             openResultAudioSelectDialog(){
                 const _this = this
 
-                const select = LongTextResultAudioSelectSpace.getLongTextResultAudioSelect('resultAudioSelectView', _this.C_ObjReferenceAudio$1)
+                const select = LongTextResultAudioSelectSpace.getLongTextResultAudioSelect('resultAudioSelectView', _this.C_ObjInferenceTaskResultAudio$1)
 
                 const dialogId = layer.open({
                     type: 1,
@@ -149,8 +150,26 @@
                         const selectedAudio = select.getSelectedAudio()
                       
                         if (selectedAudio != null) {
-                            /*_this.C_ObjReferenceAudio$1 = selectedAudio
-                            console.log('选中音频', selectedAudio)*/
+                            _this.C_ObjInferenceTaskResultAudio$1 = selectedAudio
+                            console.log('选中音频', selectedAudio)
+                            
+                            const objTask = selectedAudio.objTask
+                            const objParam = selectedAudio.objParam
+                            const objAudio = selectedAudio.objAudio
+                            objTask.setParams(objParam)
+                            
+                            _this.config.gptSovitsVersion = objTask.gptSovitsVersion
+                            _this.config.gptModelName = objTask.gptModelName
+                            _this.config.gptModelPath = _this.gptModels.find(m => m.name === objTask.gptModelName && m.version === objTask.gptSovitsVersion)?.path
+                            _this.config.vitsModelName = objTask.vitsModelName
+                            _this.config.vitsModelPath = _this.vitsModels.find(m => m.name === objTask.gptModelName && m.version === objTask.gptSovitsVersion)?.path
+                            _this.config.topK = objTask.topK
+                            _this.config.topP = objTask.topP
+                            _this.config.temperature = objTask.temperature
+                            _this.config.textDelimiter = objTask.textDelimiter
+                            _this.config.speed = objTask.speed
+                            _this.C_ObjReferenceAudio$1 = objAudio.getObjReferenceAudio()
+                            
                             _this.render()
                         }
                         

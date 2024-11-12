@@ -22,7 +22,7 @@ class ReferenceAudioService:
 
     @staticmethod
     def get_reference_dir():
-        output_dir = f'{db_config.get_work_dir()}\\refer_audio'
+        output_dir = f'{db_config.get_role_work_dir()}\\refer_audio'
         # 创建输出目录，如果它不存在的话
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)

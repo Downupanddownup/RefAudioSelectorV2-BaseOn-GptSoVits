@@ -10,6 +10,7 @@ from server.service.result_evaluation.result_evaluation_service import ResultEva
 from server.tool.text_comparison.text_comparison import calculate_result
 from server.util.util import str_to_int
 import argparse
+from server.bean.system.role import Role
 
 
 def process(task_id: int):
@@ -52,6 +53,10 @@ def parse_arguments():
                         help="Path to the role name.")
 
     # Reference audio path
+    parser.add_argument("-c", "--role_category", type=str, required=True,
+                        help="Path to the role category.")
+
+    # Reference audio path
     parser.add_argument("-t", "--task_id", type=str, required=True,
                         help="Path to the task id.")
 
@@ -60,7 +65,7 @@ def parse_arguments():
 
 if __name__ == '__main__':
     cmd = parse_arguments()
-    db_config.update_db_path(cmd.role_name)
+    db_config.update_db_path(Role(category=cmd.role_category, name=cmd.role_name))
     process(
         task_id=str_to_int(cmd.task_id)
     )

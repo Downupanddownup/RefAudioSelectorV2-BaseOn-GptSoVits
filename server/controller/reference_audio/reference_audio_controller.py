@@ -117,7 +117,8 @@ async def start_compare_audio(request: Request):
 
     cmd = f'"{python_exec}" server/tool/speaker_verification/voice_similarity.py '
     cmd += f' -t "{task_id}"'
-    cmd += f' -r "{db_config.role_name}"'
+    cmd += f' -r "{db_config.role.name}"'
+    cmd += f' -c "{db_config.role.category}"'
 
     logger.info(cmd)
     p_similarity = Popen(cmd, shell=True)

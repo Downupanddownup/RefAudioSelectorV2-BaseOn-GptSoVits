@@ -38,7 +38,7 @@ class ObjInferenceTaskResultAudio(BaseModel):
         self.obj_param = obj_param
 
     def get_audio_directory(self) -> str:
-        return os.path.join(db_config.get_work_dir(), "inference_audio", f'task_{self.task_id}',
+        return os.path.join(db_config.get_role_work_dir(), "inference_audio", f'task_{self.task_id}',
                             f'compare_param_{self.compare_param_id}', f'text_{self.text_id}')
 
     def get_audio_file_path(self) -> str:

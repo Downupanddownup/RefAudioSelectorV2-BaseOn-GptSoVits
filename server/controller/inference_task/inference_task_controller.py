@@ -257,7 +257,7 @@ async def start_execute_inference_task(request: Request):
 async def open_model_file(request: Request):
     GptModel.create_dir()
     VitsModel.create_dir()
-    open_file(filepath=db_config.get_model_dir())
+    open_file(filepath=db_config.get_role_model_dir())
     return ResponseResult()
 
 
@@ -268,7 +268,8 @@ def start_task_audio_analysis(task_id):
 
     cmd = f'"{python_exec}" server/tool/speaker_verification/inference_task_voice_similarity.py '
     cmd += f' -t "{task_id}"'
-    cmd += f' -r "{db_config.role_name}"'
+    cmd += f' -r "{db_config.role.name}"'
+    cmd += f' -c "{db_config.role.category}"'
 
     logger.info(cmd)
     inference_task_audio_analysis = Popen(cmd, shell=True)
@@ -284,7 +285,8 @@ def start_task_asr_analysis(task_id):
 
     cmd = f'"{python_exec}" server/tool/asr/inference_task_asr.py '
     cmd += f' -t "{task_id}"'
-    cmd += f' -r "{db_config.role_name}"'
+    cmd += f' -r "{db_config.role.name}"'
+    cmd += f' -c "{db_config.role.category}"'
 
     logger.info(cmd)
     inference_task_asr_analysis = Popen(cmd, shell=True)
@@ -300,7 +302,8 @@ def start_task_text_similarity_analysis(task_id):
 
     cmd = f'"{python_exec}" server/tool/text_comparison/asr_text_process.py '
     cmd += f' -t "{task_id}"'
-    cmd += f' -r "{db_config.role_name}"'
+    cmd += f' -r "{db_config.role.name}"'
+    cmd += f' -c "{db_config.role.category}"'
 
     logger.info(cmd)
     inference_task_asr_text_analysis = Popen(cmd, shell=True)

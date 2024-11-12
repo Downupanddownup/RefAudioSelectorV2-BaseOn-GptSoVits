@@ -1,3 +1,17 @@
+class C_Role {
+    constructor(data) {
+        data = data || {};
+        this.category = data.category ? data.category : ''; // 分类
+        this.name = data.name || ''; // 角色名称
+    }
+}
+class C_RoleCategory {
+    constructor(data) {
+        data = data || {};
+        this.category = data.category ? data.category : ''; // 分类
+        this.roleList = data.roleList ? data.roleList.map(item => new C_Role(item)) : []; // 角色列表
+    }
+}
 class C_ObjReferenceAudio {//参考音频
     constructor(data) {
         data = data || {};
@@ -108,6 +122,18 @@ class C_ObjInferenceTaskAudio {//推理任务中，相关参考音频
         this.audioCategory = data.audioCategory || ''; // 音频分类
         this.audioLength = data.audioLength || 0; // 音频时长
         this.createTime = data.createTime ? new Date(data.createTime) : null; // 创建时间, 默认为当前时间
+    }
+    
+    getObjReferenceAudio() {
+        return new C_ObjReferenceAudio({
+            id: this.audioId,
+            audioName: this.audioName,
+            audioPath: this.audioPath,
+            content: this.audioContent,
+            language: this.audioLanguage,
+            category: this.audioCategory,
+            audioLength: this.audioLength,
+        })
     }
 }
 class C_ObjInferenceTaskCompareParams {//推理任务中，对比的变量

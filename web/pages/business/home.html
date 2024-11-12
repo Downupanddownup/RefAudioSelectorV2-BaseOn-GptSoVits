@@ -5,7 +5,7 @@
             constructor(viewId) {
                 this.viewId = viewId
                 this.tab = 1
-                this.currentRoleName = ''
+                this.currentRole = null
                 this.roleList = []
                 this.contentView = 'tabContentView'
             }
@@ -66,7 +66,9 @@
                     type: 'post',
                     success: function(res){
                         if (res.code == 0) {
-                            _this.initRoleList(res.data.roleName, res.data.roleList)
+                            const role = new C_Role(res.data.role)
+                            const categoryList = res.data.roleList ? res.data.roleList.map(item => new C_RoleCategory(item)) : []
+                            _this.initRoleList(role, categoryList)
                             _this.switchTab(1)
                         } else {
                             layui.layer.msg(res.msg)
@@ -78,18 +80,24 @@
                 })
             }
 
-            initRoleList(roleName, roleList) {
+            initRoleList(role, categoryList) {
                 
                 const _this = this
 
-                const data = roleList.map(item => {
+                const data = categoryList.map(i => {
                     return {
-                        name: item,
-                        value: item,
-                        selected: item === roleName
+                        name: i.category,
+                        children: i.roleList.map(j => {
+                            return {
+                                name: j.name,
+                                value: j.name,
+                                selected: j.category === role.category && j.name === role.name
+                            }
+                        })
                     }
                 })
-                _this.currentRoleName = roleName
+
+                _this.currentRole = role
                 _this.roleList = data
 
                 xmSelect.render({
@@ -99,6 +107,24 @@
                     radio: true,
                     clickClose: true,
                     filterable: true,
+                    filterMethod: function(val, item, index, prop){
+                        console.log('filter', {
+                            val: val,
+                            item: item,
+                            index: index,
+                            prop: prop
+                        })
+                        if(val == item.value){//把value相同的搜索出来
+                            return true;
+                        }
+                        if(item.name.indexOf(val) != -1){//名称中包含的搜索出来
+                            return true;
+                        }
+                        if (item.__node.parent.name.indexOf(val) != -1) {//父级分类中包含的搜索出来
+                            return true;
+                        }
+                        return false;//不知道的就不管了
+                    },
                     create: function(val, arr){
                         if(arr.length === 0){
                             return {
@@ -113,6 +139,7 @@
                             type: 'text',
                         }
                     },
+                    delay: 100,
                     data: data,
                     on: function(data){
                         //arr:  当前多选已选中的数据
@@ -126,34 +153,84 @@
                         //return []
                         const selectedRoleName = arr[0].name
 
+                        const temp = selectedRoleName.split('-')
+                        const category = temp.length > 1 ? temp[0] : '默认'
+                        const name = temp.length > 1 ? temp[1] : selectedRoleName
+
                         if (selectedRoleName) {
                             $.customAjax({
                                 url: BaseUrl + 'system/switch_role_workspace',
                                 type: 'POST',
                                 data: {
-                                    roleName: selectedRoleName
+                                    roleName: name,
+                                    roleCategory: category
                                 },
                                 success: function (data) {
                                     if (data.code == 0) {
                                         layui.layer.msg('切换成功')
-                                        if (!_this.roleList.find(item => item.value === selectedRoleName)) {
-                                            _this.roleList.forEach(item => item.selected = false)
-                                            _this.roleList.push({
-                                                name: selectedRoleName,
-                                                value: selectedRoleName,
-                                                selected: true
+
+                                        let find = false
+                                        _this.roleList.forEach(group => {
+                                            group.children.forEach(item => {
+                                                if (item.name === name) {
+                                                    find = true
+                                                }
                                             })
+                                        })
+
+                                        if (!find) {
+                                            let findCategory = false
+                                            _this.roleList.forEach(group => {
+                                                group.children.forEach(item => {
+                                                    item.selected = false
+                                                })
+                                                if (group.name === category) {
+                                                    findCategory = true
+                                                }
+                                            })
+                                            if (findCategory) {
+                                                _this.roleList.forEach(group => {
+                                                    if (group.name === category) {
+                                                        group.children.push({
+                                                            name: name,
+                                                            value: name,
+                                                            selected: true
+                                                        })
+                                                    }
+                                                })
+                                            } else {
+                                                _this.roleList.push({
+                                                    name: category,
+                                                    children: [{
+                                                        name: name,
+                                                        value: name,
+                                                        selected: true
+                                                    }]
+                                                })
+                                            }
+
                                             xmSelect.get('#roleList', true).update({
                                                 data:_this.roleList
                                             })
                                         }
-                                        _this.currentRoleName = selectedRoleName
+                                        
+                                        _this.currentRole = new C_Role({
+                                            name: name,
+                                            category: category
+                                        })
                                         _this.switchTab(_this.tab)
                                     } else {
                                         layui.layer.msg(data.msg)
                                     }
                                 }
                             })
+
+                            return [{
+                                name: name,
+                                value: name,
+                                selected: true
+                            }]
+                            
                         }
 
                     },

@@ -13,6 +13,7 @@ import server.common.log_config as log_config
 from server.common.time_util import timeit_decorator
 from server.util.util import str_to_int
 from server.dao.data_base_manager import db_config
+from server.bean.system.role import Role
 
 
 @timeit_decorator
@@ -56,6 +57,10 @@ def parse_arguments():
                         help="Path to the role name.")
 
     # Reference audio path
+    parser.add_argument("-c", "--role_category", type=str, required=True,
+                        help="Path to the role category.")
+
+    # Reference audio path
     parser.add_argument("-t", "--task_id", type=str, required=True,
                         help="Path to the task id.")
 
@@ -64,7 +69,7 @@ def parse_arguments():
 
 if __name__ == '__main__':
     cmd = parse_arguments()
-    db_config.update_db_path(cmd.role_name)
+    db_config.update_db_path(Role(category=cmd.role_category, name=cmd.role_name))
     compare_audio_and_generate_report(
         task_id=str_to_int(cmd.task_id)
     )

@@ -20,8 +20,8 @@ class VitsModel(BaseModel):
 
     @staticmethod
     def get_base_v1_dir():
-        return f'{db_config.get_model_dir()}/SoVITS_weights'
+        return f'{db_config.get_role_model_dir()}/SoVITS_weights'
 
     @staticmethod
     def get_base_v2_dir():
-        return f'{db_config.get_model_dir()}/SoVITS_weights_v2'
+        return f'{db_config.get_role_model_dir()}/SoVITS_weights_v2'

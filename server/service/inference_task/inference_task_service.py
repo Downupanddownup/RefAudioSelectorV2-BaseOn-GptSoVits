@@ -15,6 +15,7 @@ from server.bean.reference_audio.obj_reference_audio import ObjReferenceAudioFil
 from server.bean.result_evaluation.obj_inference_task_result_audio import ObjInferenceTaskResultAudio, \
     ObjInferenceTaskResultAudioFilter
 from server.bean.sound_fusion.obj_inference_task_sound_fusion_audio import ObjInferenceTaskSoundFusionAudio
+from server.bean.system.role import Role
 from server.common.custom_exception import CustomException
 from server.common.log_config import logger, p_logger
 from server.common.ras_api_monitor import RasApiMonitor
@@ -305,7 +306,7 @@ def generate_audio_files_parallel(task_cell: TaskCell, num_processes: int = 1) -
 
     with ProcessPoolExecutor(max_workers=num_processes) as executor:
         futures = [
-            executor.submit(generate_audio_files_for_group, db_config.role_name, task_result_audio_list)
+            executor.submit(generate_audio_files_for_group, db_config.role, task_result_audio_list)
             for task_result_audio_list in task_result_audio_list_list]
         for future in futures:
             future.result()  # 等待所有进程完成
@@ -313,11 +314,11 @@ def generate_audio_files_parallel(task_cell: TaskCell, num_processes: int = 1) -
     return True
 
 
-def generate_audio_files_for_group(role_name: str, task_result_audio_list: list[ObjInferenceTaskResultAudio]):
+def generate_audio_files_for_group(role: Role, task_result_audio_list: list[ObjInferenceTaskResultAudio]):
     try:
         start_time = time.perf_counter()  # 使用 perf_counter 获取高精度计时起点
 
-        db_config.update_db_path(role_name)
+        db_config.update_db_path(role)
 
         all_count = len(task_result_audio_list)
         has_generated_count = 0
