@@ -159,3 +159,16 @@ function createXmSelect(el, dataList, callback) {
         },
     })
 }
+
+function setTips(el, content) {
+    tippy(el, {
+        content:content,
+        allowHTML:true,
+        interactive:true,
+        duration: [200, 200],
+        animation:'scale',
+        inertia: true,
+        arrow: true,
+        // delay: [500, 200]
+    });
+}
