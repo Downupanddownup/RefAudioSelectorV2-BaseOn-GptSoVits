@@ -169,6 +169,7 @@ function setTips(el, content) {
         animation:'scale',
         inertia: true,
         arrow: true,
+        theme: 'material',
         // delay: [500, 200]
     });
 }
