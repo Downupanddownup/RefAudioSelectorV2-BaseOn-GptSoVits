@@ -47,6 +47,22 @@
                         _this.reloadAudioList()
                     })
 
+                    obj.find('#searchAudioName').on('keydown', function(event){
+                        if (event.key === 'Enter') {
+                            console.log('Enter key pressed');
+                            // 在这里处理回车事件
+                            _this.reloadAudioList()
+                        }
+                    })
+
+                    obj.find('#searchContent').on('keydown', function(event){
+                        if (event.key === 'Enter') {
+                            console.log('Enter key pressed');
+                            // 在这里处理回车事件
+                            _this.reloadAudioList()
+                        }
+                    })
+
                 });
                 return _this
             }
@@ -177,6 +193,16 @@
                         _this.selectedAudio = new C_ObjReferenceAudio(obj.data)
                     }
 
+                });
+
+                // 行单击事件( 双击事件为: rowDouble )
+                layui.table.on('row(audioList)', function(obj){
+                    var data = obj.data; // 获取当前行数据
+                    
+                    // 标注当前点击行的选中状态
+                    obj.setRowChecked({
+                        type: 'radio' // radio 单选模式；checkbox 复选模式
+                    });
                 });
                 
             }

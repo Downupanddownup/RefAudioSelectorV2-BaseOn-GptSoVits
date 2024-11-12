@@ -63,6 +63,22 @@
                         _this.openSoundFusionDialog()
                     })
                     
+                    obj.find('#searchAudioName').on('keydown', function(event){
+                        if (event.key === 'Enter') {
+                            console.log('Enter key pressed');
+                            // 在这里处理回车事件
+                            _this.reloadReferenceList()
+                        }
+                    })
+                    
+                    obj.find('#searchContent').on('keydown', function(event){
+                        if (event.key === 'Enter') {
+                            console.log('Enter key pressed');
+                            // 在这里处理回车事件
+                            _this.reloadReferenceList()
+                        }
+                    })
+                    
                     
                 });
                 return _this

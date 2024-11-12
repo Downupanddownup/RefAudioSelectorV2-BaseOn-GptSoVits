@@ -47,6 +47,22 @@
                         _this.reloadAudioList()
                     })
 
+                    obj.find('#searchAudioName').on('keydown', function(event){
+                        if (event.key === 'Enter') {
+                            console.log('Enter key pressed');
+                            // 在这里处理回车事件
+                            _this.reloadAudioList()
+                        }
+                    })
+
+                    obj.find('#searchContent').on('keydown', function(event){
+                        if (event.key === 'Enter') {
+                            console.log('Enter key pressed');
+                            // 在这里处理回车事件
+                            _this.reloadAudioList()
+                        }
+                    })
+
                     layui.element.tabChange('audioManagerTab', 1);
                 });
                 return _this
