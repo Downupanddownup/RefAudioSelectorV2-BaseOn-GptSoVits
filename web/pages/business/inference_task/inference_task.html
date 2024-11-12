@@ -107,6 +107,9 @@
                                 if (d.compareType === 'text_delimiter') {
                                     return '文本分隔符'
                                 }
+                                if (d.compareType === 'inp_refs') {
+                                    return '音色融合'
+                                }
                                 if (d.compareType === 'kpt') {
                                     return 'top_k、top_p、temperature'
                                 }
@@ -117,6 +120,9 @@
                                     return '所有参数'
                                 }
                                 return d.compareType;
+                            }},
+                        {field:'resultAudioCount', width:'20%', title: '结果数量', templet: function(d){
+                                return d.resultAudioCount;
                             }},
                         {field:'inferenceStatus', width:'15%', title: '推理状态', templet: function(d){
                                 if (d.inferenceStatus == 0) {

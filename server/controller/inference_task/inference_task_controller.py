@@ -11,6 +11,7 @@ from server.bean.inference_task.obj_inference_task_compare_params import ObjInfe
 from server.bean.inference_task.obj_inference_task_text import ObjInferenceTaskText
 from server.bean.inference_task.obj_inference_text import ObjInferenceTextFilter, ObjInferenceText
 from server.bean.inference_task.vits_model import VitsModel
+from server.bean.result_evaluation.obj_inference_task_result_audio import ObjInferenceTaskResultAudioFilter
 from server.bean.sound_fusion.obj_inference_task_sound_fusion_audio import ObjInferenceTaskSoundFusionAudio
 from server.common import config_params
 from server.common.custom_exception import CustomException
@@ -21,6 +22,7 @@ from server.service.inference_task.inference_task_service import InferenceTaskSe
 from server.service.inference_task.inference_text_service import InferenceTextService
 from server.service.inference_task.model_manager_service import ModelManagerService
 from server.service.reference_audio.reference_category_service import ReferenceCategoryService
+from server.service.result_evaluation.result_evaluation_service import ResultEvaluationService
 from server.util.util import str_to_int, open_file, ValidationUtils
 
 python_exec = sys.executable or "python"
@@ -84,6 +86,12 @@ async def get_inference_task_list(request: Request):
 
     count = InferenceTaskService.find_count(task_filter)
     task_list = InferenceTaskService.find_list(task_filter)
+
+    if task_list is not None and len(task_list) > 0:
+        for task in task_list:
+            task.result_audio_count = ResultEvaluationService.find_count(ObjInferenceTaskResultAudioFilter({
+                'task_id': task.id
+            }))
 
     return ResponseResult(data=task_list, count=count)
 

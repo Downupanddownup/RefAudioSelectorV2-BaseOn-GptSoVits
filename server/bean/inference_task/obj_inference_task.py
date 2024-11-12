@@ -35,6 +35,7 @@ class ObjInferenceTask(BaseModel):
         self.param_list = param_list
         self.text_list = text_list
         self.inp_refs_list = inp_refs_list
+        self.result_audio_count = 0
 
     def __str__(self):
         return (f"Id: {self.id}, TaskName: {self.task_name}, CompareType: {self.compare_type}, "

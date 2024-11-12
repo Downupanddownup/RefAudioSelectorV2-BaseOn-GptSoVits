@@ -72,6 +72,7 @@ async def set_default_params(request: Request):
         top_p=json_post_raw.get("top_p", None),
         temperature=json_post_raw.get("temperature", None),
         speed=json_post_raw.get("speed", None),
+        inp_refs=json_post_raw.get("inp_refs", []),
     ))
 
     temp_stream_mode = json_post_raw.get("stream_mode", None)

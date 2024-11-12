@@ -7,6 +7,8 @@
                 this.filter = new C_ObjInferenceTaskResultAudioFilter({})
                 this.taskList = []
                 this.selectedTask = null
+                this.categoryList = []
+                this.textList = []
             }
             
             loadData(){
@@ -45,8 +47,26 @@
                         _this.searchTaskResult()
                     })
                     
+                    _this.initSelect()
+                    
                     _this.renderSelect()
                 });
+            }
+
+            initSelect(){
+                const _this = this
+                xmSelect.render({
+                    el: `#${_this.viewId} #audioCategory`,
+                    data:_this.categoryList.map(item => {
+                        return {name: item, value: item}
+                    })
+                })
+                xmSelect.render({
+                    el: `#${_this.viewId} #textSelect`,
+                    data:_this.textList.map(item => {
+                        return {name: item.textContent, value: item.id}
+                    })
+                })
             }
             
             changeTask(taskId){
@@ -65,6 +85,10 @@
                         success: function(res){
                             if (res.code == 0) {
                                 _this.selectedTask = new C_ObjInferenceTask(res.data.task)
+                                
+                                _this.categoryList = [...new Set(_this.selectedTask.taskAudioList.map(a => a.audioCategory))];
+                                _this.textList = _this.selectedTask.taskTextList
+                                
                                 if (_this.selectedTask.compareType == 'refer_audio') {
                                     _this.filter.includeSort = 6
                                     _this.filter.audioSort = 'audioLength'
@@ -109,6 +133,11 @@
                 if (_this.selectedTask.compareType !== 'refer_audio') {
                     _this.filter.compareParamIds = xmSelect.get('#'+_this.viewId+' #compareParamIds', true).getValue('value')
                 }
+                const audioCategories = xmSelect.get('#'+_this.viewId+' #audioCategory', true).getValue('value')
+                if (audioCategories.length > 0) {
+                    _this.filter.audioIds = _this.selectedTask.taskAudioList.filter(a => audioCategories.includes(a.audioCategory)).map(a => a.id)
+                }
+                _this.filter.textIds = xmSelect.get('#'+_this.viewId+' #textSelect', true).getValue('value')
                 _this.filter.audioLengthStart = obj.find('#audioLengthStart').val()
                 _this.filter.audioLengthEnd = obj.find('#audioLengthEnd').val()
                 _this.filter.asrSimilarScoreStart = obj.find('#asrSimilarScoreStart').val()
@@ -185,15 +214,17 @@
                         <div id="compareParamIds"></div>
                     {{# } }}
                 </td>
-                <td>参考音频：</td>
+                <td>音频分类：</td>
                 <td>
                     已选中推理音频数量：<span id="audioSelectedCount">{{d.filter.audioIds.length}}</span>
                     <button type="button" class="layui-btn layui-btn-sm" id="audioSelect">音频筛选</button>
+                    <div id="audioCategory"></div>
                 </td>
                 <td>推理文本：</td>
                 <td>
                     已选中推理文本数量：<span id="textManagerSelectedCount">{{d.filter.textIds.length}}</span>
                     <button type="button" class="layui-btn layui-btn-sm" id="textManager">文本筛选</button>
+                    <div id="textSelect"></div>
                 </td>
             </tr>
             <tr>

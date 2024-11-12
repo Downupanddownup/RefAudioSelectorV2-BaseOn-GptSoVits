@@ -14,6 +14,7 @@
                 this.temperature = data.temperature || SysConfig.defaultTemperature; // 温度
                 this.textDelimiter = data.textDelimiter || SysConfig.defaultTextDelimiter; // 文本分隔符
                 this.speed = data.speed || SysConfig.defaultSpeed; // 语速
+                this.inp_refs = data.inp_refs || []; // 融合音频
                 this.streamMode = data.streamMode || true; // 是否开启流式
                 this.mediaType = data.mediaType || 'aac'; // 音频类型
             }
