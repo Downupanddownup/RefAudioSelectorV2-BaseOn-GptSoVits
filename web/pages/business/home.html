@@ -148,13 +148,26 @@
                         const change = data.change;
                         //isAdd, 此次操作是新增还是删除
                         const isAdd = data.isAdd;
+                        
+                        console.log('select', data)
 
                         //可以return一个数组, 代表想选中的数据
                         //return []
                         const selectedRoleName = arr[0].name
 
                         const temp = selectedRoleName.split('-')
-                        const category = temp.length > 1 ? temp[0] : '默认'
+                        let category = '默认'
+                        if ( temp.length > 1) {
+                            category = temp[0]
+                        } else {
+                            if (arr[0].__node.parent) {
+                                category = arr[0].__node.parent.name
+                            } else {
+                                category = '默认'
+                            }
+                        }
+                        
+                        
                         const name = temp.length > 1 ? temp[1] : selectedRoleName
 
                         if (selectedRoleName) {

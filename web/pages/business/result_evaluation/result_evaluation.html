@@ -64,7 +64,10 @@
                 xmSelect.render({
                     el: `#${_this.viewId} #textSelect`,
                     data:_this.textList.map(item => {
-                        return {name: item.textContent, value: item.id}
+                        return {
+                            name: item.textContent.length > 20 ? item.textContent.substring(0, 20) + '...' : item.textContent,
+                            value: item.id
+                        }
                     })
                 })
             }
@@ -216,15 +219,11 @@
                 </td>
                 <td>音频分类：</td>
                 <td>
-                    已选中推理音频数量：<span id="audioSelectedCount">{{d.filter.audioIds.length}}</span>
-                    <button type="button" class="layui-btn layui-btn-sm" id="audioSelect">音频筛选</button>
-                    <div id="audioCategory"></div>
+                    <div id="audioCategory" style="width: 200px"></div>
                 </td>
                 <td>推理文本：</td>
                 <td>
-                    已选中推理文本数量：<span id="textManagerSelectedCount">{{d.filter.textIds.length}}</span>
-                    <button type="button" class="layui-btn layui-btn-sm" id="textManager">文本筛选</button>
-                    <div id="textSelect"></div>
+                    <div id="textSelect" style="width: 200px"></div>
                 </td>
             </tr>
             <tr>

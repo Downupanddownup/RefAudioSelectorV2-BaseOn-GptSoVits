@@ -75,11 +75,12 @@
                     url: BaseUrl + 'task/get_inference_task_list', // 此处为静态模拟数据，实际使用时需换成真实接口
                     height: height, // 最大高度减去其他容器已占有的高度差
                     method: 'post',
-                    // cellMinWidth: 80,
+                    limit:50,
+                    limits:[50,100,150,200],
                     page: true,
                     cols: [[
                         {field:'index', width:'5%', title: '序号', type: 'numbers'},
-                        {field:'taskName', width:'20%', title: '任务名称', templet: function(d){
+                        {field:'taskName', width:'15%', title: '任务名称', templet: function(d){
                                 return d.taskName;
                             }},
                         {field:'compareType', width:'15%', title: '任务变量', templet: function(d){
@@ -121,10 +122,10 @@
                                 }
                                 return d.compareType;
                             }},
-                        {field:'resultAudioCount', width:'20%', title: '结果数量', templet: function(d){
+                        {field:'resultAudioCount', width:'10%', title: '结果数量', templet: function(d){
                                 return d.resultAudioCount;
                             }},
-                        {field:'inferenceStatus', width:'15%', title: '推理状态', templet: function(d){
+                        {field:'inferenceStatus', width:'10%', title: '推理状态', templet: function(d){
                                 if (d.inferenceStatus == 0) {
                                     return '待推理'
                                 }
@@ -148,7 +149,7 @@
                                 }
                                 return '否'
                             }},
-                        {field:'opt', width:'25%', title: '操作', templet: function(d){
+                        {field:'opt', width:'20%', title: '操作', templet: function(d){
                                 const html = []
                                 if (d.inferenceStatus == 0) {
                                     html.push(`<button type="button" class="layui-btn layui-btn-sm" data-task-edit="${d.id}">编辑</button>`)
