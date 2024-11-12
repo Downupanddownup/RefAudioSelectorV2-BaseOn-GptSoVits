@@ -64,36 +64,28 @@ class C_ObjInferenceTask {//推理任务
         if (['gpt_model','gv','all'].includes(compareType)) {
             this.gptSovitsVersion = param.gptSovitsVersion
             this.gptModelName = param.gptModelName
-            return
         }
         if (['vits_model','gv','all'].includes(compareType)) {
             this.gptSovitsVersion = param.gptSovitsVersion
             this.vitsModelName = param.vitsModelName
-            return
         }
         if (['top_k','kpt','all'].includes(compareType)) {
             this.topK = param.topK
-            return
         }
         if (['top_p','kpt','all'].includes(compareType)) {
             this.topP = param.topP
-            return
         }
         if (['temperature','kpt','all'].includes(compareType)) {
             this.temperature = param.temperature
-            return
         }
         if (['text_delimiter','all'].includes(compareType)) {
             this.textDelimiter = param.textDelimiter
-            return
         }
         if (['speed','all'].includes(compareType)) {
             this.speed = param.speed
-            return
         }
         if (['inp_refs','all'].includes(compareType)) {
             this.taskInpRefsAudioList = param.inpRefsAudioList
-            return
         }
     }
 }

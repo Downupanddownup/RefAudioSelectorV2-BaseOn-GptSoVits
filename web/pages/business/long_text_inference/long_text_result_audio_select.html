@@ -98,18 +98,25 @@
                         };
                     },
                     cols: [[
-                        {field:'radio', width:'5%', title: '选择', type: 'radio'},
-                        {field:'index', width:'5%', title: '序号', type: 'numbers'},
-                        {field:'taskName', width:'10%', title: '任务', templet: function(d){
-                                return d.objTask.taskName;
+                        {field:'radio', width:'3%', title: '选择', type: 'radio'},
+                        // {field:'index', width:'3%', title: '序号', type: 'numbers'},
+                        {field:'opt', width:'5%', title: '操作', templet: function(d){
+                                const html = []
+                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-detail="${d.id}">详情</button>`)
+                                return html.join(' ');
                             }},
-                        {field:'textId', width:'10%', title: '推理文本', templet: function(d){
-                                return d.objText.textContent;
+                        {field:'path', width:'22%', title: '结果音频', templet: function(d){
+                                return ` 
+                                 <audio controls class="custom-audio" data-result-audio="${d.id}">
+                                    <source src="${d.path}" type="audio/wav">
+                                    <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
+                                    您的浏览器不支持 HTML5 audio 标签。
+                                </audio>`
                             }},
-                        {field:'compareParamId', width:'8%', title: '对比参数', templet: function(d){
+                        {field:'compareParamId', width:'15%', title: '对比参数', templet: function(d){
                                 return d.objParam.getShowTxt(d.objTask.compareType);
                             }},
-                        {field:'audioId', width:'20%', title: '参考音频', templet: function(d){
+                        {field:'audioId', width:'22%', title: '参考音频', templet: function(d){
                                 const audio = d.objAudio
                                 return ` 
                                  <audio controls class="custom-audio" data-reference-audio="${d.id}">
@@ -118,15 +125,16 @@
                                     您的浏览器不支持 HTML5 audio 标签。
                                 </audio>`
                             }},
-                        {field:'path', width:'20%', title: '结果音频', templet: function(d){
-                                return ` 
-                                 <audio controls class="custom-audio" data-result-audio="${d.id}">
-                                    <source src="${d.path}" type="audio/wav">
-                                    <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
-                                    您的浏览器不支持 HTML5 audio 标签。
-                                </audio>`
+                        {field:'score', width:'4%', title: '评分', templet: function(d){
+                                return d.score;
                             }},
-                        {field:'status', width:'20%', title: '生成状态', templet: function(d){
+                        {field:'longTextScore', width:'6%', title: '长文评分', templet: function(d){
+                                return d.longTextScore;
+                            }},
+                        {field:'remark', width:'8%', title: '备注', sort: true, templet: function(d){
+                                return d.remark;
+                            }},
+                        {field:'status', width:'6%', title: '生成状态', templet: function(d){
                                 if (d.status == 0) {
                                     return '待生成'
                                 }
@@ -138,29 +146,22 @@
                                 }
                                 return '';
                             }},
-                        {field:'asrSimilarScore', width:'20%', title: '文本相似度', templet: function(d){
+                        {field:'taskName', width:'8%', title: '任务', templet: function(d){
+                                return d.objTask.taskName;
+                            }},
+                        {field:'textId', width:'20%', title: '推理文本', templet: function(d){
+                                return d.objText.textContent;
+                            }},
+                       /* {field:'asrSimilarScore', width:'20%', title: '文本相似度', templet: function(d){
                                 return d.asrSimilarScore.toFixed(4);
-                            }},
-                        {field:'audioSimilarScore', width:'20%', title: '音频相似度', templet: function(d){
+                            }},*/
+                        /*{field:'audioSimilarScore', width:'20%', title: '音频相似度', templet: function(d){
                                 return d.audioSimilarScore.toFixed(4);
-                            }},
-                        {field:'score', width:'8%', title: '评分', templet: function(d){
-                                return d.score;
-                            }},
-                        {field:'longTextScore', width:'8%', title: '长文评分', templet: function(d){
-                                return d.longTextScore;
-                            }},
-                        {field:'audioLength', width:'8%', title: '音频时长', sort: true, templet: function(d){
+                            }},*/
+                        /*{field:'audioLength', width:'6%', title: '音频时长', sort: true, templet: function(d){
                                 return d.audioLength.toFixed(1);
-                            }},
-                        {field:'remark', width:'8%', title: '备注', sort: true, templet: function(d){
-                                return d.remark;
-                            }},
-                        {field:'opt', width:'20%', title: '操作', templet: function(d){
-                                const html = []
-                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-detail="${d.id}">详情</button>`)
-                                return html.join(' ');
-                            }},
+                            }},*/
+                        
                     ]],
                     done: function(){
                         const audioElements = $('#'+_this.viewId+' audio.custom-audio');
@@ -185,7 +186,7 @@
                 });
 
                 // 复选框事件
-                layui.table.on('radio(audioList)', function(obj){
+               /* layui.table.on('radio(audioList)', function(obj){
                     console.log(obj); // 当前行的一些常用操作集合
                     console.log(obj.checked); // 当前是否选中状态
                     console.log(obj.data); // 选中行的相关数据
@@ -194,8 +195,22 @@
                         _this.selectedAudio = new C_ObjInferenceTaskResultAudio(obj.data)
                     }
 
-                });
+                });*/
 
+                // 行单击事件( 双击事件为: rowDouble )
+                layui.table.on('row(audioList)', function(obj){
+                    var data = obj.data; // 获取当前行数据
+
+                    console.log('row', data);
+
+                    _this.selectedAudio = new C_ObjInferenceTaskResultAudio(obj.data)
+
+                    // 标注当前点击行的选中状态
+                    obj.setRowChecked({
+                        type: 'radio' // radio 单选模式；checkbox 复选模式
+                    });
+                });
+                
             }
 
         }
