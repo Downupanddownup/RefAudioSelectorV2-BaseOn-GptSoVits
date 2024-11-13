@@ -23,6 +23,12 @@ class C_ObjFinishedProductManager {
         this.gptModelPath = data.gptModelPath || ''; // GPT模型路径
         this.vitsModelName = data.vitsModelName || ''; // Vits模型名称
         this.vitsModelPath = data.vitsModelPath || ''; // Vits模型路径
+        this.audioId = data.audioId || 0; // 音频id
+        this.audioName = data.audioName || ''; // 音频名称
+        this.audioPath = data.audioPath || ''; // 音频路径
+        this.content = data.content || ''; // 音频内容
+        this.language = data.language || ''; // 音频语种
+        this.audioLength = data.audioLength || 0; // 音频时长
         this.topK = data.topK || 0.0; // top_k值
         this.topP = data.topP || 0.0; // top_p值
         this.temperature = data.temperature || 0.0; // 温度

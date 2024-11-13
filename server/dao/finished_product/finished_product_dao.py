@@ -48,6 +48,12 @@ class FinishedProductDao:
                 gpt_model_path=data.get('GptModelPath'),
                 vits_model_name=data.get('VitsModelName'),
                 vits_model_path=data.get('VitsModelPath'),
+                audio_id=data.get('AudioId'),
+                audio_name=data.get('AudioName'),
+                audio_path=data.get('AudioPath'),
+                content=data.get('Content'),
+                language=data.get('Language'),
+                audio_length=data.get('AudioLength'),
                 top_k=data.get('TopK'),
                 top_p=data.get('TopP'),
                 temperature=data.get('Temperature'),
@@ -63,7 +69,7 @@ class FinishedProductDao:
     @staticmethod
     def add_finished_product(product: ObjFinishedProductManager) -> int:
         sql = '''
-            INSERT INTO tab_obj_finished_product_manager(Name,Category,GptSovitsVersion,GptModelName,GptModelPath,VitsModelName,VitsModelPath,TopK,TopP,Temperature,TextDelimiter,Speed,InpRefs,Score,Remark,CreateTime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'))
+            INSERT INTO tab_obj_finished_product_manager(Name,Category,GptSovitsVersion,GptModelName,GptModelPath,VitsModelName,VitsModelPath,AudioId,AudioName,AudioPath,Content,Language,AudioLength,TopK,TopP,Temperature,TextDelimiter,Speed,InpRefs,Score,Remark,CreateTime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'))
             '''
         return DBSlaveSQLExecutor.insert(sql, (
             product.name,
@@ -73,6 +79,12 @@ class FinishedProductDao:
             product.gpt_model_path,
             product.vits_model_name,
             product.vits_model_path,
+            product.audio_id,
+            product.audio_name,
+            product.audio_path,
+            product.content,
+            product.language,
+            product.audio_length,
             product.top_k,
             product.top_p,
             product.temperature,
@@ -86,7 +98,7 @@ class FinishedProductDao:
     @staticmethod
     def update_finished_product(product: ObjFinishedProductManager) -> int:
         sql = '''
-            UPDATE tab_obj_finished_product_manager SET Name=?,Category=?,GptSovitsVersion=?,GptModelName=?,GptModelPath=?,VitsModelName=?,VitsModelPath=?,TopK=?,TopP=?,Temperature=?,TextDelimiter=?,Speed=?,InpRefs=?,Score=?,Remark=? WHERE Id = ? 
+            UPDATE tab_obj_finished_product_manager SET Name=?,Category=?,GptSovitsVersion=?,GptModelName=?,GptModelPath=?,VitsModelName=?,VitsModelPath=?,AudioId=?,AudioName=?,AudioPath=?,Content=?,Language=?,AudioLength=?,TopK=?,TopP=?,Temperature=?,TextDelimiter=?,Speed=?,InpRefs=?,Score=?,Remark=? WHERE Id = ? 
             '''
         return DBSlaveSQLExecutor.execute_update(sql, (
             product.name,
@@ -96,6 +108,12 @@ class FinishedProductDao:
             product.gpt_model_path,
             product.vits_model_name,
             product.vits_model_path,
+            product.audio_id,
+            product.audio_name,
+            product.audio_path,
+            product.content,
+            product.language,
+            product.audio_length,
             product.top_k,
             product.top_p,
             product.temperature,

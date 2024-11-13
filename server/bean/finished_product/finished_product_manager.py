@@ -19,6 +19,12 @@ class ObjFinishedProductManager(BaseModel):
                  gpt_model_path: str = None,  # GPT模型路径
                  vits_model_name: str = None,  # Vits模型名称
                  vits_model_path: str = None,  # Vits模型路径
+                 audio_id: int = None,  # 音频id
+                 audio_name: str = None,  # 音频名称
+                 audio_path: str = None,  # 音频路径
+                 content: str = None,  # 音频内容
+                 language: str = None,  # 语言
+                 audio_length: int = None,  # 音频长度
                  top_k: int = None,  # top_k值
                  top_p: float = None,  # top_p值
                  temperature: float = None,  # 温度
@@ -36,6 +42,12 @@ class ObjFinishedProductManager(BaseModel):
         self.gpt_model_path = gpt_model_path  # GPT模型路径
         self.vits_model_name = vits_model_name  # Vits模型名称
         self.vits_model_path = vits_model_path  # Vits模型路径
+        self.audio_id = audio_id  # 音频id
+        self.audio_name = audio_name  # 音频名称
+        self.audio_path = audio_path  # 音频路径
+        self.content = content  # 音频内容
+        self.language = language  # 语言
+        self.audio_length = audio_length  # 音频长度
         self.top_k = top_k  # top_k值
         self.top_p = top_p  # top_p值
         self.temperature = temperature  # 温度

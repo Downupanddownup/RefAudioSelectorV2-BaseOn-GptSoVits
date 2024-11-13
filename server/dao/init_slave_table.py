@@ -19,6 +19,12 @@ def init_slave_table(db_path):
             GptModelPath TEXT,  -- GPT模型路径
             VitsModelName TEXT,  -- Vits模型名称
             VitsModelPath TEXT,  -- Vits模型路径
+            AudioId INTEGER,  -- 音频id
+            AudioName TEXT,  -- 音频名称
+            AudioPath TEXT,  -- 音频路径
+            Content TEXT,  -- 音频内容
+            Language TEXT,  -- 音频语种
+            AudioLength INTEGER,  -- 音频时长
             TopK REAL,  -- top_k值
             TopP REAL,  -- top_p值
             Temperature REAL,  -- 温度
