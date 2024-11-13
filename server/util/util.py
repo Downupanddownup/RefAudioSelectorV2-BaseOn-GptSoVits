@@ -2,6 +2,8 @@ import subprocess
 import sys
 import os
 import time
+import shutil
+from io import BytesIO
 
 from fastapi import UploadFile
 
@@ -167,7 +169,6 @@ def get_absolute_path(relative_path):
 
 
 async def save_file(file: UploadFile, new_path: str):
-
     # 将文件内容写入指定路径
     with open(new_path, "wb") as buffer:
         while True:
@@ -181,3 +182,68 @@ async def save_file(file: UploadFile, new_path: str):
         # 这里添加一个小的等待时间，根据实际情况调整
         time.sleep(1)  # 可选
 
+
+def delete_directory(temp_dir):
+    """
+    删除指定的目录及其所有内容。
+
+    参数:
+        temp_dir (str): 要删除的目录路径。
+    """
+    if os.path.exists(temp_dir):
+        shutil.rmtree(temp_dir)
+
+
+def zip_directory(source_dir, output_filename):
+    """
+    将给定目录及其所有子目录压缩成一个 ZIP 文件。
+
+    参数:
+        source_dir (str): 要压缩的源目录路径。
+        output_filename (str): 输出 ZIP 文件的名称（不包括扩展名）。
+    """
+    # 确保输出文件名没有 .zip 扩展名
+    if not output_filename.endswith('.zip'):
+        output_filename += '.zip'
+
+    # 创建压缩文件
+    shutil.make_archive(output_filename, 'zip', source_dir)
+
+
+def read_zip_to_memory(zip_file_path: str) -> BytesIO:
+    """
+    将 ZIP 文件读取到内存中，并返回一个 BytesIO 对象。
+
+    参数:
+        zip_file_path (str): ZIP 文件的路径。
+
+    返回:
+        BytesIO: 包含 ZIP 文件内容的内存对象。
+    """
+    # 打开 ZIP 文件并读取其内容到内存中
+    with open(zip_file_path, 'rb') as file:
+        zip_data = file.read()
+
+    # 创建一个 BytesIO 对象并将 ZIP 文件内容写入其中
+    zip_in_memory = BytesIO(zip_data)
+
+    return zip_in_memory
+
+
+def copy_file_to_dest_file(src_file, dest_file):
+    """
+    将指定文件复制到另一个指定文件路径，确保目标文件路径的所有上级目录存在。
+
+    参数:
+        src_file (str): 源文件的路径。
+        dest_file (str): 目标文件的路径。
+    """
+    # 获取目标文件的上级目录
+    dest_dir = os.path.dirname(dest_file)
+
+    # 确保目标目录存在，如果不存在则创建
+    if not os.path.exists(dest_dir):
+        os.makedirs(dest_dir)
+
+    # 复制文件
+    shutil.copy2(src_file, dest_file)

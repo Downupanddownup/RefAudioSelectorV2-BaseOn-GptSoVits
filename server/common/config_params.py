@@ -4,6 +4,8 @@ from server.util.util import str_to_int
 config = config_manager.get_config()
 
 # [Base]
+# 版本号
+version = config.get_base('version')
 # Gpt-Sovits2项目路径
 gsv2_dir = config.get_base('gsv2_dir')
 # 推理任务并发进程数量
