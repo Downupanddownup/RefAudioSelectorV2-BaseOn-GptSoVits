@@ -79,6 +79,7 @@ class ObjFinishedProductManagerFilter(Filter):
     def __init__(self, form_data):
         super().__init__(form_data)
         self.id = form_data.get('id')
+        self.ids = form_data.get('ids')
         self.category = form_data.get('category')
         self.category_list_str = form_data.get('category_list_str')
 
@@ -88,6 +89,8 @@ class ObjFinishedProductManagerFilter(Filter):
         if not ValidationUtils.is_empty(self.id):
             sql += f" and id = ? "
             condition.append(f"{self.id}")
+        if not ValidationUtils.is_empty(self.ids):
+            sql += f" and id in ({self.ids}) "
         if not ValidationUtils.is_empty(self.category):
             sql += f" and category = ? "
             condition.append(f"{self.category}")

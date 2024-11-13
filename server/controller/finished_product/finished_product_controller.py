@@ -1,9 +1,12 @@
 from fastapi import APIRouter, Request
+from fastapi.responses import StreamingResponse
 
 from server.bean.finished_product.finished_product_manager import ObjFinishedProductManagerFilter, \
     ObjFinishedProductManager
+from server.bean.finished_product.product_param_config_template import ProductParamConfigTemplate
 from server.bean.sound_fusion.obj_sound_fusion_audio import ObjSoundFusionAudio
 from server.common.response_result import ResponseResult
+from server.dao.data_base_manager import db_config
 from server.service.finished_product.finished_product_service import FinishedProductService
 from server.service.inference_task.model_manager_service import ModelManagerService
 from server.util.util import str_to_int
@@ -113,3 +116,45 @@ async def update_finished_product(request: Request):
         return ResponseResult(code=1, msg="修改失败")
 
     return ResponseResult(msg="修改成功")
+
+
+@router.post("/check_download_finished_product_list")
+async def check_download_finished_product_list(request: Request):
+    form_data = await request.form()
+    product_ids = form_data.get('product_ids')
+    is_merge = str_to_int(form_data.get('is_merge'), 0)
+    need_model = str_to_int(form_data.get('need_model'), 1)
+    if product_ids is None:
+        return ResponseResult(code=1, msg="参数错误")
+
+    product_list = FinishedProductService.find_list(ObjFinishedProductManagerFilter({'ids': product_ids}))
+
+    if product_list is None or len(product_list) <= 0:
+        return ResponseResult(code=1, msg="未找到相关数据")
+
+    return ResponseResult()
+
+
+@router.post("/download_finished_product_list")
+async def download_finished_product_list(request: Request):
+    form_data = await request.form()
+    product_ids = form_data.get('product_ids')
+    is_merge = str_to_int(form_data.get('is_merge'), 0)
+    need_model = str_to_int(form_data.get('need_model'), 1)
+
+    product_list = FinishedProductService.find_list(ObjFinishedProductManagerFilter({'ids': product_ids}))
+
+    config_template = ProductParamConfigTemplate(db_config.role.name, is_merge == 1, need_model == 1, product_list)
+    zip_in_memory = config_template.generate_zip_file()
+
+    # 将指针移动到开始位置
+    zip_in_memory.seek(0)
+
+    # 设置响应头
+    headers = {
+        'Content-Disposition': 'attachment; filename=example.zip',
+        'Content-Type': 'application/zip'
+    }
+
+    # 使用 StreamingResponse 返回 BytesIO 对象
+    return StreamingResponse(zip_in_memory, headers=headers)

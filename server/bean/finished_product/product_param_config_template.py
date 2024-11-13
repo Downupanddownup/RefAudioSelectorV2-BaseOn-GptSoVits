@@ -66,7 +66,7 @@ class ParamItem:
         rendered_config = template.render(self)
         return rendered_config
 
-    def generate_model_file(self, directory: str, role_name: str, is_merge: bool, template: Template):
+    def generate_model_file(self, directory: str, role_name: str, is_merge: bool,need_model: bool, template: Template):
         json_str = self.generate_json_from_template(template)
         real_obj = json.loads(json_str)
         model_dir = self.get_model_dir(directory, role_name, is_merge)
@@ -74,13 +74,14 @@ class ParamItem:
         write_text_to_file(json_str, config_file_path)
         self.copy_file(model_dir, real_obj)
 
-    def copy_file(self, model_dir: str, real_obj: dict):
-        gpt_path = real_obj.get('gpt_path')
-        real_gpt_path = os.path.join(model_dir, gpt_path)
-        copy_file_to_dest_file(self.gpt_model_path, real_gpt_path)
-        sovits_path = real_obj.get('sovits_path')
-        real_sovits_path = os.path.join(model_dir, sovits_path)
-        copy_file_to_dest_file(self.vits_model_path, real_sovits_path)
+    def copy_file(self, model_dir: str, real_obj: dict, need_model: bool):
+        if need_model:
+            gpt_path = real_obj.get('gpt_path')
+            real_gpt_path = os.path.join(model_dir, gpt_path)
+            copy_file_to_dest_file(self.gpt_model_path, real_gpt_path)
+            sovits_path = real_obj.get('sovits_path')
+            real_sovits_path = os.path.join(model_dir, sovits_path)
+            copy_file_to_dest_file(self.vits_model_path, real_sovits_path)
         json_product_list = real_obj.get('product_list')
         # 使用 enumerate 函数
         for index, product in enumerate(self.product_list):
@@ -102,9 +103,10 @@ class ParamItem:
 
 
 class ProductParamConfigTemplate:
-    def __init__(self, role_name, is_merge: bool, product_list):
+    def __init__(self, role_name, is_merge: bool,need_model: bool, product_list):
         self.role_name = role_name  # 角色名称
         self.is_merge = is_merge  # 是否合并
+        self.need_model = need_model  # 是否需要包含模型
         self.param_item_list = []
         # 创建模板对象
         self.template = Template(config_template)
@@ -147,7 +149,7 @@ class ProductParamConfigTemplate:
 
         try:
             for param_item in self.param_item_list:
-                param_item.generate_model_file(temp_dir, self.role_name, self.is_merge, self.template)
+                param_item.generate_model_file(temp_dir, self.role_name, self.is_merge, self.need_model, self.template)
 
             zip_file_path = f'{temp_dir}/{self.role_name}.zip'
             zip_directory(temp_dir, zip_file_path)
