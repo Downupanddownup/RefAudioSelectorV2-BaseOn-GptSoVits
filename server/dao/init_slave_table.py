@@ -10,6 +10,29 @@ def init_slave_table(db_path):
 
     # 创建一个新表
     cursor.execute('''
+        CREATE TABLE tab_obj_finished_product_manager (
+            Id INTEGER PRIMARY KEY AUTOINCREMENT,  -- 自增编号
+            Name TEXT,  -- 成品名称
+            Category TEXT,  -- 分类
+            GptSovitsVersion TEXT,  -- 模型版本
+            GptModelName TEXT,  -- GPT模型名称
+            GptModelPath TEXT,  -- GPT模型路径
+            VitsModelName TEXT,  -- Vits模型名称
+            VitsModelPath TEXT,  -- Vits模型路径
+            TopK REAL,  -- top_k值
+            TopP REAL,  -- top_p值
+            Temperature REAL,  -- 温度
+            TextDelimiter TEXT,  -- 文本分隔符
+            Speed REAL,  -- 语速
+            InpRefs TEXT,  -- 融合音频，json字符串
+            Score INTEGER,  -- 评分
+            Remark TEXT,  -- 备注
+            CreateTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- 创建时间
+        );
+    ''')
+
+    # 创建一个新表
+    cursor.execute('''
         CREATE TABLE IF NOT EXISTS tab_obj_inference_task_sound_fusion_audio (
             Id INTEGER PRIMARY KEY AUTOINCREMENT, -- 自增编号
             TaskId INTEGER DEFAULT 0 ,-- 任务id
@@ -70,6 +93,9 @@ def init_slave_table(db_path):
             Category TEXT COMMENT '音频分类',
             AudioLength INTEGER COMMENT '音频时长',
             ValidOrNot INTEGER COMMENT '是否有效 1 有效 0 无效' DEFAULT 1,
+            Score INTEGER COMMENT '评分',
+            LongTextScore INTEGER COMMENT '长文评分',
+            Remark TEXT COMMENT '备注',
             CreateTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- SQLite中默认值可以直接设置
         );
     ''')
@@ -92,6 +118,7 @@ def init_slave_table(db_path):
             InferenceStatus INTEGER COMMENT '推理状态 0 待推理 1 推理中 2 推理完成' DEFAULT 0,
             ExecuteTextSimilarity INTEGER COMMENT '是否已执行文本相似度 0 否 1 是' DEFAULT 0,
             ExecuteAudioSimilarity INTEGER COMMENT '是否已执行音频相似度 0 否 1 是' DEFAULT 0,
+            Conclusion TEXT COMMENT '结论',
             CreateTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- SQLite中默认值可以直接设置
         );
     ''')

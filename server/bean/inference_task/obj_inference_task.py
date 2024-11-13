@@ -13,6 +13,7 @@ class ObjInferenceTask(BaseModel):
                  top_p=None, temperature=None, text_delimiter=None,
                  speed=None, other_parameters=None, create_time=None,
                  inference_status=0, execute_text_similarity=0, execute_audio_similarity=0,
+                 conclusion: str = None,
                  audio_list: list[ObjInferenceTaskAudio] = None, param_list: list[ObjInferenceTaskCompareParams] = None,
                  text_list: list[ObjInferenceTaskText] = None, inp_refs_list: list[ObjInferenceTaskSoundFusionAudio] = None):
         self.id = id  # 主键ID，允许从外部传入
@@ -30,6 +31,7 @@ class ObjInferenceTask(BaseModel):
         self.inference_status = inference_status  # 推理状态 0 待推理 1 推理中 2 推理完成
         self.execute_text_similarity = execute_text_similarity  # 是否已执行文本相似度 0 否 1 是
         self.execute_audio_similarity = execute_audio_similarity  # 是否已执行音频相似度 0 否 1 是
+        self.conclusion = conclusion  # 任务结论
         self.create_time = create_time  # 创建时间，默认为当前时间
         self.audio_list = audio_list
         self.param_list = param_list

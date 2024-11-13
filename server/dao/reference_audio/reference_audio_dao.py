@@ -48,13 +48,16 @@ class ReferenceAudioDao:
                                           category=data.get('Category'),
                                           audio_length=data.get('AudioLength'),
                                           valid_or_not=data.get('ValidOrNot'),
+                                          score=data.get('Score'),
+                                          long_text_score=data.get('LongTextScore'),
+                                          remark=data.get('Remark'),
                                           create_time=data.get('CreateTime')))
         return list
 
     @staticmethod
     def batch_insert_reference_audio(audio_list: list[ObjReferenceAudio]) -> int:
         sql = '''
-        INSERT INTO tab_obj_reference_audio(AudioName,AudioPath,Content,Language,Category,AudioLength,ValidOrNot,CreateTime) VALUES (?,?,?,?,?,?,?,datetime('now'))
+        INSERT INTO tab_obj_reference_audio(AudioName,AudioPath,Content,Language,Category,AudioLength,ValidOrNot,Score,LongTextScore,Remark,CreateTime) VALUES (?,?,?,?,?,?,?,?,?,?,datetime('now'))
         '''
         return DBSlaveSQLExecutor.batch_execute(sql, [(
             x.audio_name,
@@ -63,6 +66,9 @@ class ReferenceAudioDao:
             x.language,
             x.category,
             x.audio_length,
+            x.score,
+            x.long_text_score,
+            x.remark,
             x.valid_or_not
         ) for x in audio_list])
 
@@ -76,12 +82,13 @@ class ReferenceAudioDao:
     @staticmethod
     def update_reference_audio(audio: ObjReferenceAudio) -> int:
         sql = f'''
-        UPDATE tab_obj_reference_audio SET AudioName=?,Content=?,Language=?,Category=? WHERE Id = ? 
+        UPDATE tab_obj_reference_audio SET AudioName=?,Content=?,Language=?,Category=?,Remark=? WHERE Id = ? 
         '''
         return DBSlaveSQLExecutor.execute_update(sql, (
             audio.audio_name,
             audio.content,
             audio.language,
             audio.category,
+            audio.remark,
             audio.id
         ))

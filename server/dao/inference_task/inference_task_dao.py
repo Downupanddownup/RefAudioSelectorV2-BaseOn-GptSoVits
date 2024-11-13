@@ -58,6 +58,7 @@ class InferenceTaskDao:
                 inference_status=data.get('InferenceStatus'),
                 execute_text_similarity=data.get('ExecuteTextSimilarity'),
                 execute_audio_similarity=data.get('ExecuteAudioSimilarity'),
+                conclusion=data.get('Conclusion'),
                 create_time=data.get('CreateTime')
             ))
         return text_list
@@ -65,7 +66,7 @@ class InferenceTaskDao:
     @staticmethod
     def insert_inference_task(task: ObjInferenceTask) -> int:
         sql = '''
-            INSERT INTO tab_obj_inference_task(TaskName,CompareType,GptSovitsVersion,GptModelName,VitsModelName,TopK,TopP,Temperature,TextDelimiter,Speed,OtherParameters,InferenceStatus,ExecuteTextSimilarity,ExecuteAudioSimilarity,CreateTime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'))
+            INSERT INTO tab_obj_inference_task(TaskName,CompareType,GptSovitsVersion,GptModelName,VitsModelName,TopK,TopP,Temperature,TextDelimiter,Speed,OtherParameters,InferenceStatus,ExecuteTextSimilarity,ExecuteAudioSimilarity,Conclusion,CreateTime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'))
             '''
         return DBSlaveSQLExecutor.insert(sql, (
             task.task_name,
@@ -81,6 +82,7 @@ class InferenceTaskDao:
             task.other_parameters,
             task.inference_status,
             task.execute_text_similarity,
+            task.conclusion,
             task.execute_audio_similarity
         ))
 

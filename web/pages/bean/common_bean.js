@@ -12,6 +12,28 @@ class C_RoleCategory {
         this.roleList = data.roleList ? data.roleList.map(item => new C_Role(item)) : []; // 角色列表
     }
 }
+class C_ObjFinishedProductManager {
+    constructor(data) {
+        data = data || {};
+        this.id = data.id || 0; // 自增编号
+        this.name = data.name || ''; // 成品名称
+        this.category = data.category || ''; // 分类
+        this.gptSovitsVersion = data.gptSovitsVersion || ''; // 模型版本
+        this.gptModelName = data.gptModelName || ''; // GPT模型名称
+        this.gptModelPath = data.gptModelPath || ''; // GPT模型路径
+        this.vitsModelName = data.vitsModelName || ''; // Vits模型名称
+        this.vitsModelPath = data.vitsModelPath || ''; // Vits模型路径
+        this.topK = data.topK || 0.0; // top_k值
+        this.topP = data.topP || 0.0; // top_p值
+        this.temperature = data.temperature || 0.0; // 温度
+        this.textDelimiter = data.textDelimiter || ''; // 文本分隔符
+        this.speed = data.speed || 0.0; // 语速
+        this.inpRefs = data.inpRefs || ''; // 融合音频，json字符串
+        this.score = data.score || 0; // 评分
+        this.remark = data.remark || ''; // 备注
+        this.createTime = data.createTime; // 创建时间
+    }
+}
 class C_ObjReferenceAudio {//参考音频
     constructor(data) {
         data = data || {};
@@ -22,6 +44,9 @@ class C_ObjReferenceAudio {//参考音频
         this.language = data.language || ''; // 音频语种
         this.category = data.category || ''; // 音频分类
         this.audioLength = data.audioLength || 0; // 音频时长
+        this.score = data.score || 0; // 评分
+        this.longTextScore = data.longTextScore || 0; // 长文评分
+        this.remark = data.remark || ''; // 备注
         this.createTime = data.createTime; // 创建时间, 默认为当前时间
     }
     
@@ -48,6 +73,7 @@ class C_ObjInferenceTask {//推理任务
         this.inferenceStatus = data.inferenceStatus || 0; // 推理状态 0 待推理 1 推理中 2 推理完成
         this.executeTextSimilarity = data.executeTextSimilarity || 0;//是否已执行文本相似度 0 否 1 是
         this.executeAudioSimilarity = data.executeAudioSimilarity || 0;//是否已执行音频相似度 0 否 1 是
+        this.conclusion = data.conclusion || ''; // 任务结论
         this.createTime = data.createTime; // 创建时间, 默认为当前时间
         this.taskTextList = data.textList ? data.textList.map(item => new C_ObjInferenceTaskText(item)) : [];
         this.taskAudioList = data.audioList ? data.audioList.map(item => new C_ObjInferenceTaskAudio(item)) : [];
