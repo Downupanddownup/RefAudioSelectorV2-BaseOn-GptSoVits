@@ -15,7 +15,7 @@ config_template = """
     "version": "{{ version }}",
     "gpt_path": "{{ gpt_sovits_version }}/{{ gpt_model_name }}",
     "sovits_path": "{{ gpt_sovits_version }}/{{ vits_model_name }}",
-    "introduction": "GPT-Sovits的微调模型，源自RAS-V2",
+    "introduction": "RAS-V2导出的基于GPT-Sovits的微调模型",
     "product_list": [
         {% for audio in product_list %}
             {
