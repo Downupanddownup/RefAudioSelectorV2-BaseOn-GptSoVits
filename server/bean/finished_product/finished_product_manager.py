@@ -1,4 +1,8 @@
+import json
 from server.bean.base_model import BaseModel
+from server.bean.sound_fusion.obj_sound_fusion_audio import ObjSoundFusionAudio
+from server.common.filter import Filter
+from server.util.util import ValidationUtils
 
 
 class ObjFinishedProductManager(BaseModel):
@@ -7,7 +11,7 @@ class ObjFinishedProductManager(BaseModel):
     """
 
     def __init__(self,
-                 id: str = None,  # 自增编号
+                 id: int = None,  # 自增编号
                  name: str = None,  # 成品名称
                  category: str = None,  # 分类
                  gpt_sovits_version: str = None,  # 模型版本
@@ -15,15 +19,15 @@ class ObjFinishedProductManager(BaseModel):
                  gpt_model_path: str = None,  # GPT模型路径
                  vits_model_name: str = None,  # Vits模型名称
                  vits_model_path: str = None,  # Vits模型路径
-                 top_k: str = None,  # top_k值
-                 top_p: str = None,  # top_p值
-                 temperature: str = None,  # 温度
+                 top_k: int = None,  # top_k值
+                 top_p: float = None,  # top_p值
+                 temperature: float = None,  # 温度
                  text_delimiter: str = None,  # 文本分隔符
-                 speed: str = None,  # 语速
+                 speed: float = None,  # 语速
                  inp_refs: str = None,  # 融合音频，json字符串
-                 score: str = None,  # 评分
+                 score: int = None,  # 评分
                  remark: str = None,  # 备注
-                 create_time: str = None):  # 创建时间
+                 create_time=None):  # 创建时间
         self.id = id  # 自增编号
         self.name = name  # 成品名称
         self.category = category  # 分类
@@ -38,6 +42,44 @@ class ObjFinishedProductManager(BaseModel):
         self.text_delimiter = text_delimiter  # 文本分隔符
         self.speed = speed  # 语速
         self.inp_refs = inp_refs  # 融合音频，json字符串
+        self.sound_fusion_list = []  # 融合音频
         self.score = score  # 评分
         self.remark = remark  # 备注
         self.create_time = create_time  # 创建时间
+        self.set_sound_fusion_list_from_json(self.inp_refs)
+
+    def set_sound_fusion_list(self, sound_fusion_list: list[ObjSoundFusionAudio]):
+        self.sound_fusion_list = sound_fusion_list
+        if sound_fusion_list is not None:
+            self.inp_refs = json.dumps([x.to_dict() for x in sound_fusion_list])
+        else:
+            self.inp_refs = None
+
+    def set_sound_fusion_list_from_json(self, inp_refs: str):
+        if inp_refs is not None:
+            dict_list = json.loads(inp_refs)
+            self.sound_fusion_list = [ObjSoundFusionAudio.from_json_string(d) for d in dict_list]
+        else:
+            self.sound_fusion_list = []
+
+
+class ObjFinishedProductManagerFilter(Filter):
+    def __init__(self, form_data):
+        super().__init__(form_data)
+        self.id = form_data.get('id')
+        self.category = form_data.get('category')
+        self.category_list_str = form_data.get('category_list_str')
+
+    def make_sql(self) -> []:
+        sql = ''
+        condition = []
+        if not ValidationUtils.is_empty(self.id):
+            sql += f" and id = ? "
+            condition.append(f"{self.id}")
+        if not ValidationUtils.is_empty(self.category):
+            sql += f" and category = ? "
+            condition.append(f"{self.category}")
+        if not ValidationUtils.is_empty(self.category_list_str):
+            sql += f" and category in ({self.category_list_str}) "
+
+        return sql, tuple(condition)

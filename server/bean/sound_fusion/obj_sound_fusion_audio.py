@@ -1,4 +1,4 @@
-import datetime
+import json
 
 from server.bean.base_model import BaseModel
 from server.common.filter import Filter
@@ -19,6 +19,39 @@ class ObjSoundFusionAudio(BaseModel):
         self.audio_length = audio_length  # 音频时长
         self.remark = remark  # 备注
         self.create_time = create_time  # 创建时间
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'role_name': self.role_name,
+            'audio_name': self.audio_name,
+            'audio_path': self.audio_path,
+            'content': self.content,
+            'language': self.language,
+            'category': self.category,
+            'audio_length': self.audio_length,
+            'remark': self.remark,
+            'create_time': self.create_time
+        }
+
+    def to_json_string(self):
+        return json.dumps(self.to_dict())
+
+    @classmethod
+    def from_json_string(cls, json_str):
+        data = json.loads(json_str)
+        return cls(
+            id=data.get('id'),
+            role_name=data.get('role_name'),
+            audio_name=data.get('audio_name'),
+            audio_path=data.get('audio_path'),
+            content=data.get('content'),
+            language=data.get('language'),
+            category=data.get('category'),
+            audio_length=data.get('audio_length'),
+            remark=data.get('remark'),
+            create_time=data.get('create_time')
+        )
 
     def __str__(self):
         return f"TabObjSoundFusionAudio(id={self.id}, role_name='{self.role_name}', " \

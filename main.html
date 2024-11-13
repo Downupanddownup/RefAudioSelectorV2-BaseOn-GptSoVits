@@ -42,14 +42,12 @@
 <script src="web/pages/common/wavesurfer.js"></script>
 <script>
   
-  let Home = null
-  
   window.onload = function(){
     layui.use(function(){
       
       CommonSpace.customJquery($)
       CommonSpace.loadHtmls([
-              'web/pages/business/audio_packaging/audio_packaging.html',
+              'web/pages/business/finished_product/finished_product.html',
               'web/pages/business/inference_task/inference_task.html',
               'web/pages/business/inference_task/task_detail.html',
               'web/pages/business/inference_task/reference_select.html',
@@ -77,7 +75,7 @@
               'web/pages/business/home.html',
       ],function () {
 
-        Home = HomeSpace.getHome('homeView').render()
+        window.HomePage = HomeSpace.getHome('homeView').render()
         
       })
 

@@ -47,7 +47,7 @@ const SysConfig = (function () {
         }
     ]
     
-    const defaultGptSovitsVersion = 'v1'
+    const defaultGptSovitsVersion = 'v2'
     const defaultTopK = 12
     const defaultTopP = 0.6
     const defaultTemperature = 0.6

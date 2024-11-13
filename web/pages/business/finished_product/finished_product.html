@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <script>
-    const AudioPackagingSpace = (function () {
-        class C_AudioPackaging {
+    const FinishedProductSpace = (function () {
+        class C_FinishedProduct {
             constructor(viewId) {
                 this.viewId = viewId
             }
 
             render() {
                 const _this = this
-                const getTpl = $('#audioPackagingTemplate').html(); // 获取模板字符
+                const getTpl = $('#finishedProductTemplate').html(); // 获取模板字符
                 // 渲染并输出结果
                 layui.laytpl(getTpl).render(_this, function(html){
                     const obj = $('#'+_this.viewId)
@@ -18,16 +18,16 @@
             }
         }
         
-        function getAudioPackaging(viewId) {
-            return new C_AudioPackaging(viewId)
+        function getFinishedProduct(viewId) {
+            return new C_FinishedProduct(viewId)
         }
         
         return {
-            getAudioPackaging: getAudioPackaging
+            getFinishedProduct: getFinishedProduct
         }
     })()
 </script>
 
-<script id="audioPackagingTemplate" type="text/html">
+<script id="finishedProductTemplate" type="text/html">
     音频打包
 </script>
