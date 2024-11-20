@@ -1,12 +1,12 @@
 from server.bean.base_model import BaseModel
-from server.bean.tts_correction.obj_tts_correction_task_detail import TabObjTtsCorrectionTaskDetail
+from server.bean.tts_correction.obj_tts_correction_task_detail import ObjTtsCorrectionTaskDetail
 from server.common.filter import Filter
 from server.util.util import str_to_int, ValidationUtils
 
 
 class ObjTtsCorrectionTask(BaseModel):
     def __init__(self, id=0, task_name=None, text_id=None, product_id=None, inference_status=None, remark=None,
-                 create_time=None,detail_list: list[TabObjTtsCorrectionTaskDetail] = None):
+                 create_time=None,detail_list: list[ObjTtsCorrectionTaskDetail] = None):
         self.id = id  # 自增编号
         self.task_name = task_name  # 任务名称
         self.text_id = text_id  # 推理文本id
