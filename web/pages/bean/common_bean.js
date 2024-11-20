@@ -65,7 +65,7 @@ class C_ObjFinishedProductManager {
         this.textDelimiter = data.textDelimiter || ''; // 文本分隔符
         this.speed = data.speed || 0.0; // 语速
         this.inpRefs = data.inpRefs || ''; // 融合音频，json字符串
-        this.sound_fusion_list = data.sound_fusion_list.map(item => new C_ObjSoundFusionAudio(item)) || [];//融合音频
+        this.sound_fusion_list = data.sound_fusion_list ? data.sound_fusion_list.map(item => new C_ObjSoundFusionAudio(item)) : [];//融合音频
         this.score = data.score || 0; // 评分
         this.remark = data.remark || ''; // 备注
         this.createTime = data.createTime; // 创建时间

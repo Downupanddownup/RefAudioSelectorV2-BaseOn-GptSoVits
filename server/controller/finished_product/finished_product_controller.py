@@ -28,13 +28,12 @@ async def get_finished_product_list(request: Request):
 @router.post("/load_finished_product_detail")
 async def load_finished_product_detail(request: Request):
     form_data = await request.form()
-    product_id = str_to_int(form_data.get('product_id'))
-    if product_id < 1 or product_id is None:
-        return ResponseResult(code=1, msg="参数错误")
 
-    product = FinishedProductService.find_by_id(product_id)
-    if product is None:
-        return ResponseResult(code=1, msg="未找到相关数据")
+    product = None
+    
+    product_id = str_to_int(form_data.get('product_id'))
+    if product_id > 0:
+        product = FinishedProductService.find_by_id(product_id)
 
     gpt_model_list = ModelManagerService.get_gpt_model_list()
     vits_model_list = ModelManagerService.get_vits_model_list()

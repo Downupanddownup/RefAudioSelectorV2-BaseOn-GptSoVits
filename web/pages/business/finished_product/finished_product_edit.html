@@ -8,8 +8,8 @@
                 this.product = null
                 this.gptModels = []
                 this.vitsModels = []
-                this.wavesurferManager = null
                 this.mediaType = 'aac'
+                this.wavesurferManager = null
             }
 
             loadData(){
@@ -24,14 +24,16 @@
                     success: function(res){
                         if (res.code == 0) {
                             if (_this.productId > 0) {
-                                _this.task = new C_ObjFinishedProductManager(res.data.product)
+                                _this.product = new C_ObjFinishedProductManager(res.data.product)
                             } else {
-                                _this.task = new C_ObjFinishedProductManager({})
+                                _this.product = new C_ObjFinishedProductManager({})
                             }
                             
                             _this.gptModels = res.data.gptModels ? res.data.gptModels.map(item=>new C_GptModel(item)) : []
                             _this.vitsModels = res.data.vitsModels ? res.data.vitsModels.map(item=>new C_VitsModel(item)) : []
 
+                            console.log('loadData', _this)
+                            
                             _this.render()
                         } else {
                             layui.layer.msg(res.msg)
@@ -400,17 +402,14 @@
 
             initWaveForm(){
                 const _this = this
-                console.log('_this.product',_this.product)
-                if (_this.product.id < 1) {
-                    return
-                }
 
-                WavesurferSpace.createWave({
-                    container: '#waveForm',
-                    audioId: 'referenceAudio',
+                _this.wavesurferManager = WavesurferSpace.createWave({
+                    container: '#waveFormP',
+                    audioId: 'referenceAudioWave',
                     audioSrc: _this.product.audioPath,
                     type: 'all',
                 })
+                
             }
             
             submit(successFun){
@@ -548,13 +547,13 @@
         <tr>
             <td colspan="6">
                 <div style="margin: 10px;display: flex;justify-content: center;align-items: center">
-                    <audio controls class="custom-audio" id="referenceAudio">
+                    <audio controls class="custom-audio" id="referenceAudioWave">
                         <source type="audio/wav">
                         <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
                         您的浏览器不支持 HTML5 audio 标签。
                     </audio>
                 </div>
-                <div id="waveForm" style="width: 98%;margin: 0 1%"></div>
+                <div id="waveFormP" style="width: 98%;margin: 0 1%"></div>
             </td>
         </tr>
         <tr>
