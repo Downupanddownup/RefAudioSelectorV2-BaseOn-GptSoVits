@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<script>
+    const TtsCorrectionCreateSpeakSpace = (function () {
+        class C_TtsCorrectionCreateSpeak {
+            constructor(viewId) {
+                this.viewId = viewId
+            }
+
+            render() {
+                const _this = this
+                const getTpl = $('#ttsCorrectionCreateTemplate').html(); // 获取模板字符
+                // 渲染并输出结果
+                layui.laytpl(getTpl).render(_this, function(html){
+                    const obj = $('#'+_this.viewId)
+                    obj.html(html)
+                });
+                return _this
+            }
+        }
+
+        function getTtsCorrectionCreateSpeak(viewId) {
+            return new C_TtsCorrectionCreateSpeak(viewId)
+        }
+
+        return {
+            getTtsCorrectionCreateSpeak: getTtsCorrectionCreateSpeak
+        }
+    })()
+</script>
+
+<script id="ttsCorrectionCreateTemplate" type="text/html">
+    基础模板
+</script>

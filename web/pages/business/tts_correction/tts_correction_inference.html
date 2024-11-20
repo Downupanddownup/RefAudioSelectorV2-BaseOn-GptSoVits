@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<script>
+    const TtsCorrectionInferenceSpace = (function () {
+        class C_TtsCorrectionInference {
+            constructor(viewId) {
+                this.viewId = viewId
+            }
+
+            render() {
+                const _this = this
+                const getTpl = $('#ttsCorrectionInferenceTemplate').html(); // 获取模板字符
+                // 渲染并输出结果
+                layui.laytpl(getTpl).render(_this, function(html){
+                    const obj = $('#'+_this.viewId)
+                    obj.html(html)
+                });
+                return _this
+            }
+        }
+
+        function getTtsCorrectionInference(viewId) {
+            return new C_TtsCorrectionInference(viewId)
+        }
+
+        return {
+            getTtsCorrectionInference: getTtsCorrectionInference
+        }
+    })()
+</script>
+
+<script id="ttsCorrectionInferenceTemplate" type="text/html">
+    基础模板
+</script>

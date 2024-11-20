@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<script>
+    const TtsCorrectionListSpace = (function () {
+        class C_TtsCorrectionList {
+            constructor(viewId) {
+                this.viewId = viewId
+            }
+
+            render() {
+                const _this = this
+                const getTpl = $('#ttsCorrectionListTemplate').html(); // 获取模板字符
+                // 渲染并输出结果
+                layui.laytpl(getTpl).render(_this, function(html){
+                    const obj = $('#'+_this.viewId)
+                    obj.html(html)
+
+                    _this.loadTtsCorrectionList()
+                    
+                });
+                return _this
+            }
+
+            loadTtsCorrectionList(){
+                const _this = this
+
+                const height = $('#referenceAudioListDiv').height()
+                
+                initLayuiTable('referenceAudioList',{
+                    elem: '#referenceAudioList',
+                    url: BaseUrl+'correction/get_tts_correction_task_list', // 此处为静态模拟数据，实际使用时需换成真实接口
+                    method: 'post',
+                    height: height, // 最大高度减去其他容器已占有的高度差
+                    // cellMinWidth: 80,
+                    page: true,
+                    limit:50,
+                    limits:[50,100,150,200],
+                    autoSort:false,
+                    initSort: {
+                        order: 'audioLength', // 按 id 字段排序
+                        desc: 'desc' // 降序排序
+                    },
+                    // lineStyle: 'height: 50px;', // 定义表格的多行样式
+                    parseData: function(res){ //res 即为原始返回的数据
+                        const list = res.data ? res.data.map(i => new C_ObjTtsCorrectionTask(i)) : []
+                        return {
+                            "code": res.code, //解析接口状态
+                            "msg": res.msg, //解析提示文本
+                            "count": res.count, //解析数据长度
+                            "data": list //解析数据列表
+                        };
+                    },
+                    cols: [[
+                        {field:'index', width:'5%', title: '序号', type: 'numbers'},
+                        {field:'audioName', width:'10%', title: '音频名称', templet: function(d){
+                                return d.audioName;
+                            }},
+                        {field:'category', width:'8%', title: '音频分类', templet: function(d){
+                                return d.category;
+                            }},
+                        {field:'content', width:'20%', title: '音频内容', templet: function(d){
+                                return `<div data-content-id="${d.id}" style="cursor: pointer">${d.content}</div>`;
+                            }},
+                        {field:'language', width:'8%', title: '音频语种', templet: function(d){
+                                return d.language;
+                            }},
+                        {field:'audioLength', width:'8%', title: '音频时长', sort: true, templet: function(d){
+                                return d.audioLength.toFixed(1);
+                            }},
+                        {field:'opt', width:'20%', title: '操作', templet: function(d){
+                                const html = []
+                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-edit="${d.id}">编辑</button>`)
+                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-compare="${d.id}">比对</button>`)
+                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-split="${d.id}">分割</button>`)
+                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-download="${d.id}">下载</button>`)
+                                return html.join(' ');
+                            }},
+                    ]],
+                    done: function(){
+                     
+                        $('#' + _this.viewId + ' button[data-go-to-edit]').on('click', function(){
+                            const id = $(this).attr('data-go-to-edit')
+                            _this.openEditDialog(id)
+                        })
+
+                        $('#' + _this.viewId + ' button[data-go-to-compare]').on('click', function(){
+                            const id = $(this).attr('data-go-to-compare')
+                            _this.goToCompare(id)
+                        })
+
+                        $('#' + _this.viewId + ' button[data-go-to-split]').on('click', function(){
+                            const id = $(this).attr('data-go-to-split')
+                            _this.goToOpenSplitDialog(id)
+                        })
+
+                        $('#' + _this.viewId + ' button[data-go-to-download]').on('click', function(){
+                            const id = $(this).attr('data-go-to-download')
+                            _this.downloadAudio(id)
+                        })
+
+                    },
+                    error: function(res, msg){
+                        console.log(res, msg)
+                    }
+                })
+                
+            }
+        }
+        
+        function getTtsCorrectionList(viewId) {
+            return new C_TtsCorrectionList(viewId)
+        }
+        
+        return {
+            getTtsCorrectionList: getTtsCorrectionList
+        }
+    })()
+</script>
+
+<script id="ttsCorrectionListTemplate" type="text/html">
+    <table class="search-table" id="searchHeader">
+        <tr>
+            <td>音频名称：</td>
+            <td><input type="text" autocomplete="off" id="searchAudioName" placeholder="音频名称" class="layui-input" style="width: auto;"></td>
+            <td>音频分类：</td>
+            <td>
+                <select class="customSelect" id="searchCategory">
+                    <option value="">请选择</option>
+                    {{# layui.each(d.categoryList, function(index,item){ }}
+                    <option value="{{item.name}}">{{item.name}}</option>
+                    {{# }) }}
+                </select>
+            </td>
+            <td>音频内容：</td>
+            <td><input type="text" autocomplete="off" id="searchContent" placeholder="音频内容" class="layui-input" style="width: auto;"></td>
+            <td colspan="2">
+                <button type="submit" class="layui-btn layui-btn-sm" id="searchAudio">搜索</button>
+                <button type="submit" class="layui-btn layui-btn-sm" id="addAudio">新增</button>
+                <button type="submit" class="layui-btn layui-btn-sm" id="importAudio">导入</button>
+                <button type="submit" class="layui-btn layui-btn-sm" id="soundFusionManager">融合音频</button>
+            </td>
+        </tr>
+    </table>
+
+
+    <div id="referenceAudioListDiv" style="flex: 1;overflow-y: auto">
+        <table class="layui-hide" id="referenceAudioList" lay-filter="referenceAudioList" ></table>
+    </div>
+</script>
