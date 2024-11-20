@@ -108,22 +108,6 @@ async def save_finished_product(request: Request):
 
     return ResponseResult(data={"product_id": product_id},msg="保存成功")
 
-@router.post("/check_download_finished_product_list")
-async def check_download_finished_product_list(request: Request):
-    form_data = await request.form()
-    product_ids = form_data.get('product_ids')
-    is_merge = str_to_int(form_data.get('is_merge'), 0)
-    need_model = str_to_int(form_data.get('need_model'), 1)
-    if product_ids is None:
-        return ResponseResult(code=1, msg="参数错误")
-
-    product_list = FinishedProductService.find_list(ObjFinishedProductManagerFilter({'ids': product_ids}))
-
-    if product_list is None or len(product_list) <= 0:
-        return ResponseResult(code=1, msg="未找到相关数据")
-
-    return ResponseResult()
-
 
 @router.post("/download_finished_product_list")
 async def download_finished_product_list(request: Request):

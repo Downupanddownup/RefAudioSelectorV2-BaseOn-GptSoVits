@@ -5,6 +5,7 @@
             constructor(viewId) {
                 this.viewId = viewId
                 this.productList = []
+                this.chooseProductList = []
             }
 
             render() {
@@ -17,16 +18,135 @@
 
                     _this.loadReferenceList()
 
-                    obj.find('#searchAudio').on('click', function(){
+                    obj.find('#searchProduct').on('click', function(){
                         _this.reloadReferenceList()
                     })
 
-                    obj.find('#addAudio').on('click', function(){
+                    obj.find('#addProduct').on('click', function(){
                         _this.openEditDialog(0)
+                    })
+
+                    obj.find('#productTTS').on('click', function(){
+                        _this.openFinishedProductSpeakDialog(0)
+                    })
+
+                    obj.find('#batchDownload').on('click', function(){
+                        _this.openBatchDownloadDialog()
                     })
                     
                 });
                 return _this
+            }
+
+            openBatchDownloadDialog() {
+                const _this = this
+                
+                const html = `
+    <table class="table1" id="downloadProduct">
+        <tr>
+            <td>是否需要合并相同模型的成品：</td>
+            <td>
+                <label class="custom-radio" style="margin-right: 30px">
+                    <input type="radio" name="isMerge" value="是" title="是">
+                    <span></span>是
+                </label>
+                <label class="custom-radio">
+                    <input type="radio" name="isMerge" value="否" title="否" checked>
+                    <span></span>否
+                </label>
+            </td>
+        </tr>
+        <tr>
+            <td>是否需要包含模型：</td>
+            <td>
+                <label class="custom-radio" style="margin-right: 30px">
+                    <input type="radio" name="needModel" value="是" title="是" checked>
+                    <span></span>是
+                </label>
+                <label class="custom-radio">
+                    <input type="radio" name="needModel" value="否" title="否">
+                    <span></span>否
+                </label>
+            </td>
+        </tr>
+    </table>
+                `
+
+                const index = layer.open({
+                    type: 1,
+                    area: ['95%', '95%'],
+                    content: `<div id="productEditView"></div>`,
+                    btn: ['确定', '取消'],
+                    yes: function(){
+
+                        if (_this.chooseProductList.length === 0) {
+                            layui.layer.alert('请选择要下载的成品')
+                            layui.layer.close(index)
+                            return
+                        }
+                        
+                        const ids = _this.chooseProductList.map(item => item.id).join(',')
+                        const isMerge = $('#downloadProduct input[name="isMerge"]:checked').val()
+                        const needModel = $('#downloadProduct input[name="needModel"]:checked').val()
+                        
+                        _this.downloadProducts(HomeSpace.currentRole.name, ids,isMerge,needModel)
+                        layui.layer.close(index)
+                        
+                    }
+                });
+                
+                
+                
+            }
+            
+            downloadProducts(fileName,ids,isMerge,needModel) {
+                // 准备请求数据
+                const formData = new FormData();
+                formData.append('product_ids', ids); // 示例产品ID
+                formData.append('is_merge', isMerge); // 是否合并
+                formData.append('need_model', needModel); // 是否需要模型
+
+                // 发起POST请求
+                fetch(BaseUrl+'product/download_finished_product_list', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.blob(); // 获取Blob对象
+                    })
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob); // 创建一个指向Blob对象的URL
+                        const a = document.createElement('a'); // 创建a标签
+                        a.href = url;
+                        a.download = fileName + '.zip'; // 下载的文件名
+                        document.body.appendChild(a);
+                        a.click(); // 触发点击事件
+                        a.remove(); // 移除a标签
+                        window.URL.revokeObjectURL(url); // 释放URL对象
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+
+            openFinishedProductSpeakDialog(id) {
+                const _this = this
+
+                const tts = FinishedProductSpeakSpace.getFinishedProductSpeak('productSpeakView', id)
+
+                const index = layer.open({
+                    type: 1,
+                    area: ['95%', '95%'],
+                    content: `<div id="productSpeakView"></div>`,
+                    btn: ['关闭'],
+                    yes: function(){
+                        layui.layer.close(index)
+                    }
+                });
+
+                tts.render()
+                
             }
 
             openEditDialog(id){
@@ -84,13 +204,30 @@
                     limits:[50,100,150,200],
                     autoSort:false,
                     initSort: {
-                        order: 'audioLength', // 按 id 字段排序
+                        order: 'score', // 按 id 字段排序
                         desc: 'desc' // 降序排序
+                    },
+                    customSelect: {
+                        type: 'checkbox',
+                        clickRow: row => {
+                            if (_this.chooseProductList.find(i => i.id === row.id)) {
+                                _this.chooseProductList = _this.chooseProductList.filter(i => i.id !== row.id)
+                            } else {
+                                _this.chooseProductList.push(row)
+                            }
+                        }
                     },
                     // lineStyle: 'height: 50px;', // 定义表格的多行样式
                     parseData: function(res){ //res 即为原始返回的数据
                         const list = res.data ? res.data.map(i => new C_ObjFinishedProductManager(i)) : []
                         _this.productList = list
+                        list.forEach(i => {
+                            if (_this.chooseProductList.find(j => j.id == i.id)) {
+                                i.LAY_CHECKED = true
+                            } else {
+                                i.LAY_CHECKED = false
+                            }
+                        })
                         return {
                             "code": res.code, //解析接口状态
                             "msg": res.msg, //解析提示文本
@@ -99,6 +236,7 @@
                         };
                     },
                     cols: [[
+                        {field:'checkbox', width:'5%', title: '选择', type: 'checkbox'},
                         {field:'index', width:'5%', title: '序号', type: 'numbers'},
                         {field:'name', width:'10%', title: '名称', templet: function(d){
                                 return d.name;
@@ -154,6 +292,12 @@
                             _this.openEditDialog(id)
                         })
 
+                        $('#' + _this.viewId + ' button[data-go-to-download]').on('click', function(){
+                            const id = $(this).attr('data-go-to-download')
+                            const product = _this.productList.find(i => i.id == id)
+                            _this.downloadProducts(HomeSpace.currentRole.name + '-' + product.name, id,0,1)
+                        })
+
                     },
                     error: function(res, msg){
                         console.log(res, msg)
@@ -184,8 +328,10 @@
                 <input type="text" autocomplete="off" id="searchCategory" placeholder="音频名称" class="layui-input" style="width: auto;">
             </td>
             <td colspan="2">
-                <button type="submit" class="layui-btn layui-btn-sm" id="searchAudio">搜索</button>
-                <button type="submit" class="layui-btn layui-btn-sm" id="addAudio">新增</button>
+                <button type="submit" class="layui-btn layui-btn-sm" id="searchProduct">搜索</button>
+                <button type="submit" class="layui-btn layui-btn-sm" id="addProduct">新增</button>
+                <button type="submit" class="layui-btn layui-btn-sm" id="productTTS">推理</button>
+                <button type="submit" class="layui-btn layui-btn-sm" id="batchDownload">导出</button>
             </td>
         </tr>
     </table>
