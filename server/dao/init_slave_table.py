@@ -10,7 +10,7 @@ def init_slave_table(db_path):
 
     # 创建一个新表
     cursor.execute('''
-        CREATE TABLE tab_obj_finished_product_manager (
+        CREATE TABLE IF NOT EXISTS tab_obj_finished_product_manager (
             Id INTEGER PRIMARY KEY AUTOINCREMENT,  -- 自增编号
             Name TEXT,  -- 成品名称
             Category TEXT,  -- 分类

@@ -91,32 +91,22 @@ def get_finished_product_from_json(form_data: dict) -> ObjFinishedProductManager
     return product
 
 
-@router.post("/add_finished_product")
-async def add_finished_product(request: Request):
+@router.post("/save_finished_product")
+async def save_finished_product(request: Request):
     form_data = await request.json()
 
     product = get_finished_product_from_json(form_data)
 
-    product_id = FinishedProductService.add_finished_product(product)
+    product_id = product.id
 
-    return ResponseResult(data={"product_id": product_id})
+    if product_id is None or product_id < 1:
+        product_id = FinishedProductService.add_finished_product(product)
+    else:
+        result = FinishedProductService.update_finished_product(product)
+        if result == 0:
+            return ResponseResult(code=1, msg="修改失败")
 
-
-@router.post("/update_finished_product")
-async def update_finished_product(request: Request):
-    form_data = await request.json()
-
-    product = get_finished_product_from_json(form_data)
-    if product.id is None or product.id < 1:
-        return ResponseResult(code=1, msg="参数错误")
-
-    result = FinishedProductService.update_finished_product(product)
-
-    if result == 0:
-        return ResponseResult(code=1, msg="修改失败")
-
-    return ResponseResult(msg="修改成功")
-
+    return ResponseResult(data={"product_id": product_id},msg="保存成功")
 
 @router.post("/check_download_finished_product_list")
 async def check_download_finished_product_list(request: Request):

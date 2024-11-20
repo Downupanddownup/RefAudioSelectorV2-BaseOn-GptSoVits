@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<script>
+    const FinishedProductSpeakSpace = (function () {
+        class C_FinishedProductSpeak {
+            constructor(viewId) {
+                this.viewId = viewId
+            }
+
+            render() {
+                const _this = this
+                const getTpl = $('#finishedProductSpeakTemplate').html(); // 获取模板字符
+                // 渲染并输出结果
+                layui.laytpl(getTpl).render(_this, function(html){
+                    const obj = $('#'+_this.viewId)
+                    obj.html(html)
+                });
+                return _this
+            }
+        }
+        
+        function getFinishedProductSpeak(viewId) {
+            return new C_FinishedProductSpeak(viewId)
+        }
+        
+        return {
+            getFinishedProductSpeak: getFinishedProductSpeak
+        }
+    })()
+</script>
+
+<script id="finishedProductSpeakTemplate" type="text/html">
+    音频打包
+</script>

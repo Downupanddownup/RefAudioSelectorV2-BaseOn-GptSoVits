@@ -47,7 +47,7 @@
                 }
             }
             
-            playAudio(obj, audioUrl, currentIndex) {
+            playAudio(obj, audioUrl, currentIndex, mediaType) {
                 const _this = this
                 
                 currentIndex = parseInt(currentIndex)
@@ -61,7 +61,7 @@
                     }
                 } else {
                     _this.playAudioIndex = currentIndex
-                    _this.startPlayAudio(obj, audioUrl)
+                    _this.startPlayAudio(obj, audioUrl, mediaType)
                 }
             }
 
@@ -78,7 +78,7 @@
                 )
             }
             
-            startPlayAudio(obj, audioUrl) {
+            startPlayAudio(obj, audioUrl, mediaType) {
                 const _this = this
 
                 _this.clearAudio(obj)
@@ -90,7 +90,7 @@
                         requestBody: item.getTextBody(),
                         isEffective: item.isEffective()
                     })),
-                    mediaType: 'aac',
+                    mediaType: mediaType,
                     currentIndex: _this.playAudioIndex,
                     audioStartCallback: index => {
                         obj.find('span[data-long-text-index]').removeClass('selected')
@@ -199,7 +199,7 @@
                     
                     obj.find('span[data-long-text-index]').on('click', function() {
                         const index = $(this).attr('data-long-text-index')
-                        _this.setting.playAudio(obj, _this.url, index)
+                        _this.setting.playAudio(obj, _this.url, index, _this.config.mediaType)
                     })
                     
                     obj.find('#startInference').on('click', function() {
@@ -238,15 +238,8 @@
             startInference(){
                 const _this = this
                 const obj = $('#' + _this.viewId)
-               
-                if (_this.config.streamMode) {
-                    _this.setting.playAudio(obj, _this.url, 0)
-                } else {
-                    fetchAndPlayAudio(_this.url, {
-                        text: _this.setting.text,
-                        text_language: _this.setting.textLanguage,
-                    }, _this.setting.audioId)
-                }
+
+                _this.setting.playAudio(obj, _this.url, 0, _this.config.mediaType)
             }
 
             // 定义一个函数来按顺序播放多个音频流

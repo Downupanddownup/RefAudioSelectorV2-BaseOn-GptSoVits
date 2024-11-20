@@ -4,6 +4,7 @@
         class C_FinishedProduct {
             constructor(viewId) {
                 this.viewId = viewId
+                this.productList = []
             }
 
             render() {
@@ -13,9 +14,154 @@
                 layui.laytpl(getTpl).render(_this, function(html){
                     const obj = $('#'+_this.viewId)
                     obj.html(html)
+
+                    _this.loadReferenceList()
+
+                    obj.find('#searchAudio').on('click', function(){
+                        _this.reloadReferenceList()
+                    })
+
+                    obj.find('#addAudio').on('click', function(){
+                        _this.openEditDialog(0)
+                    })
+                    
                 });
                 return _this
             }
+
+            openEditDialog(id){
+                const _this = this
+                console.log(id)
+
+                const edit = FinishedProductEditSpace.getFinishedProductEdit('productEditView', id)
+
+                const index = layer.open({
+                    type: 1,
+                    area: ['95%', '95%'],
+                    content: `<div id="productEditView"></div>`,
+                    btn: ['确定', '取消'],
+                    yes: function(){
+                        edit.submit(() => {
+                            refreshListData('finishedProductList')
+                            layui.layer.close(index)
+                        })
+                    }
+                });
+
+                edit.loadData()
+
+            }
+
+            getSearchParams(){
+                const _this = this
+                const obj = $('#'+_this.viewId)
+                const searchAudioName = obj.find('#searchAudioName').val()
+                const searchCategory = obj.find('#searchCategory').val()
+                return {
+                    name: searchAudioName,
+                    category: searchCategory,
+                }
+            }
+
+            reloadReferenceList() {
+                const _this = this
+                const params = _this.getSearchParams()
+                reloadListDataBySearchParams('finishedProductList',params)
+            }
+
+            loadReferenceList(){
+                const _this = this
+
+                const height = $('#referenceAudioListDiv').height()
+
+                initLayuiTable('finishedProductList',{
+                    url: BaseUrl+'product/get_finished_product_list', // 此处为静态模拟数据，实际使用时需换成真实接口
+                    method: 'post',
+                    height: height, // 最大高度减去其他容器已占有的高度差
+                    // cellMinWidth: 80,
+                    page: true,
+                    limit:50,
+                    limits:[50,100,150,200],
+                    autoSort:false,
+                    initSort: {
+                        order: 'audioLength', // 按 id 字段排序
+                        desc: 'desc' // 降序排序
+                    },
+                    // lineStyle: 'height: 50px;', // 定义表格的多行样式
+                    parseData: function(res){ //res 即为原始返回的数据
+                        const list = res.data ? res.data.map(i => new C_ObjFinishedProductManager(i)) : []
+                        _this.productList = list
+                        return {
+                            "code": res.code, //解析接口状态
+                            "msg": res.msg, //解析提示文本
+                            "count": res.count, //解析数据长度
+                            "data": list //解析数据列表
+                        };
+                    },
+                    cols: [[
+                        {field:'index', width:'5%', title: '序号', type: 'numbers'},
+                        {field:'name', width:'10%', title: '名称', templet: function(d){
+                                return d.name;
+                            }},
+                        {field:'category', width:'8%', title: '分类', templet: function(d){
+                                return d.category;
+                            }},
+                        {field:'gptSovitsVersion', width:'8%', title: 'GSV版本', templet: function(d){
+                                return d.gptSovitsVersion;
+                            }},
+                        {field:'audioPlay', width:'20%', title: '参考音频', templet: function(d){
+                                return ` 
+                                 <audio controls class="custom-audio" data-audio="${d.id}">
+                                    <source src="${d.audioPath}" type="audio/wav">
+                                    <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
+                                    您的浏览器不支持 HTML5 audio 标签。
+                                </audio>`
+                            }},
+                        {field:'sound_fusion_list_length', width:'5%', title: '融合音频数', templet: function(d){
+                                return d.sound_fusion_list.length;
+                            }},
+                        {field:'gptModelName', width:'20%', title: 'GPT模型', templet: function(d){
+                                return d.gptModelName;
+                            }},
+                        {field:'vitsModelName', width:'8%', title: 'SoVits模型', templet: function(d){
+                                return d.vitsModelName;
+                            }},
+                        {field:'opt', width:'20%', title: '操作', templet: function(d){
+                                const html = []
+                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-edit="${d.id}">编辑</button>`)
+                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-download="${d.id}">导出</button>`)
+                                return html.join(' ');
+                            }},
+                    ]],
+                    done: function(){
+                        const audioElements = $('#'+_this.viewId+' audio.custom-audio');
+                        // 创建 AudioController 实例并传入音频元素集合
+                        const audioController = new AudioController(Array.from(audioElements));
+
+                        $('#' + _this.viewId + ' div[data-content-id]').on('click', function() {
+                            const audioId = $(this).attr('data-content-id')
+                            _this.productList.forEach(i => {
+                                if (i.id == audioId) {
+                                    const audioElement = $('#' + _this.viewId + ' audio[data-audio="' + audioId + '"]')[0]
+                                    console.log('audioElement',audioElement)
+                                    audioController.dispatchClickEvent(audioElement)
+                                }
+                            })
+                        })
+
+                        $('#' + _this.viewId + ' button[data-go-to-edit]').on('click', function(){
+                            const id = $(this).attr('data-go-to-edit')
+                            _this.openEditDialog(id)
+                        })
+
+                    },
+                    error: function(res, msg){
+                        console.log(res, msg)
+                    }
+                })
+                
+            }
+            
         }
         
         function getFinishedProduct(viewId) {
@@ -29,5 +175,23 @@
 </script>
 
 <script id="finishedProductTemplate" type="text/html">
-    音频打包
+    <table class="search-table" id="searchHeader">
+        <tr>
+            <td>名称：</td>
+            <td><input type="text" autocomplete="off" id="searchAudioName" placeholder="音频名称" class="layui-input" style="width: auto;"></td>
+            <td>分类：</td>
+            <td>
+                <input type="text" autocomplete="off" id="searchCategory" placeholder="音频名称" class="layui-input" style="width: auto;">
+            </td>
+            <td colspan="2">
+                <button type="submit" class="layui-btn layui-btn-sm" id="searchAudio">搜索</button>
+                <button type="submit" class="layui-btn layui-btn-sm" id="addAudio">新增</button>
+            </td>
+        </tr>
+    </table>
+
+
+    <div id="referenceAudioListDiv" style="flex: 1;overflow-y: auto">
+        <table class="layui-hide" id="finishedProductList" lay-filter="finishedProductList" ></table>
+    </div>
 </script>

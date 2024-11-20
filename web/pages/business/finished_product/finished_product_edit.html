@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<script>
+    const FinishedProductEditSpace = (function () {
+        class C_FinishedProductEdit {
+            constructor(viewId, productId) {
+                this.viewId = viewId
+                this.productId = productId
+                this.product = null
+                this.gptModels = []
+                this.vitsModels = []
+                this.wavesurferManager = null
+                this.mediaType = 'aac'
+            }
+
+            loadData(){
+                const _this = this
+
+                $.customAjax({
+                    url: BaseUrl+'product/load_finished_product_detail',
+                    type: 'post',
+                    data:{
+                        product_id: _this.productId
+                    },
+                    success: function(res){
+                        if (res.code == 0) {
+                            if (_this.productId > 0) {
+                                _this.task = new C_ObjFinishedProductManager(res.data.product)
+                            } else {
+                                _this.task = new C_ObjFinishedProductManager({})
+                            }
+                            
+                            _this.gptModels = res.data.gptModels ? res.data.gptModels.map(item=>new C_GptModel(item)) : []
+                            _this.vitsModels = res.data.vitsModels ? res.data.vitsModels.map(item=>new C_VitsModel(item)) : []
+
+                            _this.render()
+                        } else {
+                            layui.layer.msg(res.msg)
+                        }
+                    },
+                    error: function(res, msg){
+                        layui.layer.msg(msg)
+                    }
+                })
+
+            }
+
+            render() {
+                const _this = this
+                const getTpl = $('#finishedProductEditTemplate').html(); // 获取模板字符
+                // 渲染并输出结果
+                layui.laytpl(getTpl).render(_this, function(html){
+                    const obj = $('#'+_this.viewId)
+                    obj.html(html)
+
+                    obj.find('#name').on('blur', function () {
+                        _this.product.name = $(this).val()
+                    })
+
+                    obj.find('#category').on('blur', function () {
+                        _this.product.category = $(this).val()
+                    })
+                    
+                    obj.find('#gsvVersion').on('change', function() {
+                        _this.product.gptSovitsVersion = $(this).val()
+                        _this.product.gptModelName = ''
+                        _this.product.gptModelPath = ''
+                        _this.product.vitsModelName = ''
+                        _this.product.vitsModelPath = ''
+                        _this.render()
+                    })
+
+                    obj.find('#modelManager').on('click', function() {
+                        _this.openModelFile()
+                    })
+
+                    obj.find('#gptModel').on('change', function() {
+                        _this.product.gptModelName = $(this).val()
+                        _this.product.gptModelPath = _this.gptModels.find(item=>item.name==_this.product.gptModelName)
+                    })
+
+                    obj.find('#vitsModel').on('change', function() {
+                        _this.product.vitsModelName = $(this).val()
+                        _this.product.vitsModelPath = _this.vitsModels.find(item=>item.name==_this.product.vitsModelName)
+                    })
+
+                    obj.find('button[data-refresh-model]').on('click', function() {
+                        _this.reloadModelList()
+                    })
+
+                    obj.find('#topK').on('blur', function(){
+                        _this.product.topK = $(this).val()
+                    })
+
+                    obj.find('#topP').on('blur', function(){
+                        _this.product.topP = $(this).val()
+                    })
+
+                    obj.find('#temperature').on('blur', function(){
+                        _this.product.temperature = $(this).val()
+                    })
+
+                    obj.find('#textDelimiter').on('blur', function(){
+                        _this.product.textDelimiter = $(this).val()
+                    })
+
+                    obj.find('#speed').on('blur', function(){
+                        _this.product.speed = $(this).val()
+                    })
+
+                    obj.find('#content').on('blur', function(){
+                        _this.product.content = $(this).val()
+                    })
+
+                    obj.find('#language').on('change', function(){
+                        _this.product.language = $(this).val()
+                    })
+
+                    obj.find('#remark').on('blur', function(){
+                        _this.product.remark = $(this).val()
+                    })
+
+                    obj.find('#audioSelect').on('click', function() {
+                        _this.openAudioSelectDialog()
+                    })
+
+                    if (_this.product.sound_fusion_list.length > 0) {
+                        _this.loadSelectedAudioList()
+                    }
+
+                    obj.find('#inpRefsAudioSelect').on('click', function() {
+                        _this.openInpRefsAudioSelectDialog()
+                    })
+
+                    obj.find('#setInferenceParams').on('click', function() {
+                        _this.setInferenceParams()
+                    })
+
+                    obj.find('#openInferenceTxt').on('click', function() {
+                        _this.openInferenceTxtDialog()
+                    })
+
+                    layui.rate.render({
+                        elem: obj.find('#score'),
+                        value: _this.product.score,
+                        choose: function(value){
+                            console.log('评分',value); // 获得选中的评分值
+                            _this.product.score = value
+                        }
+                    });
+
+                    _this.initWaveForm()
+                    
+                });
+                return _this
+            }
+
+            openInferenceTxtDialog() {
+                const _this = this
+
+                const dealWithObj = LongTextDealWithSpace.getLongTextDealWith('longTextDealWithView', {
+                    mediaType: _this.mediaType,
+                })
+                dealWithObj.render()
+
+                const dialogId = layer.open({
+                    type: 1,
+                    area: ['90%', '90%'],
+                    content: `<div id="inpRefsAudioSelectView"></div>`,
+                    btn: ['关闭'],
+                    yes: function(){
+                        layui.layer.close(dialogId)
+                    }
+                });
+
+                dealWithObj.render()
+            }
+
+            setInferenceParams(){
+
+                const _this = this
+
+                HomePage.startApiServerIfNotRunning(() => {
+                    const data = {
+                        gpt_model_path:_this.product.gptModelPath,
+                        sovits_model_path:_this.product.vitsModelPath
+                    }
+                    $.customAjax({
+                        url: RasApiUrl+'set_model',
+                        type: 'post',
+                        data:JSON.stringify(data),
+                        success: function(res){
+                            console.log(res)
+                            if (res.code == 0) {
+                                $.customAjax({
+                                    url: RasApiUrl+'ras/set_default_params',
+                                    type: 'post',
+                                    data:JSON.stringify({
+                                        refer_wav_path:_this.product.audioPath,
+                                        prompt_text:_this.product.content,
+                                        prompt_language:_this.product.language,
+                                        cut_punc:_this.product.textDelimiter,
+                                        top_k:_this.product.topK,
+                                        top_p:_this.product.topP,
+                                        temperature:_this.product.temperature,
+                                        speed:_this.product.speed,
+                                        stream_mode:1,
+                                        media_type:_this.mediaType,
+                                        inp_refs:_this.product.sound_fusion_list.map(r => r.audioPath),
+                                    }),
+                                    success: function(res){
+                                        if (res == 'ok') {
+                                            layui.layer.msg('参数设置成功')
+                                        } else {
+                                            layui.layer.msg('参数设置失败：' + res)
+                                        }
+                                    },
+                                    error: function(res, msg){
+                                        layui.layer.msg(msg)
+                                    }
+                                })
+                            } else {
+                                layui.layer.msg('模型设置失败：' + res)
+                            }
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            $('#response').text('发生错误: ' + textStatus + ', ' + errorThrown);
+                            console.error('Error details:', jqXHR.responseText);
+                            layui.layer.msg(textStatus)
+                        }
+                    })
+                })
+
+            }
+
+            openInpRefsAudioSelectDialog(){
+                const _this = this
+
+                const inpRefsAudioDialog = TaskSoundFusionSelectSpace.getTaskSoundFusionSelect('inpRefsAudioSelectView',_this.product.sound_fusion_list)
+
+                const dialogId = layer.open({
+                    type: 1,
+                    area: ['90%', '90%'],
+                    content: `<div id="inpRefsAudioSelectView"></div>`,
+                    btn: ['确定', '取消'],
+                    yes: function(){
+                        _this.product.sound_fusion_list = inpRefsAudioDialog.getAllSelectedAudioList()
+                        layui.layer.close(dialogId)
+                        _this.loadSelectedAudioList()
+                    }
+                });
+
+
+                inpRefsAudioDialog.render()
+            }
+
+            loadSelectedAudioList(){
+                const _this = this
+
+                const windowHeight = window.innerHeight;
+
+                const header = $('#'+_this.viewId+' #audioHeader').height()
+                console.log('header',header)
+
+                const height = windowHeight * 0.95 *0.95 - header - 190
+                // 创建渲染实例
+                layui.table.render({
+                    elem: '#selectedSoundAudioList',
+                    data: _this.product.sound_fusion_list,
+                    // height: height, // 最大高度减去其他容器已占有的高度差
+                    page: false,
+                    cols: [[
+                        {field:'index', width:'5%', title: '序号', type: 'numbers'},
+                        {field:'roleName', width:'10%', title: '角色名称', templet: function(d){
+                                return d.roleName;
+                            }},
+                        {field:'audioName', width:'10%', title: '音频名称', templet: function(d){
+                                return d.audioName;
+                            }},
+                        {field:'category', width:'12%', title: '音频分类', templet: function(d){
+                                return d.category;
+                            }},
+                        {field:'audioPlay', width:'22%', title: '音频播放', templet: function(d){
+                                return ` 
+                                 <audio controls class="custom-audio" data-audio="${d.id}">
+                                    <source src="${d.audioPath}" type="audio/wav">
+                                    <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
+                                    您的浏览器不支持 HTML5 audio 标签。
+                                </audio>`
+                            }},
+                        {field:'content', width:'23%', title: '音频内容', templet: function(d){
+                                return `<div data-content-id="${d.id}" style="cursor: pointer">${d.content}</div>`;
+                            }},
+                        {field:'language', width:'8%', title: '音频语种', templet: function(d){
+                                return d.language;
+                            }},
+                        {field:'audioLength', width:'8%', title: '音频时长', sort: true, templet: function(d){
+                                return d.audioLength.toFixed(1);
+                            }},
+                    ]],
+                    done: function(){
+
+                        const obj = $('#'+_this.viewId)
+
+                        const audioElements = $('#'+_this.viewId+' audio.custom-audio');
+                        // 创建 AudioController 实例并传入音频元素集合
+                        const audioController = new AudioController(Array.from(audioElements));
+
+                        $('#' + _this.viewId + ' div[data-content-id]').on('click', function() {
+                            const audioId = $(this).attr('data-content-id')
+                            _this.product.sound_fusion_list.forEach(i => {
+                                if (i.id == audioId) {
+                                    const audioElement = $('#' + _this.viewId + ' audio[data-audio="' + audioId + '"]')[0]
+                                    console.log('audioElement',audioElement)
+                                    audioController.dispatchClickEvent(audioElement)
+                                }
+                            })
+                        })
+
+
+                    },
+                    error: function(res, msg){
+                        console.log(res, msg)
+                    }
+                });
+
+            }
+
+            openAudioSelectDialog(){
+                const _this = this
+
+                const select = LongTextReferenceSelectSpace.getLongTextReferenceSelect('audioSelectView', {
+                    id: _this.product.audioId
+                })
+
+                const dialogId = layer.open({
+                    type: 1,
+                    area: ['90%', '90%'],
+                    content: `<div id="audioSelectView"></div>`,
+                    btn: ['确定', '取消'],
+                    yes: function(){
+                        const selectedAudio = select.getSelectedAudio()
+
+                        if (selectedAudio != null) {
+                            _this.product.audioId = selectedAudio.id
+                            _this.product.audioName = selectedAudio.audioName
+                            _this.product.audioPath = selectedAudio.audioPath
+                            _this.product.content = selectedAudio.content
+                            _this.product.language = selectedAudio.language
+                            _this.product.audioLength = selectedAudio.audioLength
+                            _this.product.category = selectedAudio.category
+                            _this.product.score = selectedAudio.longTextScore
+                            _this.product.remark = selectedAudio.remark
+                            console.log('选中音频', selectedAudio)
+                            _this.render()
+                        }
+
+                        layui.layer.close(dialogId)
+                    }
+                });
+
+
+                select.loadData()
+            }
+
+            reloadModelList(){
+                const _this = this
+                $.customAjax({
+                    url: BaseUrl+'task/load_model_list',
+                    type: 'post',
+                    success: function(res){
+                        if (res.code == 0) {
+                            _this.gptModels = res.data.gptModels ? res.data.gptModels.map(item=>new C_GptModel(item)) : []
+                            _this.vitsModels = res.data.vitsModels ? res.data.vitsModels.map(item=>new C_VitsModel(item)) : []
+                            _this.render()
+                        } else {
+                            layui.layer.msg(res.msg)
+                        }
+                    },
+                    error: function(res, msg){
+                        layui.layer.msg(msg)
+                    }
+                })
+            }
+
+            openModelFile(){
+                $.customAjax({
+                    url: BaseUrl+'task/open_model_file',
+                    type: 'post',
+                    success: function(res){
+                        if (res.code == 0) {
+                        } else {
+                            layer.msg(res.msg)
+                        }
+                    },
+                    error: function(res, msg){
+                        layer.msg(msg)
+                    }
+                })
+            }
+
+            initWaveForm(){
+                const _this = this
+                console.log('_this.product',_this.product)
+                if (_this.product.id < 1) {
+                    return
+                }
+
+                WavesurferSpace.createWave({
+                    container: '#waveForm',
+                    audioId: 'referenceAudio',
+                    audioSrc: _this.product.audioPath,
+                    type: 'all',
+                })
+            }
+            
+            submit(successFun){
+                const _this = this
+                $.customAjax({
+                    url: BaseUrl+'product/save_finished_product',
+                    type: 'post',
+                    data: JSON.stringify(_this.product),
+                    success: function(res){
+                        if (res.code == 0) {
+                            if (successFun) {
+                                successFun()
+                            }
+                        } else {
+                            layui.layer.msg(res.msg)
+                        }
+                    },
+                    error: function(res, msg){
+                        layui.layer.msg(msg)
+                    }
+                })
+            }
+            
+        }
+        
+        function getFinishedProductEdit(viewId, productId) {
+            return new C_FinishedProductEdit(viewId, productId)
+        }
+        
+        return {
+            getFinishedProductEdit: getFinishedProductEdit
+        }
+    })()
+</script>
+
+<script id="finishedProductEditTemplate" type="text/html">
+
+    <fieldset class="layui-elem-field layui-field-title">
+        <legend>成品参数</legend>
+    </fieldset>
+
+    <table class="table1">
+        <tr>
+            <td>名称：</td>
+            <td>
+                <input type="text" autocomplete="off" id="name" placeholder="名称" class="layui-input" style="width: auto;" value="{{d.product.name}}">
+            </td>
+            <td>分类：</td>
+            <td>
+                <input type="text" autocomplete="off" id="category" placeholder="分类" class="layui-input" style="width: auto;" value="{{d.product.category}}">
+            </td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>GPT-Sovits 版本：</td>
+            <td>
+                <select class="customSelect" id="gsvVersion">
+                    <option {{isTrue(d.product.gptSovitsVersion=="v1",'selected','')}} value="v1">v1</option>
+                    <option {{isTrue(d.product.gptSovitsVersion=="v2",'selected','')}} value="v2">v2</option>
+                </select>
+                <button type="button" class="layui-btn layui-btn-sm" id="modelManager">模型管理</button>
+            </td>
+            <td>GPT 模型：</td>
+            <td>
+                <select class="customSelect" id="gptModel">
+                    <option value="">请选择</option>
+                    {{# layui.each(d.gptModels, function(index, item){ }}
+                    {{# if (d.product.gptSovitsVersion == item.version) { }}
+                    <option {{isTrue(item.name==d.product.gptModelName,'selected','')}} value="{{item.name}}">{{item.name}}</option>
+                    {{# } }}
+                    {{# }) }}
+                </select>
+                <button type="button" class="layui-btn layui-btn-sm" data-refresh-model >刷新</button>
+            </td>
+            <td>Vits 模型：</td>
+            <td>
+                <select class="customSelect" id="vitsModel">
+                    <option value="">请选择</option>
+                    {{# layui.each(d.vitsModels, function(index, item){ }}
+                    {{# if (d.product.gptSovitsVersion == item.version) { }}
+                    <option {{isTrue(item.name==d.product.vitsModelName,'selected','')}} value="{{item.name}}">{{item.name}}</option>
+                    {{# } }}
+                    {{# }) }}
+                </select>
+                <button type="button" class="layui-btn layui-btn-sm" data-refresh-model >刷新</button>
+            </td>
+        </tr>
+        <tr>
+            <td>top_k值：</td>
+            <td>
+                <input type="number" autocomplete="off" id="topK" placeholder="top_k值" class="layui-input" style="width: auto;" value="{{d.product.topK}}">
+            </td>
+            <td>top_p值：</td>
+            <td>
+                <input type="number" autocomplete="off" id="topP" placeholder="top_p值" class="layui-input" style="width: auto;" value="{{d.product.topP}}">
+            </td>
+            <td>temperature值：</td>
+            <td>
+                <input type="number" autocomplete="off" id="temperature" placeholder="temperature值" class="layui-input" style="width: auto;" value="{{d.product.temperature}}">
+            </td>
+        </tr>
+        <tr>
+            <td>文本分隔符：</td>
+            <td>
+                <input type="text" autocomplete="off" id="textDelimiter" placeholder="文本分隔符" class="layui-input" style="width: auto;" value="{{d.product.textDelimiter}}">
+            </td>
+            <td>speed值：</td>
+            <td>
+                <input type="number" autocomplete="off" id="speed" placeholder="speed值" class="layui-input" style="width: auto;" value="{{d.product.speed}}">
+            </td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>音频名称：</td>
+            <td>
+                {{d.product.audioName}}
+                <button type="button" class="layui-btn layui-btn-sm" id="audioSelect">选择</button>
+            </td>
+            <td>音频内容：</td>
+            <td>
+                <textarea placeholder="音频内容" class="layui-textarea" id="content">{{d.product.content}}</textarea>
+            </td>
+            <td>音频语种：</td>
+            <td>
+                <select class="customSelect" id="language">
+                    <option value="">请选择</option>
+                    {{# layui.each(SysConfig.languageList, function(index, item) { }}
+                    <option {{isTrue(item.code==d.product.language,'selected','')}} value="{{item.code}}">{{item.name}}</option>
+                    {{# }) }}
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="6">
+                <div style="margin: 10px;display: flex;justify-content: center;align-items: center">
+                    <audio controls class="custom-audio" id="referenceAudio">
+                        <source type="audio/wav">
+                        <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
+                        您的浏览器不支持 HTML5 audio 标签。
+                    </audio>
+                </div>
+                <div id="waveForm" style="width: 98%;margin: 0 1%"></div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="6">
+                <div style="text-align: center;padding: 10px">
+                    <span>融合音频</span>
+                    <button type="button" class="layui-btn layui-btn-sm" id="inpRefsAudioSelect">音频选择</button>
+                </div>
+                <table class="layui-hide" id="selectedSoundAudioList" lay-filter="selectedSoundAudioList"></table>
+            </td>
+        </tr>
+        <tr>
+            <td>评分：</td>
+            <td>
+                <div id="score" class="no-wrap"></div>
+            </td>
+            <td>备注：</td>
+            <td>
+                <textarea placeholder="备注" class="layui-textarea" id="remark">{{d.product.remark}}</textarea>
+            </td>
+            <td>创建时间：</td>
+            <td>
+                {{layui.util.toDateString(d.product.createTime, "yyyy-MM-dd HH:mm:ss")}}
+            </td>
+        </tr>
+    </table>
+
+    <fieldset class="layui-elem-field layui-field-title">
+        <legend>推理设置</legend>
+    </fieldset>
+
+    <table class="table1">
+        <tr>
+            <td>
+                <button type="button" class="layui-btn layui-btn-lg" id="setInferenceParams">设置参数</button>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button type="button" class="layui-btn layui-btn-lg" id="openInferenceTxt">打开推理文本</button>
+            </td>
+        </tr>
+    </table>
+
+</script>

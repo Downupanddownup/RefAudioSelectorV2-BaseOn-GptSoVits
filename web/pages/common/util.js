@@ -56,23 +56,6 @@ function isTrue(condition, ifTrue, ifFalse) {
     return condition ? ifTrue : ifFalse;
 }
 
-function refreshListData(listId){
-    // 数据重载 - 仅与数据相关的属性(options)能参与到重载中
-    layui.table.reloadData(listId, {
-        // where: {}, // 数据异步请求时携带的字段集 --- 属性设置有效，因属于数据相关属性
-        scrollPos: true, // 设定重载数据或切换分页时的滚动条的位置状态 --- 属性设置有效
-    });
-}
-
-function reloadListDataBySearchParams(listId,params){
-    // 数据重载 - 仅与数据相关的属性(options)能参与到重载中
-    layui.table.reloadData(listId, {
-        where: params, // 数据异步请求时携带的字段集 --- 属性设置有效，因属于数据相关属性
-        scrollPos: true, // 设定重载数据或切换分页时的滚动条的位置状态 --- 属性设置有效
-    });
-}
-
-
 function initTextarea(id) {
     $('#'+id).on('input',function () {
         $(this).css('height',$('#'+id)[0].scrollHeight+'px')
@@ -172,4 +155,114 @@ function setTips(el, content) {
         theme: 'material',
         // delay: [500, 200]
     });
+}
+
+function refreshListData(listId){
+    // 数据重载 - 仅与数据相关的属性(options)能参与到重载中
+    layui.table.reloadData(listId, {
+        // where: {}, // 数据异步请求时携带的字段集 --- 属性设置有效，因属于数据相关属性
+        scrollPos: true, // 设定重载数据或切换分页时的滚动条的位置状态 --- 属性设置有效
+    });
+}
+
+function reloadListDataBySearchParams(listId,params){
+    // 数据重载 - 仅与数据相关的属性(options)能参与到重载中
+    layui.table.reloadData(listId, {
+        where: params, // 数据异步请求时携带的字段集 --- 属性设置有效，因属于数据相关属性
+        scrollPos: true, // 设定重载数据或切换分页时的滚动条的位置状态 --- 属性设置有效
+    });
+}
+
+
+function initLayuiTable(listId, config) {
+    
+    class C_Page {
+        constructor() {
+            const customSort = config.customSort || {}
+            const initSort = config.initSort || {}
+            const autoSort = config.autoSort ? config.autoSort : false
+            
+            this.isOpenSortByServer = !autoSort
+            this.orderName = customSort.orderName ? customSort.orderName : 'order'
+            this.descName = customSort.descName ? customSort.descName : 'desc'
+            
+            this.pageParams = {}
+            this.pageParams[this.orderName] = initSort.order || ''
+            this.pageParams[this.descName] = initSort.desc || ''
+        }
+        
+        initWherePage(){
+            const where = config.where || {}
+
+            if (this.isOpenSortByServer) {
+                where[this.orderName] = this.pageParams[this.orderName]
+                where[this.descName] = this.pageParams[this.descName]
+                config.where = where
+            }
+        }
+        
+        initSortEvent(){
+            const _this = this
+            if (_this.isOpenSortByServer) {
+                //排序
+                layui.table.on(`sort(${listId})`, function(obj){ //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
+
+                    _this.pageParams[_this.orderName] = obj.field;  //当前排序的字段名
+                    _this.pageParams[_this.descName] = obj.type;   //当前排序类型：desc（降序）、asc（升序）、null（空对象，默认排序）
+
+                    layui.table.reload(listId, {
+                        initSort: obj //记录初始排序，如果不设的话，将无法标记表头的排序状态。
+                        ,where: _this.pageParams
+                    });
+
+                });
+            }
+        }
+    }
+    
+    class C_CustomSelect {
+        constructor() {
+            this.open = config.customSelect ? true : false
+            this.type = this.open ? config.customSelect.type : ''// radio checkbox
+            this.clickRow = this.open ? config.customSelect.clickRow : undefined
+        }
+        
+        initClickRow() {
+            const _this = this
+            if (_this.open) {
+                // 行单击事件( 双击事件为: rowDouble )
+                layui.table.on(`row(${listId})`, function(obj){
+                    const row = obj.data; // 获取当前行数据
+
+                    if (_this.clickRow){
+                        _this.clickRow(row)
+                    }
+
+                    // 标注当前点击行的选中状态
+                    obj.setRowChecked({
+                        type: _this.type // radio 单选模式；checkbox 复选模式
+                    });
+                });
+            }
+        }
+    }
+    
+    config.elem = '#'+listId
+    
+    
+    
+    const page = new C_Page()
+    page.initWherePage()
+
+    
+    const customSelect = new C_CustomSelect()
+    
+    layui.table.render(config);
+    
+    page.initSortEvent()
+
+    customSelect.initClickRow()
+    
+
+    
 }

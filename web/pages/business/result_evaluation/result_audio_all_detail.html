@@ -116,7 +116,7 @@
 
                         $('#' + _this.viewId + ' div[data-content-id]').on('click', function() {
                             const audioId = $(this).attr('data-content-id')
-                            _this.audioList.forEach(i => {
+                            _this.taskInpRefsAudioList.forEach(i => {
                                 if (i.id == audioId) {
                                     const audioElement = $('#' + _this.viewId + ' audio[data-audio="' + audioId + '"]')[0]
                                     console.log('audioElement',audioElement)

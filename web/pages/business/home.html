@@ -264,8 +264,21 @@
                     }
                 })
             }
+            
+            startApiServerIfNotRunning(callback) {
+                const _this = this
+                RasApiSpace.getInstance().checkIsRunning(isRunning => {
+                    if (!isRunning) {
+                        _this.startApiServer(callback)
+                    } else {
+                        if (callback) {
+                            callback()
+                        } 
+                    }
+                })
+            }
 
-            startApiServer() {
+            startApiServer(callback) {
                 const obj = $('#rasApiStatus')
                 obj.removeClass('api-open')
                 obj.addClass('api-changing')
@@ -273,11 +286,13 @@
                 RasApiSpace.getInstance().startApi(true, res => {
                     obj.html('关闭API')
                     obj.addClass('api-close')
-                    layui.layer.msg(res.msg)
+                    if (callback) {
+                        callback(res)
+                    }
                 })
             }
             
-            stopApiServer() {
+            stopApiServer(callback) {
                 const obj = $('#rasApiStatus')
                 obj.removeClass('api-close')
                 obj.addClass('api-changing')
@@ -285,16 +300,22 @@
                 RasApiSpace.getInstance().stopApi(res => {
                     obj.html('启动API')
                     obj.addClass('api-open')
-                    layui.layer.msg(res.msg)
+                    if (callback) {
+                        callback(res)
+                    }
                 })
             }
 
             changeRasApiStatus() {
                 const _this = this
                 if (RasApiSpace.getInstance().isOpen()) {
-                    _this.stopApiServer()
+                    _this.stopApiServer(res => {
+                        layui.layer.msg(res.msg)
+                    })
                 } else {
-                    _this.startApiServer()
+                    _this.startApiServer(res => {
+                        layui.layer.msg(res.msg)
+                    })
                 }
             }
             
