@@ -1,7 +1,9 @@
 from server.bean.base_model import BaseModel
+from server.common.filter import Filter
+from server.util.util import str_to_int, ValidationUtils
 
 
-class TabObjTtsCorrectionTaskDetail(BaseModel):
+class ObjTtsCorrectionTaskDetail(BaseModel):
     def __init__(self, id=0, task_id=None, text_content=None, text_index=None, status=None,
                  audio_path=None, asr_text=None, asr_text_similarity=None, audio_status=None, create_time=None):
         self.id = id  # 自增编号
@@ -21,3 +23,18 @@ class TabObjTtsCorrectionTaskDetail(BaseModel):
                 f"status={self.status}, audio_path='{self.audio_path}', "
                 f"asr_text='{self.asr_text}', asr_text_similarity={self.asr_text_similarity}, "
                 f"audio_status={self.audio_status}, create_time='{self.create_time}')")
+
+
+class ObjTtsCorrectionTaskDetailFilter(Filter):
+    def __init__(self, form_data):
+        super().__init__(form_data)
+        self.task_id = form_data.get('task_id')
+
+    def make_sql(self) -> []:
+        sql = ''
+        condition = []
+        if not ValidationUtils.is_empty(self.task_id):
+            sql += f" and task_id = ? "
+            condition.append(f"{self.task_id}")
+
+        return sql, tuple(condition)
