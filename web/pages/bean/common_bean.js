@@ -12,6 +12,36 @@ class C_RoleCategory {
         this.roleList = data.roleList ? data.roleList.map(item => new C_Role(item)) : []; // 角色列表
     }
 }
+
+class C_ObjTtsCorrectionTask {
+    constructor(data) {
+        data = data || {};
+        this.id = data.id || 0; // 自增编号
+        this.taskName = data.taskName || ''; // 任务名称
+        this.textId = data.textId || 0; // 推理文本id
+        this.productId = data.productId || 0; // 成品Id
+        this.inferenceStatus = data.inferenceStatus || 0; // 推理状态 0 待推理 1 推理中 2 推理完成
+        this.remark = data.remark || ''; // 备注
+        this.createTime = data.createTime; // 创建时间
+    }
+}
+
+class C_ObjTtsCorrectionTaskDetail {
+    constructor(data) {
+        data = data || {};
+        this.id = data.id || 0; // 自增编号
+        this.taskId = data.taskId || 0; // 任务id
+        this.textContent = data.textContent || ''; // 待推理的文本内容
+        this.textIndex = data.textIndex || 0; // 文本序号
+        this.status = data.status || 0; // 推理状态 0 待推理；1 推理中；2 已完成；3 失败
+        this.audioPath = data.audioPath || ''; // 音频路径
+        this.asrText = data.asrText || ''; // asr文本
+        this.asrTextSimilarity = data.asrTextSimilarity || 0; // 文本相似度
+        this.audioStatus = data.audioStatus || 0; // 音频状态 0 未校验；1 推理正确；2 推理不正确
+        this.createTime = data.createTime; // 创建时间
+    }
+}
+
 class C_ObjFinishedProductManager {
     constructor(data) {
         data = data || {};

@@ -22,6 +22,7 @@ from server.controller.result_evaluation.result_evaluation_controller import rou
 from server.controller.finished_product.finished_product_controller import router as finished_product_router
 from server.controller.system.system_controller import router as system_router
 from server.controller.sound_fusion.sound_fusion_controller import router as sound_fusion_router
+from server.controller.tts_correction.tts_correction_controller import router as tts_correction_router
 from server.dao.data_base_manager import db_config
 from server.common import config_params
 from server.service.system.system_service import SystemService
@@ -59,6 +60,7 @@ app.include_router(result_evaluation_router)
 app.include_router(finished_product_router)
 app.include_router(system_router)
 app.include_router(sound_fusion_router)
+app.include_router(tts_correction_router)
 
 # Mount static files directory
 app.mount("/static", StaticFiles(directory="."), name="static")

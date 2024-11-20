@@ -8,6 +8,35 @@ def init_slave_table(db_path):
     # 创建一个游标对象用于执行SQL命令
     cursor = conn.cursor()
 
+    # 文本转音频任务
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS tab_obj_tts_correction_task (
+           Id                   INTEGER PRIMARY KEY AUTOINCREMENT, -- 自增编号
+           TaskName             TEXT, -- 任务名称
+           TextId               INTEGER, -- 推理文本id
+           ProductId            INTEGER, -- 成品Id
+           InferenceStatus      INTEGER, -- 推理状态 0 待推理 1 推理中 2 推理完成
+           Remark               TEXT, -- 备注
+           CreateTime           DATETIME DEFAULT CURRENT_TIMESTAMP -- 创建时间
+        );
+    ''')
+
+    # 文本转音频任务明细
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS tab_obj_tts_correction_task_detail (
+           Id                   INTEGER PRIMARY KEY AUTOINCREMENT, -- 自增编号
+           TaskId               INTEGER, -- 任务id
+           TextContent          TEXT, -- 待推理的文本内容
+           TextIndex            INTEGER, -- 文本序号
+           Status               INTEGER, -- 推理状态 0 待推理；1 推理中；2 已完成；3 失败
+           AudioPath            TEXT, -- 音频路径
+           AsrText              TEXT, -- asr文本
+           AsrTextSimilarity    REAL, -- 文本相似度
+           AudioStatus          INTEGER, -- 音频状态 0 未校验；1 推理正确；2 推理不正确
+           CreateTime           DATETIME DEFAULT CURRENT_TIMESTAMP -- 创建时间
+        );
+    ''')
+
     # 创建一个新表
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS tab_obj_finished_product_manager (
