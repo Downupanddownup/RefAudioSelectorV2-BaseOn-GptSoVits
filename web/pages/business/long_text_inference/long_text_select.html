@@ -62,8 +62,8 @@
                 const height = windowHeight * 0.95 *0.95 - textListSearch - 150
 
                 const params = _this.getSearchParams()
-                // 创建渲染实例
-                layui.table.render({
+
+                initLayuiTable('textList',{
                     elem: '#textList',
                     url: BaseUrl+'task/get_inference_text_list', // 此处为静态模拟数据，实际使用时需换成真实接口
                     method: 'post',
@@ -78,11 +78,17 @@
                         order: 'id', // 按 id 字段排序
                         desc: 'desc' // 降序排序
                     },
+                    customSelect: {
+                        type: 'radio',
+                        clickRow: row => {
+                            _this.selectedText = new C_ObjInferenceText(row)
+                        }
+                    },
                     // lineStyle: 'height: 50px;', // 定义表格的多行样式
                     parseData: function(res){ //res 即为原始返回的数据
                         const list = res.data ? res.data.map(i => new C_ObjInferenceText(i)) : []
                         _this.textList = list
-                        
+
                         if (_this.selectedText != null) {
                             list.forEach(i => {
                                 if (_this.selectedText.id == i.id) {
@@ -92,7 +98,7 @@
                                 }
                             })
                         }
-                        
+
 
                         return {
                             "code": res.code, //解析接口状态
@@ -156,20 +162,7 @@
                     error: function(res, msg){
                         console.log(res, msg)
                     }
-                });
-
-                // 复选框事件
-                layui.table.on('radio(textList)', function(obj){
-                    console.log(obj); // 当前行的一些常用操作集合
-                    console.log(obj.checked); // 当前是否选中状态
-                    console.log(obj.data); // 选中行的相关数据
-                    
-                    if (obj.checked) {
-                        _this.selectedText = new C_ObjInferenceText(obj.data)
-                    }
-
-                });
-
+                })
             }
 
             showEditTextDialog(textId){

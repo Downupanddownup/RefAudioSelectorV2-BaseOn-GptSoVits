@@ -75,7 +75,7 @@
                 const index = layer.open({
                     type: 1,
                     area: ['95%', '95%'],
-                    content: `<div id="productEditView"></div>`,
+                    content: html,
                     btn: ['确定', '取消'],
                     yes: function(){
 
@@ -89,7 +89,7 @@
                         const isMerge = $('#downloadProduct input[name="isMerge"]:checked').val()
                         const needModel = $('#downloadProduct input[name="needModel"]:checked').val()
                         
-                        _this.downloadProducts(HomeSpace.currentRole.name, ids,isMerge,needModel)
+                        _this.downloadProducts(HomePage.currentRole.name, ids,isMerge,needModel)
                         layui.layer.close(index)
                         
                     }
@@ -210,11 +210,14 @@
                     customSelect: {
                         type: 'checkbox',
                         clickRow: row => {
+                            
                             if (_this.chooseProductList.find(i => i.id === row.id)) {
                                 _this.chooseProductList = _this.chooseProductList.filter(i => i.id !== row.id)
                             } else {
                                 _this.chooseProductList.push(row)
                             }
+
+                            console.log('clickRow', _this.chooseProductList)
                         }
                     },
                     // lineStyle: 'height: 50px;', // 定义表格的多行样式
