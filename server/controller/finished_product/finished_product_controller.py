@@ -39,7 +39,7 @@ async def load_finished_product_detail(request: Request):
     vits_model_list = ModelManagerService.get_vits_model_list()
 
     return ResponseResult(data={
-        "task": product,
+        "product": product,
         "gptModels": gpt_model_list,
         "vitsModels": vits_model_list
     })

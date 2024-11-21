@@ -204,6 +204,7 @@ class RasApiMonitor:
 
 
 def _start_new_service(script_path: str, params: dict) -> subprocess:
+    logger.info(f"Starting new service with script: {script_path}")
     # 对于Windows系统
     if sys.platform.startswith('win'):
         # cmd = f'start cmd /c {python_exec} {script_path}'

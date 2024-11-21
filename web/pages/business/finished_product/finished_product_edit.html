@@ -77,12 +77,12 @@
 
                     obj.find('#gptModel').on('change', function() {
                         _this.product.gptModelName = $(this).val()
-                        _this.product.gptModelPath = _this.gptModels.find(item=>item.name==_this.product.gptModelName)
+                        _this.product.gptModelPath = _this.gptModels.find(item=>item.name==_this.product.gptModelName).path
                     })
 
                     obj.find('#vitsModel').on('change', function() {
                         _this.product.vitsModelName = $(this).val()
-                        _this.product.vitsModelPath = _this.vitsModels.find(item=>item.name==_this.product.vitsModelName)
+                        _this.product.vitsModelPath = _this.vitsModels.find(item=>item.name==_this.product.vitsModelName).path
                     })
 
                     obj.find('button[data-refresh-model]').on('click', function() {
@@ -167,7 +167,7 @@
                 const dialogId = layer.open({
                     type: 1,
                     area: ['90%', '90%'],
-                    content: `<div id="inpRefsAudioSelectView"></div>`,
+                    content: `<div id="longTextDealWithView"></div>`,
                     btn: ['关闭'],
                     yes: function(){
                         layui.layer.close(dialogId)
