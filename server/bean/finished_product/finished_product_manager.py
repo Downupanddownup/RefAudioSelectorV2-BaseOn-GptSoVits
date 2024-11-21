@@ -1,5 +1,7 @@
 import json
 from server.bean.base_model import BaseModel
+from server.bean.inference_task.gpt_model import GptModel
+from server.bean.inference_task.vits_model import VitsModel
 from server.bean.sound_fusion.obj_sound_fusion_audio import ObjSoundFusionAudio
 from server.common.filter import Filter
 from server.util.util import ValidationUtils
@@ -73,6 +75,12 @@ class ObjFinishedProductManager(BaseModel):
             self.sound_fusion_list = [ObjSoundFusionAudio.from_json_string(d) for d in dict_list]
         else:
             self.sound_fusion_list = []
+
+    def get_vits_model(self):
+        return VitsModel(version=self.gpt_sovits_version, name=self.vits_model_name, path=self.vits_model_path)
+
+    def get_gpt_model(self):
+        return GptModel(version=self.gpt_sovits_version, name=self.gpt_model_name, path=self.gpt_model_path)
 
 
 class ObjFinishedProductManagerFilter(Filter):

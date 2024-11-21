@@ -1,4 +1,6 @@
 from server.bean.base_model import BaseModel
+from server.bean.finished_product.finished_product_manager import ObjFinishedProductManager
+from server.bean.inference_task.obj_inference_text import ObjInferenceText
 from server.bean.tts_correction.obj_tts_correction_task_detail import ObjTtsCorrectionTaskDetail
 from server.common.filter import Filter
 from server.util.util import str_to_int, ValidationUtils
@@ -6,7 +8,8 @@ from server.util.util import str_to_int, ValidationUtils
 
 class ObjTtsCorrectionTask(BaseModel):
     def __init__(self, id=0, task_name=None, text_id=None, product_id=None, inference_status=None, remark=None,
-                 create_time=None,detail_list: list[ObjTtsCorrectionTaskDetail] = None):
+                 create_time=None,detail_list: list[ObjTtsCorrectionTaskDetail] = None,
+                 product: ObjFinishedProductManager = None, text_obj: ObjInferenceText = None):
         self.id = id  # 自增编号
         self.task_name = task_name  # 任务名称
         self.text_id = text_id  # 推理文本id
@@ -16,6 +19,8 @@ class ObjTtsCorrectionTask(BaseModel):
         self.create_time = create_time  # 创建时间
         self.detail_count = 0
         self.detail_list = detail_list
+        self.product = product
+        self.text_obj = text_obj
 
     def __str__(self):
         return (f"TabObjTtsCorrectionTask(id={self.id}, task_name='{self.task_name}', "

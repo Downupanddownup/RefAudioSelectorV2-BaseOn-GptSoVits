@@ -35,6 +35,7 @@ class C_ObjTtsCorrectionTaskDetail {
         this.textIndex = data.textIndex || 0; // 文本序号
         this.status = data.status || 0; // 推理状态 0 待推理；1 推理中；2 已完成；3 失败
         this.audioPath = data.audioPath || ''; // 音频路径
+        this.audioLength = data.audioLength || 0; // 音频时长
         this.asrText = data.asrText || ''; // asr文本
         this.asrTextSimilarity = data.asrTextSimilarity || 0; // 文本相似度
         this.audioStatus = data.audioStatus || 0; // 音频状态 0 未校验；1 推理正确；2 推理不正确

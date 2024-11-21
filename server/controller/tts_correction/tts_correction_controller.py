@@ -1,8 +1,12 @@
+import time
 from fastapi import APIRouter, Request
 
 from server.bean.tts_correction.obj_tts_correction_task import ObjTtsCorrectionTaskFilter, ObjTtsCorrectionTask
 from server.bean.tts_correction.obj_tts_correction_task_detail import ObjTtsCorrectionTaskDetailFilter, \
     ObjTtsCorrectionTaskDetail
+from server.common import config_params
+from server.common.custom_exception import CustomException
+from server.common.log_config import logger
 from server.common.response_result import ResponseResult
 from server.service.tts_correction.tts_correction_service import TtsCorrectionService
 from server.util.util import str_to_int
@@ -85,3 +89,27 @@ async def add_tts_correction_task(request: Request):
     TtsCorrectionService.batch_add_tts_correction_task_detail(task_detail_list)
 
     return ResponseResult(data=task)
+
+
+@router.post("/start_execute_tts_correction_task")
+async def start_execute_tts_correction_task(request: Request):
+    form_data = await request.form()
+    task_id = str_to_int(form_data.get('task_id'))
+    if task_id < 0:
+        raise CustomException("task_id is invalid")
+    task = TtsCorrectionService.find_task_by_id(task_id)
+    if task is None:
+        raise CustomException("未找到task")
+
+    start_time = time.perf_counter()  # 使用 perf_counter 获取高精度计时起点
+
+    TtsCorrectionService.start_execute_tts_correction_task(task, config_params.inference_process_num)
+
+    end_time = time.perf_counter()  # 获取计时终点
+    elapsed_time = end_time - start_time  # 计算执行耗时
+
+    # 记录日志内容
+    log_message = f"执行耗时: {elapsed_time:.6f} 秒"
+    logger.info(log_message)
+
+    return ResponseResult()

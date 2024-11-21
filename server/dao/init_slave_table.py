@@ -30,6 +30,7 @@ def init_slave_table(db_path):
            TextIndex            INTEGER, -- 文本序号
            Status               INTEGER, -- 推理状态 0 待推理；1 推理中；2 已完成；3 失败
            AudioPath            TEXT, -- 音频路径
+           AudioLength          REAL,  -- 音频时长
            AsrText              TEXT, -- asr文本
            AsrTextSimilarity    REAL, -- 文本相似度
            AudioStatus          INTEGER, -- 音频状态 0 未校验；1 推理正确；2 推理不正确
@@ -53,7 +54,7 @@ def init_slave_table(db_path):
             AudioPath TEXT,  -- 音频路径
             Content TEXT,  -- 音频内容
             Language TEXT,  -- 音频语种
-            AudioLength INTEGER,  -- 音频时长
+            AudioLength REAL,  -- 音频时长
             TopK REAL,  -- top_k值
             TopP REAL,  -- top_p值
             Temperature REAL,  -- 温度
@@ -79,7 +80,7 @@ def init_slave_table(db_path):
             Content TEXT DEFAULT '' ,-- 音频内容
             Language TEXT DEFAULT '',-- 音频语种
             Category TEXT DEFAULT '',-- 音频分类
-            AudioLength INTEGER DEFAULT 0 ,-- 音频时长
+            AudioLength REAL DEFAULT 0 ,-- 音频时长
             Remark TEXT DEFAULT '' ,-- 备注
             CreateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP -- 创建时间
         );
@@ -126,7 +127,7 @@ def init_slave_table(db_path):
             Content TEXT COMMENT '音频内容',
             Language TEXT COMMENT '音频语种',
             Category TEXT COMMENT '音频分类',
-            AudioLength INTEGER COMMENT '音频时长',
+            AudioLength REAL COMMENT '音频时长',
             ValidOrNot INTEGER COMMENT '是否有效 1 有效 0 无效' DEFAULT 1,
             Score INTEGER COMMENT '评分',
             LongTextScore INTEGER COMMENT '长文评分',

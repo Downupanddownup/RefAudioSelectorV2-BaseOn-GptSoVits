@@ -55,7 +55,7 @@ class TtsCorrectionDao:
     def find_detail_count(detail_filter: ObjTtsCorrectionTaskDetailFilter) -> int:
         # 查询所有记录的SQL语句
         select_sql = '''
-            SELECT COUNT(1) FROM tab_obj_tts_correction_task where 1=1
+            SELECT COUNT(1) FROM tab_obj_tts_correction_task_detail where 1=1
             '''
 
         condition_sql, condition = detail_filter.make_sql()
@@ -70,7 +70,7 @@ class TtsCorrectionDao:
     def find_detail_list(detail_filter: ObjTtsCorrectionTaskDetailFilter) -> list[ObjTtsCorrectionTaskDetail]:
         # 查询所有记录的SQL语句
         select_sql = '''
-            SELECT * FROM tab_obj_tts_correction_task where 1=1
+            SELECT * FROM tab_obj_tts_correction_task_detail where 1=1
             '''
 
         condition_sql, condition = detail_filter.make_sql()
@@ -117,7 +117,7 @@ class TtsCorrectionDao:
     @staticmethod
     def batch_add_tts_correction_task_detail(task_detail_list: list[ObjTtsCorrectionTaskDetail]) -> int:
         sql = '''
-        INSERT INTO tab_obj_tts_correction_task_detail(TaskId,TextContent,TextIndex,Status,AudioPath,AsrText,AsrTextSimilarity,AudioStatus,CreateTime) VALUES (?,?,?,?,?,?,?,?,datetime('now'))
+        INSERT INTO tab_obj_tts_correction_task_detail(TaskId,TextContent,TextIndex,Status,AudioPath,AudioLength,AsrText,AsrTextSimilarity,AudioStatus,CreateTime) VALUES (?,?,?,?,?,?,?,?,?,datetime('now'))
         '''
         return DBSlaveSQLExecutor.batch_execute(sql, [(
             x.task_id,
@@ -125,7 +125,34 @@ class TtsCorrectionDao:
             x.text_index,
             x.status,
             x.audio_path,
+            x.audio_length,
             x.asr_text,
             x.asr_text_similarity,
             x.audio_status
         ) for x in task_detail_list])
+
+    @staticmethod
+    def batch_update_tts_correction_detail_status_file_length(detail_list):
+        sql = '''
+            UPDATE tab_obj_tts_correction_task_detail SET 
+            Status=?,
+            AudioPath=?,
+            AudioLength=?
+             WHERE Id = ? 
+            '''
+        return DBSlaveSQLExecutor.batch_execute(sql, [(
+            x.status,
+            x.audio_path,
+            x.audio_length,
+            x.id
+        ) for x in detail_list])
+
+    @staticmethod
+    def change_task_status(id: int, status: int):
+        sql = '''
+            UPDATE tab_obj_tts_correction_task SET InferenceStatus = ? WHERE Id = ?
+            '''
+        return DBSlaveSQLExecutor.execute_update(sql, (
+            status,
+            id
+        ))
