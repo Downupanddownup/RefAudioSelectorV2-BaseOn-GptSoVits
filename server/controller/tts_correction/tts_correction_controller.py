@@ -1,5 +1,7 @@
+import os
 import time
 from fastapi import APIRouter, Request
+from fastapi.responses import StreamingResponse
 
 from server.bean.tts_correction.obj_tts_correction_task import ObjTtsCorrectionTaskFilter, ObjTtsCorrectionTask
 from server.bean.tts_correction.obj_tts_correction_task_detail import ObjTtsCorrectionTaskDetailFilter, \
@@ -9,7 +11,7 @@ from server.common.custom_exception import CustomException
 from server.common.log_config import logger
 from server.common.response_result import ResponseResult
 from server.service.tts_correction.tts_correction_service import TtsCorrectionService
-from server.util.util import str_to_int
+from server.util.util import str_to_int, zip_directory
 
 router = APIRouter(prefix="/correction")
 
@@ -113,3 +115,28 @@ async def start_execute_tts_correction_task(request: Request):
     logger.info(log_message)
 
     return ResponseResult()
+
+
+@router.post("/export_tts_correction_task_audio")
+async def export_tts_correction_task_audio(request: Request):
+    form_data = await request.form()
+    task_id = str_to_int(form_data.get('task_id'))
+    if task_id < 0:
+        raise CustomException("task_id is invalid")
+    task = TtsCorrectionService.find_task_by_id(task_id)
+    if task is None:
+        raise CustomException("未找到task")
+
+    zip_in_memory = TtsCorrectionService.generate_zip(task)
+
+    # 将指针移动到开始位置
+    zip_in_memory.seek(0)
+
+    # 设置响应头
+    headers = {
+        'Content-Disposition': 'attachment; filename=example.zip',
+        'Content-Type': 'application/zip'
+    }
+
+    # 使用 StreamingResponse 返回 BytesIO 对象
+    return StreamingResponse(zip_in_memory, headers=headers)

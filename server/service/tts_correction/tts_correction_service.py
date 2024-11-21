@@ -1,6 +1,8 @@
 import os
 import time
 import traceback
+from io import BytesIO
+
 import numpy as np
 import librosa
 from concurrent.futures import ProcessPoolExecutor
@@ -18,6 +20,7 @@ from server.dao.data_base_manager import db_config
 from server.dao.tts_correction.tts_correction_dao import TtsCorrectionDao
 from server.service.finished_product.finished_product_service import FinishedProductService
 from server.service.inference_task.inference_text_service import InferenceTextService
+from server.util.util import merge_audio_files, zip_directory, read_zip_to_memory, delete_directory
 
 
 class TtsCorrectionService:
@@ -109,6 +112,91 @@ class TtsCorrectionService:
     @staticmethod
     def change_task_status_to_finish(id: int):
         return TtsCorrectionDao.change_task_status(id, 2)
+
+    @staticmethod
+    def generate_srt(task: ObjTtsCorrectionTask, output_dir: str) -> str:
+
+        output_file = os.path.join(output_dir, f'{task.task_name}.srt')
+
+        """
+        根据音频数据生成SRT字幕文件。
+
+        :param audio_data: 包含音频地址、文本内容和时长的数组
+        :param output_file: 输出的SRT文件路径
+        """
+        with open(output_file, 'w', encoding='utf-8') as f:
+            start_time = 0.0  # 初始时间为0秒
+            for i, entry in enumerate(task.detail_list, start=1):
+                duration = entry['audio_length']
+                end_time = start_time + duration
+
+                # 格式化时间戳
+                start_time_str = format_time(start_time)
+                end_time_str = format_time(end_time)
+
+                # 写入SRT文件
+                f.write(f"{i}\n")
+                f.write(f"{start_time_str} --> {end_time_str}\n")
+                f.write(f"{entry['text_content']}\n")
+                f.write("\n")
+
+                # 更新开始时间
+                start_time = end_time
+        return output_file
+
+    @staticmethod
+    def generate_txt(task: ObjTtsCorrectionTask, output_dir: str) -> str:
+
+        output_file = os.path.join(output_dir, f'{task.task_name}.txt')
+        with open(output_file, 'w', encoding='utf-8') as f:
+            context = ''.join([entry['text_content'] for entry in task.detail_list]).replace('<br>', '\n')
+            f.write(context)
+
+        return output_file
+
+    @staticmethod
+    def generate_audio(task: ObjTtsCorrectionTask, output_dir: str) -> str:
+        output_file = os.path.join(output_dir, f'{task.task_name}.wav')
+        audio_files = [detail.audio_path for detail in task.detail_list]
+        merge_audio_files(audio_files, output_file)
+        return output_file
+
+    @staticmethod
+    def generate_zip(task: ObjTtsCorrectionTask) -> BytesIO:
+
+        output_dir = f'temp/tts_correction/task_{task.id}'
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        try:
+            TtsCorrectionService.generate_srt(task, output_dir)
+
+            TtsCorrectionService.generate_txt(task, output_dir)
+
+            TtsCorrectionService.generate_audio(task, output_dir)
+
+            zip_file_path = f'{output_dir}/{task.task_name}.zip'
+            zip_directory(output_dir, zip_file_path)
+
+            zip_in_memory = read_zip_to_memory(zip_file_path)
+        finally:
+            delete_directory(output_dir)
+
+        return zip_in_memory
+
+
+def format_time(seconds):
+    """
+    将秒数转换为SRT格式的时间戳。
+
+    :param seconds: 秒数
+    :return: SRT格式的时间戳字符串
+    """
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    seconds = int(seconds % 60)
+    milliseconds = int((seconds % 1) * 1000)
+    return f"{hours:02}:{minutes:02}:{seconds:02},{milliseconds:03}"
 
 
 def generate_audio_files_parallel(task: ObjTtsCorrectionTask, num_processes: int = 1) -> bool:

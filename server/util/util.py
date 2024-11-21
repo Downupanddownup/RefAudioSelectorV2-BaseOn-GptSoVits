@@ -3,6 +3,7 @@ import sys
 import os
 import time
 import shutil
+from pydub import AudioSegment
 from io import BytesIO
 
 from fastapi import UploadFile
@@ -247,3 +248,24 @@ def copy_file_to_dest_file(src_file, dest_file):
 
     # 复制文件
     shutil.copy2(src_file, dest_file)
+
+
+def merge_audio_files(audio_files, output_file):
+    """
+    将多个音频文件按顺序合并成一个音频文件。
+
+    :param audio_files: 音频文件列表，每个元素是一个文件路径
+    :param output_file: 合并后的音频文件路径
+    """
+    # 创建一个空的 AudioSegment 对象
+    combined = AudioSegment.silent(duration=0)
+
+    # 遍历音频文件列表，逐个加载并合并
+    for file in audio_files:
+        if not os.path.isfile(file):
+            raise FileNotFoundError(f"文件 {file} 不存在")
+        audio_segment = AudioSegment.from_file(file)
+        combined += audio_segment
+
+    # 导出合并后的音频文件
+    combined.export(output_file, format=os.path.splitext(output_file)[1][1:])
