@@ -55,6 +55,8 @@
                     LongTextInferenceSpace.getLongTextInference(_this.contentView).render()
                 } else if (tab === 5) {
                     FinishedProductSpace.getFinishedProduct(_this.contentView).render()
+                } else if (tab === 6) {
+                    TtsCorrectionListSpace.getTtsCorrectionList(_this.contentView).render()
                 }
                 _this.tab = tab
             }
@@ -340,6 +342,7 @@
                 <button class="tab-link" data-tab="3">结果评测</button>
                 <button class="tab-link" data-tab="4">长文测试</button>
                 <button class="tab-link" data-tab="5">成品管理</button>
+                <button class="tab-link" data-tab="6">文本推理</button>
             </div>
             <div class="tab-right">
                 <div class="info-button api-open" id="rasApiStatus" >启动API</div>

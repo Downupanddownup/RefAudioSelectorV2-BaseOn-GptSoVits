@@ -15,18 +15,45 @@
                     obj.html(html)
 
                     _this.loadTtsCorrectionList()
-                    
+
+                    obj.find('#addTask').on('click', function(){
+                        _this.openAddDialog()
+                    })
+
+                    obj.find('#searchTask').on('click', function(){
+                        _this.reloadTtsCorrection()
+                    })
+
                 });
                 return _this
+            }
+
+            getSearchParams(){
+                const _this = this
+                const obj = $('#'+_this.viewId)
+                const searchAudioName = obj.find('#searchAudioName').val()
+                const searchCategory = obj.find('#searchCategory').val()
+                const searchContent = obj.find('#searchContent').val()
+                return {
+                    audio_name: searchAudioName,
+                    category: searchCategory,
+                    content: searchContent,
+                }
+            }
+
+            reloadTtsCorrection() {
+                const _this = this
+                const params = _this.getSearchParams()
+                reloadListDataBySearchParams('correctionTaskList',params)
             }
 
             loadTtsCorrectionList(){
                 const _this = this
 
                 const height = $('#referenceAudioListDiv').height()
-                
-                initLayuiTable('referenceAudioList',{
-                    elem: '#referenceAudioList',
+
+                initLayuiTable('correctionTaskList',{
+                    elem: '#correctionTaskList',
                     url: BaseUrl+'correction/get_tts_correction_task_list', // 此处为静态模拟数据，实际使用时需换成真实接口
                     method: 'post',
                     height: height, // 最大高度减去其他容器已占有的高度差
@@ -51,45 +78,50 @@
                     },
                     cols: [[
                         {field:'index', width:'5%', title: '序号', type: 'numbers'},
-                        {field:'audioName', width:'10%', title: '音频名称', templet: function(d){
-                                return d.audioName;
+                        {field:'taskName', width:'10%', title: '任务名称', templet: function(d){
+                                return d.taskName;
                             }},
-                        {field:'category', width:'8%', title: '音频分类', templet: function(d){
-                                return d.category;
+                        {field:'textId', width:'8%', title: '文本标题', templet: function(d){
+                                return d.textId;
                             }},
-                        {field:'content', width:'20%', title: '音频内容', templet: function(d){
-                                return `<div data-content-id="${d.id}" style="cursor: pointer">${d.content}</div>`;
+                        {field:'productId', width:'8%', title: '产品标题', templet: function(d){
+                                return d.productId;
                             }},
-                        {field:'language', width:'8%', title: '音频语种', templet: function(d){
-                                return d.language;
+                        {field:'inferenceStatus', width:'8%', title: '推理状态', templet: function(d){
+                                if (d.inferenceStatus == 0) {
+                                    return '待推理'
+                                }
+                                if (d.inferenceStatus == 1) {
+                                    return '部分推理'
+                                }
+                                if (d.inferenceStatus == 2) {
+                                    return '已完成'
+                                }
+                                return d.inferenceStatus
                             }},
-                        {field:'audioLength', width:'8%', title: '音频时长', sort: true, templet: function(d){
-                                return d.audioLength.toFixed(1);
+                        {field:'remark', width:'8%', title: '备注', sort: true, templet: function(d){
+                                return d.remark;
                             }},
                         {field:'opt', width:'20%', title: '操作', templet: function(d){
                                 const html = []
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-edit="${d.id}">编辑</button>`)
-                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-compare="${d.id}">比对</button>`)
-                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-split="${d.id}">分割</button>`)
+                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-inference="${d.id}">开始推理</button>`)
+                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-asr="${d.id}">结果分析</button>`)
+                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-result="${d.id}">推理结果</button>`)
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-download="${d.id}">下载</button>`)
                                 return html.join(' ');
                             }},
                     ]],
                     done: function(){
-                     
-                        $('#' + _this.viewId + ' button[data-go-to-edit]').on('click', function(){
-                            const id = $(this).attr('data-go-to-edit')
-                            _this.openEditDialog(id)
+
+                        $('#' + _this.viewId + ' button[data-go-to-inference]').on('click', function(){
+                            const id = $(this).attr('data-go-to-inference')
+                            _this.openInferenceDialog(id)
                         })
 
-                        $('#' + _this.viewId + ' button[data-go-to-compare]').on('click', function(){
-                            const id = $(this).attr('data-go-to-compare')
-                            _this.goToCompare(id)
-                        })
-
-                        $('#' + _this.viewId + ' button[data-go-to-split]').on('click', function(){
-                            const id = $(this).attr('data-go-to-split')
-                            _this.goToOpenSplitDialog(id)
+                        $('#' + _this.viewId + ' button[data-go-to-speak]').on('click', function(){
+                            const id = $(this).attr('data-go-to-speak')
+                            _this.openSpeakDialog(id)
                         })
 
                         $('#' + _this.viewId + ' button[data-go-to-download]').on('click', function(){
@@ -102,14 +134,61 @@
                         console.log(res, msg)
                     }
                 })
-                
+
             }
+
+            openAddDialog(){
+                const _this = this
+
+                const edit = TtsCorrectionCreateSpeakSpace.getTtsCorrectionCreateSpeak('addTaskView')
+
+                const index = layer.open({
+                    type: 1,
+                    area: ['95%', '95%'],
+                    content: `<div id="addTaskView"></div>`,
+                    btn: ['确定', '取消'],
+                    yes: function(){
+                        edit.submit(() => {
+                            refreshListData('correctionTaskList')
+                            layui.layer.close(index)
+                        })
+                    }
+                });
+
+                edit.loadData()
+            }
+
+            openInferenceDialog(id){
+                const _this = this
+
+                const edit = TtsCorrectionInferenceSpace.getTtsCorrectionInference('inferenceView')
+
+                const index = layer.open({
+                    type: 1,
+                    area: ['95%', '95%'],
+                    content: `<div id="inferenceView"></div>`,
+                    btn: ['确定', '取消'],
+                    yes: function(){
+                        edit.submit(() => {
+                            refreshListData('correctionTaskList')
+                            layui.layer.close(index)
+                        })
+                    }
+                });
+
+                edit.loadData()
+            }
+
+            downloadAudio(id){
+
+            }
+
         }
-        
+
         function getTtsCorrectionList(viewId) {
             return new C_TtsCorrectionList(viewId)
         }
-        
+
         return {
             getTtsCorrectionList: getTtsCorrectionList
         }
@@ -133,16 +212,14 @@
             <td>音频内容：</td>
             <td><input type="text" autocomplete="off" id="searchContent" placeholder="音频内容" class="layui-input" style="width: auto;"></td>
             <td colspan="2">
-                <button type="submit" class="layui-btn layui-btn-sm" id="searchAudio">搜索</button>
-                <button type="submit" class="layui-btn layui-btn-sm" id="addAudio">新增</button>
-                <button type="submit" class="layui-btn layui-btn-sm" id="importAudio">导入</button>
-                <button type="submit" class="layui-btn layui-btn-sm" id="soundFusionManager">融合音频</button>
+                <button type="submit" class="layui-btn layui-btn-sm" id="searchTask">搜索</button>
+                <button type="submit" class="layui-btn layui-btn-sm" id="addTask">新增</button>
             </td>
         </tr>
     </table>
 
 
     <div id="referenceAudioListDiv" style="flex: 1;overflow-y: auto">
-        <table class="layui-hide" id="referenceAudioList" lay-filter="referenceAudioList" ></table>
+        <table class="layui-hide" id="correctionTaskList" lay-filter="correctionTaskList" ></table>
     </div>
 </script>
