@@ -204,8 +204,8 @@ def zip_directory(source_dir, output_filename):
         output_filename (str): 输出 ZIP 文件的名称（不包括扩展名）。
     """
     # 确保输出文件名没有 .zip 扩展名
-    if not output_filename.endswith('.zip'):
-        output_filename += '.zip'
+    if output_filename.endswith('.zip'):
+        output_filename = output_filename[:-4]
 
     # 创建压缩文件
     shutil.make_archive(output_filename, 'zip', source_dir)

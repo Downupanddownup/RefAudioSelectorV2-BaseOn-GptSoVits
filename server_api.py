@@ -3,7 +3,11 @@ import sys
 import time
 import webbrowser
 
+from server.bean.sound_fusion.obj_sound_fusion_audio import ObjSoundFusionAudio
+
 sys.path.append(os.getcwd())
+from server.bean.finished_product.finished_product_manager import ObjFinishedProductManager
+from server.bean.finished_product.product_param_config_template import ProductParamConfigTemplate
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -68,6 +72,42 @@ app.mount("/static", StaticFiles(directory="."), name="static")
 if __name__ == "__main__":
     import uvicorn
 
+    product_list = []
+    product = ObjFinishedProductManager(
+        name="test",
+        gpt_sovits_version="v1.0",
+        gpt_model_name="gpt_model_name",
+        gpt_model_path="gpt_model_path",
+        vits_model_name="vits_model_name",
+        vits_model_path="vits_model_path",
+        audio_id=1,
+        audio_name="audio_name",
+        audio_path="audio_path",
+        content="content",
+        language="zh",
+        audio_length=1,
+        top_k=1,
+        top_p=1,
+        temperature=1,
+        text_delimiter="text_delimiter",
+        speed=1,
+        score=1,
+        remark="remark",
+    )
+    sound_fusion_list = []
+    sound_fusion = ObjSoundFusionAudio(
+        audio_name="audio_name",
+        audio_path="audio_path",
+        content="content",
+        language="zh",
+        audio_length=1,
+        remark="remark",
+    )
+    sound_fusion_list.append(sound_fusion)
+    product.set_sound_fusion_list(sound_fusion_list)
+
+    product_list.append(product)
+
     url = f"http://localhost:{config_params.service_port}/static/main.html?apiPort={config_params.api_port}"
     print(f"Open url: {url}")
     # webbrowser.open(url)
@@ -76,4 +116,8 @@ if __name__ == "__main__":
     role = SystemService.get_valid_role()
     if role:
         db_config.update_db_path(role)
-    uvicorn.run(app, host="0.0.0.0", port=int(config_params.service_port))
+
+    config_template = ProductParamConfigTemplate(db_config.role.name, False, True, product_list)
+    zip_in_memory = config_template.generate_zip_file()
+
+    # uvicorn.run(app, host="0.0.0.0", port=int(config_params.service_port))

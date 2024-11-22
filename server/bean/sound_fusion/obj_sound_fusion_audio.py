@@ -1,3 +1,4 @@
+import os
 import json
 
 from server.bean.base_model import BaseModel
@@ -33,6 +34,12 @@ class ObjSoundFusionAudio(BaseModel):
             'remark': self.remark,
             'create_time': self.create_time
         }
+
+    def get_audio_extension(self):
+        if self.audio_path:
+            _, ext = os.path.splitext(self.audio_path)
+            return ext[1:] if ext else None  # 去掉扩展名前的点
+        return None
 
     def to_json_string(self):
         return json.dumps(self.to_dict())

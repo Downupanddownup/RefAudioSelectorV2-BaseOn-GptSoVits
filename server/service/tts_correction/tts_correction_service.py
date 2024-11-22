@@ -164,7 +164,7 @@ class TtsCorrectionService:
     @staticmethod
     def generate_zip(task: ObjTtsCorrectionTask) -> BytesIO:
 
-        output_dir = f'temp/tts_correction/task_{task.id}'
+        output_dir = f'{db_config.workspace}/temp/tts_correction/task_{task.id}'
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 

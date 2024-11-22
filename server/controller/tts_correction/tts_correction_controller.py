@@ -11,7 +11,6 @@ from server.common.custom_exception import CustomException
 from server.common.log_config import logger
 from server.common.response_result import ResponseResult
 from server.service.tts_correction.tts_correction_service import TtsCorrectionService
-from server.util.util import str_to_int, zip_directory
 
 router = APIRouter(prefix="/correction")
 

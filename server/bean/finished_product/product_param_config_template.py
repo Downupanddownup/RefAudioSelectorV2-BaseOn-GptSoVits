@@ -6,6 +6,7 @@ from io import BytesIO
 
 from jinja2 import Template
 
+from server.dao.data_base_manager import db_config
 from server.util.util import delete_directory, zip_directory, read_zip_to_memory, write_text_to_file, \
     copy_file_to_dest_file
 import server.common.config_params as params
@@ -17,34 +18,34 @@ config_template = """
     "sovits_path": "{{ gpt_sovits_version }}/{{ vits_model_name }}",
     "introduction": "RAS-V2导出的基于GPT-Sovits的微调模型",
     "product_list": [
-        {% for audio in product_list %}
-            {
-                "name": "{{ audio.name }}",
-                "default_selected": {{ true if loop.first else false }},
-                "category": "{{ audio.category }}",
-                "audio_path": "refer_audio/{{ audio.content }}.{{ audio.get_audio_extension() }}",
-                "content": "{{ audio.content }}",
-                "language": "{{ audio.language }}",
-                "top_k": "{{ audio.top_k }}",
-                "top_p": "{{ audio.top_p }}",
-                "temperature": "{{ audio.temperature }}",
-                "text_delimiter": "{{ audio.text_delimiter }}",
-                "speed": "{{ audio.speed }}",
-                "inp_refs": [
-                    {% for sound in audio.sound_fusion_list %}
-                        {
-                             "role_name": "{{ sound.role_name }}",
-                             "category": "{{ sound.category }}",
-                             "audio_path": "inp_refs/{{ sound.content }}.{{ sound.get_audio_extension() }}",
-                             "content": "{{ sound.content }}",
-                             "language": "{{ sound.language }}"
-                        }{% if not loop.last %},{% endif %}
-                    {% endfor %}
-                ],
-                "score": "{{ audio.score }}",
-                "remark": "{{ audio.remark }}"
-            }{% if not loop.last %},{% endif %}
-        {% endfor %}
+        {%- for audio in product_list %}
+        {
+            "name": "{{ audio.name }}",
+            "default_selected": {{ 'true' if loop.first else 'false' }},
+            "category": "{{ audio.category }}",
+            "audio_path": "refer_audio/{{ audio.content }}.{{ audio.get_audio_extension() }}",
+            "content": "{{ audio.content }}",
+            "language": "{{ audio.language }}",
+            "top_k": {{ audio.top_k }},
+            "top_p": {{ audio.top_p }},
+            "temperature": {{ audio.temperature }},
+            "text_delimiter": "{{ audio.text_delimiter }}",
+            "speed": {{ audio.speed }},
+            "inp_refs": [
+                {%- for sound in audio.sound_fusion_list %}
+                {
+                     "role_name": "{{ sound.role_name }}",
+                     "category": "{{ sound.category }}",
+                     "audio_path": "inp_refs/{{ sound.content }}.{{ sound.get_audio_extension() }}",
+                     "content": "{{ sound.content }}",
+                     "language": "{{ sound.language }}"
+                }{% if not loop.last %},{% endif %}
+                {%- endfor %}
+            ],
+            "score": {{ audio.score }},
+            "remark": "{{ audio.remark }}"
+        }{% if not loop.last %},{% endif %}
+        {%- endfor %}
     ]
 }
 """
@@ -63,14 +64,22 @@ class ParamItem:
 
     def generate_json_from_template(self, template: Template) -> str:
         # 渲染模板
-        rendered_config = template.render(self)
+        rendered_config = template.render({
+            'version': self.version,
+            'gpt_sovits_version': self.gpt_sovits_version,
+            'gpt_model_name': self.gpt_model_name,
+            'gpt_model_path': self.gpt_model_path,
+            'vits_model_name': self.vits_model_name,
+            'vits_model_path': self.vits_model_path,
+            'product_list': self.product_list
+        })
         return rendered_config
 
-    def generate_model_file(self, directory: str, role_name: str, is_merge: bool,need_model: bool, template: Template):
+    def generate_model_file(self, directory: str, role_name: str, is_merge: bool, need_model: bool, template: Template):
         json_str = self.generate_json_from_template(template)
         real_obj = json.loads(json_str)
         model_dir = self.get_model_dir(directory, role_name, is_merge)
-        config_file_path = os.path.join(directory, model_dir, 'infer_config.json')
+        config_file_path = os.path.join(model_dir, 'infer_config.json')
         write_text_to_file(json_str, config_file_path)
         self.copy_file(model_dir, real_obj)
 
@@ -97,13 +106,19 @@ class ParamItem:
                 copy_file_to_dest_file(sound.get_audio_path(), real_audio_path)
 
     def get_model_dir(self, directory: str, role_name: str, is_merge: bool) -> str:
+        dir_name = None
         if is_merge:
-            return f'{role_name}|{self.gpt_sovits_version}|{self.gpt_model_name}|{self.vits_model_name}'
-        return f'{role_name}|{self.product_list[0].name}|{self.product_list[0].id}'
+            dir_name = f'{role_name}-{self.gpt_sovits_version}-{self.gpt_model_name}-{self.vits_model_name}'
+        else:
+            dir_name = f'{role_name}-{self.product_list[0].name}-{self.product_list[0].id}'
+        model_dir = os.path.join(directory, dir_name)
+        if not os.path.exists(model_dir):
+            os.makedirs(model_dir)
+        return model_dir
 
 
 class ProductParamConfigTemplate:
-    def __init__(self, role_name, is_merge: bool,need_model: bool, product_list):
+    def __init__(self, role_name, is_merge: bool, need_model: bool, product_list):
         self.role_name = role_name  # 角色名称
         self.is_merge = is_merge  # 是否合并
         self.need_model = need_model  # 是否需要包含模型
@@ -143,19 +158,24 @@ class ProductParamConfigTemplate:
         if len(self.param_item_list) == 0:
             return None
 
-        temp_dir = f'temp/{uuid.uuid1()}'
+        temp_dir = f'{db_config.workspace}/temp/{uuid.uuid1()}'
         if not os.path.exists(temp_dir):
             os.makedirs(temp_dir)
 
+        role_dir = os.path.join(temp_dir, self.role_name)
+        if not os.path.exists(role_dir):
+            os.makedirs(role_dir)
+
         try:
             for param_item in self.param_item_list:
-                param_item.generate_model_file(temp_dir, self.role_name, self.is_merge, self.need_model, self.template)
+                param_item.generate_model_file(role_dir, self.role_name, self.is_merge, self.need_model, self.template)
 
-            zip_file_path = f'{temp_dir}/{self.role_name}.zip'
-            zip_directory(temp_dir, zip_file_path)
+            zip_directory(role_dir, role_dir)
 
+            zip_file_path = f'{role_dir}.zip'
             zip_in_memory = read_zip_to_memory(zip_file_path)
         finally:
-            delete_directory(temp_dir)
+            # delete_directory(temp_dir)
+            pass
 
         return zip_in_memory

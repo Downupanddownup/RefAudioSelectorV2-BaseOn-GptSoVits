@@ -1,3 +1,4 @@
+import os
 import json
 from server.bean.base_model import BaseModel
 from server.bean.inference_task.gpt_model import GptModel
@@ -68,6 +69,12 @@ class ObjFinishedProductManager(BaseModel):
             self.inp_refs = json.dumps([x.to_dict() for x in sound_fusion_list])
         else:
             self.inp_refs = None
+
+    def get_audio_extension(self):
+        if self.audio_path:
+            _, ext = os.path.splitext(self.audio_path)
+            return ext[1:] if ext else None  # 去掉扩展名前的点
+        return None
 
     def set_sound_fusion_list_from_json(self, inp_refs: str):
         if inp_refs is not None:
