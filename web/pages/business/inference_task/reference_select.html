@@ -96,6 +96,7 @@
                     audio_name: searchAudioName,
                     category: searchCategory,
                     content: searchContent,
+                    valid: 1,
                 }
             }
 
@@ -115,6 +116,8 @@
                 console.log('header',header)
 
                 const height = windowHeight * 0.95 *0.95 - header - audioListSearch - 200
+
+                const params = _this.getSearchParams()
                 // 创建渲染实例
                 layui.table.render({
                     elem: '#audioList',
@@ -130,7 +133,7 @@
                         order: 'audioLength', // 按 id 字段排序
                         desc: 'desc' // 降序排序
                     },
-                    // lineStyle: 'height: 50px;', // 定义表格的多行样式
+                    where: params,
                     parseData: function(res){ //res 即为原始返回的数据
                         const list = res.data ? res.data.map(i => new C_ObjReferenceAudio(i)) : []
                         _this.audioList = list

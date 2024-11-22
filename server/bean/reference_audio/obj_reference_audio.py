@@ -1,6 +1,6 @@
 from server.bean.base_model import BaseModel
 from server.common.filter import Filter
-from server.util.util import ValidationUtils
+from server.util.util import ValidationUtils, str_to_int
 
 
 class ObjReferenceAudio(BaseModel):
@@ -37,6 +37,7 @@ class ObjReferenceAudioFilter(Filter):
         self.audio_name = form_data.get('audio_name')
         self.content = form_data.get('content')
         self.category = form_data.get('category')
+        self.valid = str_to_int(form_data.get('valid'),0)
         self.language = form_data.get('language')
         self.category_list_str = form_data.get('category_list_str')
 
@@ -51,19 +52,17 @@ class ObjReferenceAudioFilter(Filter):
         if not ValidationUtils.is_empty(self.audio_name):
             sql += f" and AudioName like ? "
             condition.append(f"%{self.audio_name}%")
-
         if not ValidationUtils.is_empty(self.content):
             sql += f" and content like ? "
             condition.append(f"%{self.content}%")
-
         if not ValidationUtils.is_empty(self.category):
             sql += f" and category = ? "
             condition.append(f"{self.category}")
+        if self.valid == 1:
+            sql += f" and category <> '无效' "
         if not ValidationUtils.is_empty(self.category_list_str):
             sql += f" and category in ({self.category_list_str}) "
-
         if not ValidationUtils.is_empty(self.language):
             sql += f" and language = ? "
             condition.append(f"{self.language}")
-
         return sql, tuple(condition)

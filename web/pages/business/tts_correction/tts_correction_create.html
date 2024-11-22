@@ -4,6 +4,7 @@
         class C_TtsCorrectionCreateSpeak {
             constructor(viewId) {
                 this.viewId = viewId
+                this.dealWithObj = null
             }
 
             render() {
@@ -14,18 +15,25 @@
                     const obj = $('#'+_this.viewId)
                     obj.html(html)
                     
+                    _this.initText()
                     _this.initSteps()
                 });
                 return _this
             }
             
+            initText(){
+                const _this = this
+                _this.dealWithObj = LongTextDealWithSpace.getLongTextDealWith('longTextDealWithView', {})
+                _this.dealWithObj.render()
+            }
+            
             initSteps(){
                 const _this = this
                 
-                const smartwizard = $('#' + _this.viewId + ' #smartwizard')
+                const smartWizard = $('#' + _this.viewId + ' #smartwizard')
                 
                 // SmartWizard initialize
-                smartwizard.smartWizard({
+                smartWizard.smartWizard({
                     theme: 'arrows',
                     lang: { // Language variables for button
                         next: '下一步',
@@ -34,7 +42,7 @@
                 });
 
                 // Initialize the leaveStep event
-                smartwizard.on("leaveStep", function(e, anchorObject, currentStepIndex, nextStepIndex, stepDirection) {
+                smartWizard.on("leaveStep", function(e, anchorObject, currentStepIndex, nextStepIndex, stepDirection) {
 
                     console.log('smartwizard', {
                         anchorObject,
@@ -90,7 +98,7 @@
 
         <div class="tab-content" >
             <div id="step-1" class="tab-pane" role="tabpanel" aria-labelledby="step-1">
-                Step content
+                <div id="longTextDealWithView"></div>
             </div>
             <div id="step-2" class="tab-pane" role="tabpanel" aria-labelledby="step-2">
                 Step content
