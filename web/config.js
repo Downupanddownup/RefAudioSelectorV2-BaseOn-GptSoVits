@@ -2,47 +2,47 @@ const SysConfig = (function () {
     
     const languageList = [
         {
-            name: '中文',
+            name: '中文(all_zh)',
             code: 'all_zh'
         },
         {
-            name: '粤语',
+            name: '粤语(all_yue)',
             code: 'all_yue'
         },
         {
-            name: '英文',
+            name: '英文(en)',
             code: 'en'
         },
         {
-            name: '日文',
+            name: '日文(all_ja)',
             code: 'all_ja'
         },
         {
-            name: '韩文',
+            name: '韩文(all_ko)',
             code: 'all_ko'
         },
         {
-            name: '中英混合',
+            name: '中英混合(zh)',
             code: 'zh'
         },
         {
-            name: '粤英混合',
+            name: '粤英混合(yue)',
             code: 'yue'
         },
         {
-            name: '日英混合',
+            name: '日英混合(ja)',
             code: 'ja'
         },
         {
-            name: '韩英混合',
+            name: '韩英混合(ko)',
             code: 'ko'
         },
         {
-            name: '多语种混合',
+            name: '多语种混合(auto)',
             code: 'auto'
         },
         {
-            name: '多语种混合(粤语)',
+            name: '多语种混合(粤语)(auto_yue)',
             code: 'auto_yue'
         }
     ]

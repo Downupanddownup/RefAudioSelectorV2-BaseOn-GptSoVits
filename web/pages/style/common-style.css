@@ -25,13 +25,7 @@ body {
 }
 
 .container-tab {
-    /*background-color: #f9f9f9; !* 背景色 *!*/
-    /*border: 1px solid #e0e0e0;*/
-    /*border-radius: 8px;*/
-    /*padding: 20px;*/
     width: 100%;
-    /*margin: 20px auto;*/
-
     display: flex;
     flex-direction: column; /* 纵向排列 */
     height: 100vh; /* 填充整个视口高度 */
@@ -43,7 +37,6 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 2px 10px;
-    /*margin-bottom: 20px;*/
 }
 
 .tab-left {
@@ -76,7 +69,6 @@ body {
 }
 
 .info-button {
-    /*background-color: #007bff; !* 信息按钮背景色 *!*/
     color: white; /* 字体颜色 */
     border-radius: 5px;
     padding: 10px 15px;
@@ -88,10 +80,6 @@ body {
 .about {
     background-color: #007bff;
 }
-
-/*.info-button:hover {
-    color: #0056b3; !* 悬停效果 *!
-}*/
 
 .api-open {
     background-color: #007bff;
