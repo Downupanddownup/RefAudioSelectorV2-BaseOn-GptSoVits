@@ -64,9 +64,8 @@
                 const windowHeight = window.innerHeight;
 
                 const height = windowHeight*0.95 - $('#searchHeader').height() - 100
-                // 创建渲染实例
-                layui.table.render({
-                    elem: '#resultAudioList',
+
+                initLayuiTable('resultAudioList', {
                     url: BaseUrl+'evaluation/get_inference_task_result_audio_list', // 此处为静态模拟数据，实际使用时需换成真实接口
                     method: 'post',
                     height: height, // 最大高度减去其他容器已占有的高度差
@@ -158,7 +157,7 @@
                         const audioElements = $('#'+_this.viewId+' audio.custom-audio');
                         // 创建 AudioController 实例并传入音频元素集合
                         const audioController = new AudioController(Array.from(audioElements));
-                        
+
 
                         $('#' + _this.viewId + ' button[data-go-to-detail]').on('click', function(){
                             const id = $(this).attr('data-go-to-detail')
@@ -170,7 +169,7 @@
                         console.log(res, msg)
                     }
                 });
-                
+
                 //排序
                 layui.table.on('sort(resultAudioList)', function(obj){ //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
 
@@ -186,7 +185,7 @@
                         ,where: _this.pageParam
                     });
 
-                });
+                })
             }
             
             openDetailDialog(id){

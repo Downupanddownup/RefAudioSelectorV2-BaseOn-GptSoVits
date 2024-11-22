@@ -71,9 +71,8 @@
                 console.log('header',header)
 
                 const height = windowHeight * 0.95 *0.95 - header - 190
-                // 创建渲染实例
-                layui.table.render({
-                    elem: '#selectedAudioList',
+
+                initLayuiTable('selectedAudioList', {
                     data: _this.taskInpRefsAudioList,
                     // height: height, // 最大高度减去其他容器已占有的高度差
                     page: false,
@@ -109,7 +108,7 @@
                     done: function(){
 
                         const obj = $('#'+_this.viewId)
-                        
+
                         const audioElements = $('#'+_this.viewId+' audio.custom-audio');
                         // 创建 AudioController 实例并传入音频元素集合
                         const audioController = new AudioController(Array.from(audioElements));
@@ -130,7 +129,7 @@
                     error: function(res, msg){
                         console.log(res, msg)
                     }
-                });
+                })
 
             }
 

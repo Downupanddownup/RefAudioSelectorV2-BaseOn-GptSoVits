@@ -68,10 +68,8 @@
                 const _this = this
 
                 const height = $('#inferenceTaskListDiv').height()
-                
-                // 创建渲染实例
-                layui.table.render({
-                    elem: '#inferenceTaskList',
+
+                initLayuiTable('inferenceTaskList', {
                     url: BaseUrl + 'task/get_inference_task_list', // 此处为静态模拟数据，实际使用时需换成真实接口
                     height: height, // 最大高度减去其他容器已占有的高度差
                     method: 'post',
@@ -168,37 +166,38 @@
                     ]],
                     done: function(){
                         const obj = $('#' + _this.viewId)
-                        
+
                         obj.find('button[data-task-edit]').on('click', function () {
                             const taskId = $(this).attr('data-task-edit')
                             _this.openEditInferenceTask(taskId)
                         })
-                        
+
                         obj.find('button[data-task-look]').on('click', function () {
                             const taskId = $(this).attr('data-task-look')
                             _this.lookInferenceTaskDetail(taskId)
                         })
-                        
+
                         obj.find('button[data-task-start-inference]').on('click', function () {
                             const taskId = $(this).attr('data-task-start-inference')
                             _this.startInferenceTask(taskId)
                         })
-                        
+
                         obj.find('button[data-task-start-analysis]').on('click', function () {
                             const taskId = $(this).attr('data-task-start-analysis')
                             _this.startTaskAnalysis(taskId)
                         })
-                        
+
                         obj.find('button[data-task-result-audio]').on('click', function () {
                             const taskId = $(this).attr('data-task-result-audio')
                             _this.lookTaskResultAudioList(taskId)
                         })
-                        
+
                     },
                     error: function(res, msg){
                         console.log(res, msg)
                     }
-                });
+                })
+
             }
 
             startInferenceTask(taskId){

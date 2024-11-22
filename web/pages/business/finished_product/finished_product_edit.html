@@ -264,9 +264,8 @@
                 console.log('header',header)
 
                 const height = windowHeight * 0.95 *0.95 - header - 190
-                // 创建渲染实例
-                layui.table.render({
-                    elem: '#selectedSoundAudioList',
+
+                initLayuiTable('selectedSoundAudioList', {
                     data: _this.product.sound_fusion_list,
                     // height: height, // 最大高度减去其他容器已占有的高度差
                     page: false,
@@ -323,7 +322,7 @@
                     error: function(res, msg){
                         console.log(res, msg)
                     }
-                });
+                })
 
             }
 

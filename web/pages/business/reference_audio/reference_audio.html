@@ -8,10 +8,6 @@
                 this.audioList = []
                 this.compareAudio = null
                 this.categoryList = []
-                this.pageParam = {
-                    order:'',
-                    desc:''
-                }
             }
 
             loadData() {
@@ -94,8 +90,6 @@
                     audio_name: searchAudioName,
                     category: searchCategory,
                     content: searchContent,
-                    order: _this.pageParam.order,
-                    desc: _this.pageParam.desc
                 }
             }
 
@@ -109,9 +103,8 @@
                 const _this = this
                 
                 const height = $('#referenceAudioListDiv').height()
-                // 创建渲染实例
-                layui.table.render({
-                    elem: '#referenceAudioList',
+
+                initLayuiTable('referenceAudioList', {
                     url: BaseUrl+'audio/get_reference_audio_list', // 此处为静态模拟数据，实际使用时需换成真实接口
                     method: 'post',
                     height: height, // 最大高度减去其他容器已占有的高度差
@@ -161,7 +154,7 @@
                                 return d.audioLength.toFixed(1);
                             }},
                         {field:'opt', width:'20%', title: '操作', templet: function(d){
-                                 const html = []
+                                const html = []
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-edit="${d.id}">编辑</button>`)
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-compare="${d.id}">比对</button>`)
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-split="${d.id}">分割</button>`)
@@ -173,7 +166,7 @@
                         const audioElements = $('#'+_this.viewId+' audio.custom-audio');
                         // 创建 AudioController 实例并传入音频元素集合
                         const audioController = new AudioController(Array.from(audioElements));
-                        
+
                         $('#' + _this.viewId + ' div[data-content-id]').on('click', function() {
                             const audioId = $(this).attr('data-content-id')
                             _this.audioList.forEach(i => {
@@ -184,51 +177,32 @@
                                 }
                             })
                         })
-                        
+
                         $('#' + _this.viewId + ' button[data-go-to-edit]').on('click', function(){
                             const id = $(this).attr('data-go-to-edit')
                             _this.openEditDialog(id)
                         })
-                        
+
                         $('#' + _this.viewId + ' button[data-go-to-compare]').on('click', function(){
                             const id = $(this).attr('data-go-to-compare')
                             _this.goToCompare(id)
                         })
-                        
+
                         $('#' + _this.viewId + ' button[data-go-to-split]').on('click', function(){
                             const id = $(this).attr('data-go-to-split')
                             _this.goToOpenSplitDialog(id)
                         })
-                        
+
                         $('#' + _this.viewId + ' button[data-go-to-download]').on('click', function(){
                             const id = $(this).attr('data-go-to-download')
                             _this.downloadAudio(id)
                         })
-                        
+
                     },
                     error: function(res, msg){
                         console.log(res, msg)
                     }
-                });
-
-
-
-                //排序
-                layui.table.on('sort(referenceAudioList)', function(obj){ //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
-
-                    _this.pageParam.order = obj.field;  //当前排序的字段名
-                    _this.pageParam.desc = obj.type;   //当前排序类型：desc（降序）、asc（升序）、null（空对象，默认排序）
-
-                    // var params = getSearchParams()
-
-                    // loadLayuiList(params);
-
-                    layui.table.reload('referenceAudioList', {
-                        initSort: obj //记录初始排序，如果不设的话，将无法标记表头的排序状态。
-                        ,where: _this.pageParam
-                    });
-
-                });
+                })
             }
 
             goToCompare(id){

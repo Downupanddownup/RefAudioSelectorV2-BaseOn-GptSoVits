@@ -53,7 +53,6 @@
                 const height = $('#referenceAudioListDiv').height()
 
                 initLayuiTable('correctionTaskList',{
-                    elem: '#correctionTaskList',
                     url: BaseUrl+'correction/get_tts_correction_task_list', // 此处为静态模拟数据，实际使用时需换成真实接口
                     method: 'post',
                     height: height, // 最大高度减去其他容器已占有的高度差

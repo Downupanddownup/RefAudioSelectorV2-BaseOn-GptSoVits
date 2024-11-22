@@ -118,9 +118,8 @@
                 const height = windowHeight * 0.95 *0.95 - header - audioListSearch - 200
 
                 const params = _this.getSearchParams()
-                // 创建渲染实例
-                layui.table.render({
-                    elem: '#audioList',
+
+                initLayuiTable('audioList', {
                     url: BaseUrl+'audio/get_reference_audio_list', // 此处为静态模拟数据，实际使用时需换成真实接口
                     method: 'post',
                     height: height, // 最大高度减去其他容器已占有的高度差
@@ -132,6 +131,30 @@
                     initSort: {
                         order: 'audioLength', // 按 id 字段排序
                         desc: 'desc' // 降序排序
+                    },
+                    customSelect:{
+                        type:'checkbox',
+                        clickRow: row => {
+                            const id = row.id
+                            if(_this.selectedAudioList.find(i => i.id == id)) {
+                                _this.selectedAudioList.push(new C_ObjReferenceAudio(row))
+                            } else {
+                                _this.selectedAudioList = _this.selectedAudioList.filter(i => i.id != id)
+                            }
+                            $('#' + _this.viewId + ' #selectedAudioCount').html(_this.selectedAudioList.length)
+                        },
+                        clickAll: checked => {
+                            if (checked) {
+                                _this.audioList.forEach(text => {
+                                    if (!_this.selectedAudioList.find(i => i.id == text.id)) {
+                                        _this.selectedAudioList.push(text)
+                                    }
+                                })
+                            } else {
+                                _this.selectedAudioList = _this.selectedAudioList.filter(i => !_this.audioList.find(j => j.id == i.id))
+                            }
+                            $('#' + _this.viewId + ' #selectedAudioCount').html(_this.selectedAudioList.length)
+                        }
                     },
                     where: params,
                     parseData: function(res){ //res 即为原始返回的数据
@@ -145,7 +168,7 @@
                                 i.LAY_CHECKED = false
                             }
                         })
-                        
+
                         return {
                             "code": res.code, //解析接口状态
                             "msg": res.msg, //解析提示文本
@@ -200,38 +223,7 @@
                     error: function(res, msg){
                         console.log(res, msg)
                     }
-                });
-
-                // 复选框事件
-                layui.table.on('checkbox(audioList)', function(obj){
-                    console.log(obj); // 查看对象所有成员
-                    console.log(obj.checked); // 当前是否选中状态
-                    console.log(obj.data); // 选中行的相关数据
-                    console.log(obj.type); // 若触发的是全选，则为：all；若触发的是单选，则为：one
-
-                    if (obj.type == 'one') {
-                        const id = obj.data.id
-                        if(obj.checked) {
-                            _this.selectedAudioList.push(new C_ObjReferenceAudio(obj.data))
-                        } else {
-                            _this.selectedAudioList = _this.selectedAudioList.filter(i => i.id != id)
-                        }
-                    } else if (obj.type == 'all') {
-                        if (obj.checked) {
-                            _this.audioList.forEach(text => {
-                                if (!_this.selectedAudioList.find(i => i.id == text.id)) {
-                                    _this.selectedAudioList.push(text)
-                                }
-                            })
-                        } else {
-                            _this.selectedAudioList = _this.selectedAudioList.filter(i => !_this.audioList.find(j => j.id == i.id))
-                        }
-                        
-                    }
-
-                    $('#' + _this.viewId + ' #selectedAudioCount').html(_this.selectedAudioList.length)
-
-                });
+                })
 
             }
             loadSelectedAudioList(){
@@ -243,9 +235,8 @@
                 console.log('header',header)
 
                 const height = windowHeight * 0.95 *0.95 - header - 190
-                // 创建渲染实例
-                layui.table.render({
-                    elem: '#selectedAudioList',
+
+                initLayuiTable('selectedAudioList', {
                     data: _this.selectedAudioList,
                     height: height, // 最大高度减去其他容器已占有的高度差
                     page: false,
@@ -293,7 +284,7 @@
                             _this.loadSelectedAudioList()
 
                         })
-                        
+
                         const audioElements = $('#'+_this.viewId+' audio.custom-audio');
                         // 创建 AudioController 实例并传入音频元素集合
                         const audioController = new AudioController(Array.from(audioElements));
@@ -308,13 +299,13 @@
                                 }
                             })
                         })
-                        
+
 
                     },
                     error: function(res, msg){
                         console.log(res, msg)
                     }
-                });
+                })
 
             }
 

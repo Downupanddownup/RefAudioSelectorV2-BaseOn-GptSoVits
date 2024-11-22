@@ -225,6 +225,7 @@ function initLayuiTable(listId, config) {
             this.open = config.customSelect ? true : false
             this.type = this.open ? config.customSelect.type : ''// radio checkbox
             this.clickRow = this.open ? config.customSelect.clickRow : undefined
+            this.clickAll = this.open ? config.customSelect.clickAll : undefined
         }
         
         initClickRow() {
@@ -243,6 +244,40 @@ function initLayuiTable(listId, config) {
                         type: _this.type // radio 单选模式；checkbox 复选模式
                     });
                 });
+                
+                if (_this.type === 'radio') {
+                    // 单选框事件
+                    layui.table.on(`radio(${listId})`, function(obj){
+                        console.log(obj); // 当前行的一些常用操作集合
+                        console.log(obj.checked); // 当前是否选中状态
+                        console.log(obj.data); // 选中行的相关数据
+                        if (_this.clickRow){
+                            _this.clickRow(obj.data)
+                        }
+                    });
+                }
+                
+                if (_this.type === 'checkbox') {
+                    // 复选框事件
+                    layui.table.on(`checkbox(${listId})`, function(obj){
+                        console.log(obj); // 查看对象所有成员
+                        console.log(obj.checked); // 当前是否选中状态
+                        console.log(obj.data); // 选中行的相关数据
+                        console.log(obj.type); // 若触发的是全选，则为：all；若触发的是单选，则为：one
+                        
+                        if (obj.type === 'one') {
+                            if (_this.clickRow){
+                                _this.clickRow(obj.data)
+                            }
+                        } else if (obj.type === 'all') {
+                            if (_this.clickAll){
+                                _this.clickAll(obj.checked)
+                            }
+                        }
+                        
+                    });
+                }
+                
             }
         }
     }

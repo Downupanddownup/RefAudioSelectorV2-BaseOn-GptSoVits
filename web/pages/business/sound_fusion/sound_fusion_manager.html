@@ -148,9 +148,8 @@
                 const audioListSearch = $('#'+_this.viewId+' #audioListSearch').height()
 
                 const height = windowHeight * 0.95 *0.95 - audioListSearch - 150
-                // 创建渲染实例
-                layui.table.render({
-                    elem: '#soundFusionAudioList',
+
+                initLayuiTable('soundFusionAudioList', {
                     url: BaseUrl+'fusion/get_sound_fusion_audio_list', // 此处为静态模拟数据，实际使用时需换成真实接口
                     method: 'post',
                     height: height, // 最大高度减去其他容器已占有的高度差
@@ -167,7 +166,7 @@
                     parseData: function(res){ //res 即为原始返回的数据
                         const list = res.data ? res.data.map(i => new C_ObjSoundFusionAudio(i)) : []
                         _this.audioList = list
-                        
+
                         return {
                             "code": res.code, //解析接口状态
                             "msg": res.msg, //解析提示文本
@@ -242,7 +241,7 @@
                     error: function(res, msg){
                         console.log(res, msg)
                     }
-                });
+                })
                 
             }
             

@@ -14,6 +14,16 @@ body {
     box-sizing: border-box;
 }
 
+.view-body {
+    display: flex;
+    flex-direction: column; /* 纵向排列 */
+    height: 100%;
+}
+
+.view-body .fill-height {
+    flex: 1;
+}
+
 .container-tab {
     /*background-color: #f9f9f9; !* 背景色 *!*/
     /*border: 1px solid #e0e0e0;*/
