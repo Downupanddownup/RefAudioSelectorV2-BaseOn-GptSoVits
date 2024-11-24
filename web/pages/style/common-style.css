@@ -59,7 +59,7 @@ body {
     color: white; /* 活动按钮字体颜色 */
 }
 
-.tab-link:hover {
+.tab-link:hover:not (.active) {
     background-color: #e0e0e0; /* 悬停效果 */
 }
 
@@ -90,7 +90,7 @@ body {
 }
 
 .api-close {
-    background-color: #e64a19;
+    background-color: #ac3d1a;
 }
 
 #tabContentView {

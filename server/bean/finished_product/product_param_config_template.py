@@ -81,7 +81,7 @@ class ParamItem:
         model_dir = self.get_model_dir(directory, role_name, is_merge)
         config_file_path = os.path.join(model_dir, 'infer_config.json')
         write_text_to_file(json_str, config_file_path)
-        self.copy_file(model_dir, real_obj)
+        self.copy_file(model_dir, real_obj, need_model)
 
     def copy_file(self, model_dir: str, real_obj: dict, need_model: bool):
         if need_model:
@@ -97,13 +97,13 @@ class ParamItem:
             json_product = json_product_list[index]
             audio_path = json_product.get('audio_path')
             real_audio_path = os.path.join(model_dir, audio_path)
-            copy_file_to_dest_file(product.get_audio_path(), real_audio_path)
+            copy_file_to_dest_file(product.audio_path, real_audio_path)
             json_inp_refs = json_product.get('inp_refs')
             for second_index, sound in enumerate(product.sound_fusion_list):
                 json_sound = json_inp_refs[second_index]
                 audio_path = json_sound.get('audio_path')
                 real_audio_path = os.path.join(model_dir, audio_path)
-                copy_file_to_dest_file(sound.get_audio_path(), real_audio_path)
+                copy_file_to_dest_file(sound.audio_path, real_audio_path)
 
     def get_model_dir(self, directory: str, role_name: str, is_merge: bool) -> str:
         dir_name = None
@@ -153,7 +153,7 @@ class ProductParamConfigTemplate:
 
         self.param_item_list = item_list
 
-    def generate_zip_file(self) -> BytesIO:
+    def generate_zip_file(self) -> tuple[str, str]:
 
         if len(self.param_item_list) == 0:
             return None
@@ -173,9 +173,9 @@ class ProductParamConfigTemplate:
             zip_directory(role_dir, role_dir)
 
             zip_file_path = f'{role_dir}.zip'
-            zip_in_memory = read_zip_to_memory(zip_file_path)
+            # zip_in_memory = read_zip_to_memory(zip_file_path)
         finally:
             # delete_directory(temp_dir)
             pass
 
-        return zip_in_memory
+        return temp_dir, zip_file_path

@@ -47,11 +47,11 @@
             <td>是否需要合并相同模型的成品：</td>
             <td>
                 <label class="custom-radio" style="margin-right: 30px">
-                    <input type="radio" name="isMerge" value="是" title="是">
+                    <input type="radio" name="isMerge" value="1" title="是">
                     <span></span>是
                 </label>
                 <label class="custom-radio">
-                    <input type="radio" name="isMerge" value="否" title="否" checked>
+                    <input type="radio" name="isMerge" value="0" title="否" checked>
                     <span></span>否
                 </label>
             </td>
@@ -60,13 +60,15 @@
             <td>是否需要包含模型：</td>
             <td>
                 <label class="custom-radio" style="margin-right: 30px">
-                    <input type="radio" name="needModel" value="是" title="是" checked>
+                    <input type="radio" name="needModel" value="1" title="是" checked>
                     <span></span>是
                 </label>
                 <label class="custom-radio">
-                    <input type="radio" name="needModel" value="否" title="否">
+                    <input type="radio" name="needModel" value="0" title="否">
                     <span></span>否
                 </label>
+                <a href="workspace\\temp\\d647ed20-a949-11ef-add6-d4f32d34a165\\伊薇特.zip">下载模型</a>
+                <div id="test">下载模型2</div>
             </td>
         </tr>
     </table>
@@ -74,7 +76,7 @@
 
                 const index = layer.open({
                     type: 1,
-                    area: ['95%', '95%'],
+                    area: ['500px', '250px'],
                     content: html,
                     btn: ['确定', '取消'],
                     yes: function(){
@@ -95,10 +97,43 @@
                     }
                 });
                 
+                $('#test').on('click', function () {
+                    _this.downloadFile()
+                })
+                
                 
                 
             }
-            
+
+            downloadFile() {
+                const fileName = 'large_file.zip';
+                const url = 'workspace\\temp\\d647ed20-a949-11ef-add6-d4f32d34a165\\伊薇特.zip'; // 后端接口地址
+                const temp_dir = 'workspace\\temp\\d647ed20-a949-11ef-add6-d4f32d34a165'; // 后端接口地址
+
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = BaseUrl + 'product/download_product_file'; // 后端文件下载接口
+                form.style.display = 'none';
+
+                // 添加参数到表单
+                const addInput = (name, value) => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden'; // 隐藏的 input
+                    input.name = name;     // 参数名
+                    input.value = value;   // 参数值
+                    form.appendChild(input);
+                };
+
+                // 动态追加参数
+                addInput('file_path', url);      // 文件名
+                addInput('temp_dir', temp_dir);      // 文件名
+
+                document.body.appendChild(form);
+                form.submit(); // 提交表单发起文件下载
+                document.body.removeChild(form);
+            }
+
+
             downloadProducts(fileName,ids,isMerge,needModel) {
                 // 准备请求数据
                 const formData = new FormData();
@@ -129,7 +164,7 @@
                     })
                     .catch(error => console.error('Error:', error));
             }
-
+            
             openFinishedProductSpeakDialog(id) {
                 const _this = this
 
@@ -298,7 +333,7 @@
                         $('#' + _this.viewId + ' button[data-go-to-download]').on('click', function(){
                             const id = $(this).attr('data-go-to-download')
                             const product = _this.productList.find(i => i.id == id)
-                            _this.downloadProducts(HomeSpace.currentRole.name + '-' + product.name, id,0,1)
+                            _this.downloadProducts(HomePage.currentRole.name + '-' + product.name, id,0,1)
                         })
 
                     },

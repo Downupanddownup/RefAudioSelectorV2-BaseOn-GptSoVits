@@ -106,6 +106,7 @@
                     el: '#roleList',
                     tips: '选择或新建',
                     searchTips: '选择或新建',
+                    height: 'auto',
                     radio: true,
                     clickClose: true,
                     filterable: true,
@@ -345,11 +346,11 @@
                 <button class="tab-link" data-tab="6">文本推理</button>
             </div>
             <div class="tab-right">
-                <div class="info-button api-open" id="rasApiStatus" >启动API</div>
+                <button type="button" class="layui-btn layui-btn-sm" id="rasApiStatus">启动API</button>
                 <div class="info-button">
                     <div id="roleList" style="width: 150px;color: #333"></div>
                 </div>
-                <div class="info-button about">关于</div>
+                <button type="button" class="layui-btn layui-btn-sm layui-bg-blue">关于</button>
             </div>
         </div>
         <div id="tabContentView"></div>
