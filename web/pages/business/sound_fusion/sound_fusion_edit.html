@@ -99,6 +99,7 @@
             submit(successFun) {
                 const _this = this
                 const obj = $('#'+_this.viewId)
+                _this.audio.roleName = obj.find('#roleName').val()
                 _this.audio.audioName = obj.find('#audioName').val()
                 /*if (!_this.audio.audioName) {
                     layui.layer.alert('音频名称不能为空')
@@ -126,6 +127,7 @@
                         type: 'POST',
                         data: {
                             id: _this.audio.id,
+                            roleName: _this.audio.roleName,
                             audioName: _this.audio.audioName,
                             content: _this.audio.content,
                             language: _this.audio.language,
@@ -164,6 +166,7 @@
                 // 示例代码如下：
                 const formData = new FormData();
                 formData.append('file', file);
+                formData.append('roleName', _this.audio.roleName)
                 formData.append('audioName', _this.audio.audioName)
                 formData.append('content', _this.audio.content)
                 formData.append('language', _this.audio.language)
@@ -209,7 +212,7 @@
 <script id="soundFusionEditTemplate" type="text/html">
     <table class="table1">
         <tr>
-            <td colspan="6">
+            <td colspan="8">
                 {{# if (d.audio.id > 0) { }}
 
                 {{# } else { }}
@@ -231,6 +234,12 @@
             </td>
         </tr>
         <tr>
+            <td>
+                角色：
+            </td>
+            <td>
+                <input type="text" autocomplete="off" id="roleName" placeholder="角色" class="layui-input" style="width: auto;" value="{{d.audio.roleName}}">
+            </td>
             <td>
                 音频名称：
             </td>
@@ -257,7 +266,7 @@
         </tr>
         <tr>
             <td>音频内容：</td>
-            <td colspan="5">
+            <td colspan="7">
                 <textarea placeholder="音频内容" class="layui-textarea" id="content">{{d.audio.content}}</textarea>
             </td>
         </tr>

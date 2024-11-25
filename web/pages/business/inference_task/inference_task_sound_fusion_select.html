@@ -134,13 +134,16 @@
                     cols: [[
                         {field:'checkbox', width:'5%', title: '选择', type: 'checkbox'},
                         {field:'index', width:'5%', title: '序号', type: 'numbers'},
+                        {field:'roleName', width:'10%', title: '角色', templet: function(d){
+                                return d.roleName;
+                            }},
                         {field:'audioName', width:'10%', title: '音频名称', templet: function(d){
                                 return d.audioName;
                             }},
                         {field:'category', width:'8%', title: '音频分类', templet: function(d){
                                 return d.category;
                             }},
-                        {field:'audioPlay', width:'27%', title: '音频播放', templet: function(d){
+                        {field:'audioPlay', width:'22%', title: '音频播放', templet: function(d){
                                 return ` 
                                  <audio controls class="custom-audio" data-audio-wait="${d.id}">
                                     <source src="${d.audioPath}" type="audio/wav">
@@ -148,7 +151,7 @@
                                     您的浏览器不支持 HTML5 audio 标签。
                                 </audio>`
                             }},
-                        {field:'content', width:'27%', title: '音频内容', templet: function(d){
+                        {field:'content', width:'22%', title: '音频内容', templet: function(d){
                                 return `<div data-content-wait-id="${d.id}" style="cursor: pointer">${d.content}</div>`;
                             }},
                         {field:'language', width:'8%', title: '音频语种', templet: function(d){
@@ -192,13 +195,16 @@
                     page: false,
                     cols: [[
                         {field:'index', width:'5%', title: '序号', type: 'numbers'},
+                        {field:'roleName', width:'10%', title: '角色', templet: function(d){
+                                return d.roleName;
+                            }},
                         {field:'audioName', width:'10%', title: '音频名称', templet: function(d){
                                 return d.audioName;
                             }},
                         {field:'category', width:'8%', title: '音频分类', templet: function(d){
                                 return d.category;
                             }},
-                        {field:'audioPlay', width:'25%', title: '音频播放', templet: function(d){
+                        {field:'audioPlay', width:'20%', title: '音频播放', templet: function(d){
                                 return ` 
                                  <audio controls class="custom-audio" data-audio="${d.id}">
                                     <source src="${d.audioPath}" type="audio/wav">
@@ -206,7 +212,7 @@
                                     您的浏览器不支持 HTML5 audio 标签。
                                 </audio>`
                             }},
-                        {field:'content', width:'25%', title: '音频内容', templet: function(d){
+                        {field:'content', width:'20%', title: '音频内容', templet: function(d){
                                 return `<div data-content-id="${d.id}" style="cursor: pointer">${d.content}</div>`;
                             }},
                         {field:'language', width:'8%', title: '音频语种', templet: function(d){

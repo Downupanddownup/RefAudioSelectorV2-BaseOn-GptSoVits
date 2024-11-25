@@ -172,10 +172,13 @@
                     },
                     cols: [[
                         {field:'index', width:'5%', title: '序号', type: 'numbers'},
-                        {field:'audioName', width:'10%', title: '音频名称', templet: function(d){
+                        {field:'roleName', width:'8%', title: '角色', templet: function(d){
+                                return d.roleName;
+                            }},
+                        {field:'audioName', width:'8%', title: '音频名称', templet: function(d){
                                 return d.audioName;
                             }},
-                        {field:'category', width:'10%', title: '音频分类', templet: function(d){
+                        {field:'category', width:'8%', title: '音频分类', templet: function(d){
                                 return d.category;
                             }},
                         {field:'audioPlay', width:'22%', title: '音频播放', templet: function(d){
@@ -189,10 +192,10 @@
                         {field:'content', width:'19%', title: '音频内容', templet: function(d){
                                 return `<div data-content-wait-id="${d.id}" style="cursor: pointer">${d.content}</div>`;
                             }},
-                        {field:'language', width:'10%', title: '音频语种', templet: function(d){
+                        {field:'language', width:'8%', title: '音频语种', templet: function(d){
                                 return d.language;
                             }},
-                        {field:'audioLength', width:'9%', title: '音频时长', sort: true, templet: function(d){
+                        {field:'audioLength', width:'7%', title: '音频时长', sort: true, templet: function(d){
                                 let audioLength = d.audioLength
                                 try {
                                     audioLength = d.audioLength.toFixed(1)
