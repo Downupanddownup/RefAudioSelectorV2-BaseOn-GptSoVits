@@ -182,6 +182,13 @@
                             _this.startInferenceTask(taskId)
                         })
 
+                        obj.find('button[data-task-go-to-result]').on('click', function () {
+                            const taskId = $(this).attr('data-task-go-to-result')
+                            HomePage.switchTab(3, {
+                                taskId: taskId
+                            })
+                        })
+
                         obj.find('button[data-task-start-analysis]').on('click', function () {
                             const taskId = $(this).attr('data-task-start-analysis')
                             _this.startTaskAnalysis(taskId)
