@@ -143,6 +143,9 @@ async def update_reference_audio(request: Request):
 
     if audio.id < 1:
         return ResponseResult(code=1, msg='参数错误')
+
+    ReferenceCategoryService.add_category(audio.category)
+
     ReferenceAudioService.update_reference_audio(audio)
 
     return ResponseResult()
@@ -173,5 +176,49 @@ async def add_reference_audio(request: Request):
     ReferenceCategoryService.add_category(audio.category)
 
     ReferenceAudioService.add_reference_audio(audio)
+
+    return ResponseResult()
+
+
+@router.post("/update_audio_content")
+async def update_audio_content(request: Request):
+    form_data = await request.form()
+
+    audio_id = str_to_int(form_data.get('id'), 0)
+
+    content = form_data.get('content')
+
+    if audio_id < 1:
+        return ResponseResult(code=1, msg='参数错误')
+    ReferenceAudioService.update_audio_content(audio_id, content)
+
+    return ResponseResult()
+
+
+@router.post("/update_audio_category")
+async def update_audio_category(request: Request):
+    form_data = await request.form()
+
+    audio_id = str_to_int(form_data.get('id'), 0)
+
+    category = form_data.get('category')
+
+    if audio_id < 1:
+        return ResponseResult(code=1, msg='参数错误')
+
+    ReferenceCategoryService.add_category(category)
+
+    ReferenceAudioService.update_audio_category(str(audio_id), category)
+
+    return ResponseResult()
+
+
+@router.post("/add_category")
+async def add_category(request: Request):
+    form_data = await request.form()
+
+    category = form_data.get('category')
+
+    ReferenceCategoryService.add_category(category)
 
     return ResponseResult()

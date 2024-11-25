@@ -115,8 +115,12 @@ class ReferenceAudioService:
         ReferenceAudioService.insert_reference_audio_list([audio])
 
     @staticmethod
-    def update_reference_audio(audio):
+    def update_reference_audio(audio: ObjReferenceAudio):
         ReferenceAudioDao.update_reference_audio(audio)
+
+    @staticmethod
+    def update_audio_content(audio_id: int, content: str):
+        return ReferenceAudioDao.update_audio_content(audio_id, content)
 
 
 def check_audio_duration(duration, min_duration=3, max_duration=10):
