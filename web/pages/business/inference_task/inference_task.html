@@ -135,19 +135,19 @@
                                 }
                                 return d.inferenceStatus
                             }},
-                        {field:'executeTextSimilarity', width:'10%', title: '文本相似度', templet: function(d){
+                        {field:'executeTextSimilarity', width:'10%', title: '文本相似执行', templet: function(d){
                                 if (d.executeTextSimilarity == 1) {
                                     return '是'
                                 }
                                 return '否'
                             }},
-                        {field:'executeAudioSimilarity', width:'10%', title: '音频相似度', templet: function(d){
+                        {field:'executeAudioSimilarity', width:'10%', title: '音频相似执行', templet: function(d){
                                 if (d.executeAudioSimilarity == 1) {
                                     return '是'
                                 }
                                 return '否'
                             }},
-                        {field:'opt', width:'20%', title: '操作', templet: function(d){
+                        {field:'opt', width:'20%', title: '操作',fixed:'right', templet: function(d){
                                 const html = []
                                 if (d.inferenceStatus == 0) {
                                     html.push(`<button type="button" class="layui-btn layui-btn-sm" data-task-edit="${d.id}">编辑</button>`)

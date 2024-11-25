@@ -64,14 +64,7 @@
 
             loadSelectedAudioList(){
                 const _this = this
-
-                const windowHeight = window.innerHeight;
-
-                const header = $('#'+_this.viewId+' #audioHeader').height()
-                console.log('header',header)
-
-                const height = windowHeight * 0.95 *0.95 - header - 190
-
+                
                 initLayuiTable('selectedAudioList', {
                     data: _this.taskInpRefsAudioList,
                     // height: height, // 最大高度减去其他容器已占有的高度差

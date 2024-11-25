@@ -114,7 +114,7 @@
                         {field:'textLanguage', width:'10%', title: '文本语种', templet: function(d){
                                 return d.textLanguage;
                             }},
-                        {field:'opt', width:'20%', title: '操作', templet: function(d){
+                        {field:'opt', width:'20%', title: '操作',fixed:'right', templet: function(d){
                                 const html = []
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-edit-text="${d.id}"><i class="layui-icon"></i></button>`)
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-delete-text="${d.id}"><i class="layui-icon"></i></button>`)

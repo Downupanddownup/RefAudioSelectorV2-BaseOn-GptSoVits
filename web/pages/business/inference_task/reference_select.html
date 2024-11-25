@@ -256,7 +256,7 @@
                         {field:'audioLength', width:'8%', title: '音频时长', sort: true, templet: function(d){
                                 return d.audioLength.toFixed(1);
                             }},
-                        {field:'opt', width:'10%', title: '操作', templet: function(d){
+                        {field:'opt', width:'10%', title: '操作',fixed:'right', templet: function(d){
                                 const html = []
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-remove-audio="${d.id}"><i class="layui-icon"></i></button>`)
                                 return html.join(' ');

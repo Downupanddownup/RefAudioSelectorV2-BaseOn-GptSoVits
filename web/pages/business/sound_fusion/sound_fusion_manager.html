@@ -203,7 +203,7 @@
                                 }
                                 return audioLength;
                             }},
-                        {field:'opt', width:'10%', title: '操作', templet: function(d){
+                        {field:'opt', width:'10%', title: '操作',fixed:'right', templet: function(d){
                                 const html = []
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-edit="${d.id}">编辑</button>`)
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-delete="${d.id}">删除</button>`)

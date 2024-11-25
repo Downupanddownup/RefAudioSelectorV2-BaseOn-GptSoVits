@@ -267,7 +267,7 @@
                         {field:'vitsModelName', width:'8%', title: 'SoVits模型', templet: function(d){
                                 return d.vitsModelName;
                             }},
-                        {field:'opt', width:'20%', title: '操作', templet: function(d){
+                        {field:'opt', width:'20%', title: '操作',fixed:'right', templet: function(d){
                                 const html = []
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-edit="${d.id}">编辑</button>`)
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-download="${d.id}">导出</button>`)

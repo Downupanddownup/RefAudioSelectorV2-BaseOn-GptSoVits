@@ -162,7 +162,7 @@
                                     您的浏览器不支持 HTML5 audio 标签。
                                 </audio>`
                             }},
-                        {field:'content', width:'20%', title: '音频内容', templet: function(d){
+                        {field:'content', width:'22%', title: '音频内容', templet: function(d){
                                 return `
                                 <div class="view-body">
                                   <input value="${d.content}" class="layui-input" data-content-id="${d.id}">
@@ -172,15 +172,15 @@
                         {field:'language', width:'8%', title: '音频语种', templet: function(d){
                                 return SysConfig.languageList.find(i => i.code === d.language)?.name;
                             }},
-                        {field:'audioLength', width:'8%', title: '音频时长', sort: true, templet: function(d){
+                        {field:'audioLength', width:'10%', title: '音频时长', sort: true, templet: function(d){
                                 return d.audioLength.toFixed(1);
                             }},
-                        {field:'opt', width:'20%', title: '操作', templet: function(d){
+                        {field:'opt', width:'16%', title: '操作',fixed: 'right', templet: function(d){
                                 const html = []
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-edit="${d.id}">编辑</button>`)
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-compare="${d.id}">比对</button>`)
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-split="${d.id}">分割</button>`)
-                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-download="${d.id}">下载</button>`)
+                                // html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-download="${d.id}">下载</button>`)
                                 return html.join(' ');
                             }},
                     ]],
