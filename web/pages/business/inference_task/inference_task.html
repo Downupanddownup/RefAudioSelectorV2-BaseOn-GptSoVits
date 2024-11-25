@@ -245,7 +245,7 @@
                 
                 const dialogIndex = layer.open({
                     type: 1,
-                    area: ['95%', '95%'],
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
                     content: `<div id="createInferenceTaskView" style="overflow-x: hidden"></div>`,
                     btn: ['确定', '取消'],
                     yes: function(){
@@ -281,8 +281,8 @@
                 
                 const dialogIndex = layer.open({
                     type: 1,
-                    area: ['95%', '95%'],
-                    content: `<div id="resultAudioListView" style="overflow-x: hidden"></div>`,
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
+                    content: `<div id="resultAudioListView" class="view-body"></div>`,
                     btn: ['关闭'],
                     yes: function(){
                         layui.layer.close(dialogIndex)
@@ -300,7 +300,7 @@
                 
                 const dialogIndex = layer.open({
                     type: 1,
-                    area: ['95%', '95%'],
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
                     content: `<div id="createInferenceTaskView"></div>`,
                     btn: ['关闭'],
                     yes: function(){

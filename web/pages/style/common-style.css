@@ -20,7 +20,7 @@ body {
     height: 100%;
 }
 
-.view-body .fill-height {
+.view-body .view-fill-height {
     flex: 1;
 }
 
@@ -59,7 +59,7 @@ body {
     color: white; /* 活动按钮字体颜色 */
 }
 
-.tab-link:hover {
+.tab-link:hover:not(.active) {
     background-color: #e0e0e0; /* 悬停效果 */
 }
 

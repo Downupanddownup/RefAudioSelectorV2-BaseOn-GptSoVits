@@ -74,7 +74,7 @@
 
                 const index = layer.open({
                     type: 1,
-                    area: ['95%', '95%'],
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
                     content: html,
                     btn: ['确定', '取消'],
                     yes: function(){
@@ -137,7 +137,7 @@
 
                 const index = layer.open({
                     type: 1,
-                    area: ['95%', '95%'],
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
                     content: `<div id="productSpeakView"></div>`,
                     btn: ['关闭'],
                     yes: function(){
@@ -157,7 +157,7 @@
 
                 const index = layer.open({
                     type: 1,
-                    area: ['95%', '95%'],
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
                     content: `<div id="productEditView"></div>`,
                     btn: ['确定', '取消'],
                     yes: function(){

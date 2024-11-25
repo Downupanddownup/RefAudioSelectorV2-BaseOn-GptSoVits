@@ -214,7 +214,7 @@
 
                 const index = layer.open({
                     type: 1,
-                    area: ['95%', '95%'],
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
                     content: `<div id="audioCompareView"></div>`,
                     btn: ['确定', '取消'],
                     yes: function(){
@@ -236,7 +236,7 @@
 
                 const index = layer.open({
                     type: 1,
-                    area: ['95%', '95%'],
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
                     content: `<div id="audioEditView"></div>`,
                     btn: ['确定', '取消'],
                     yes: function(){
@@ -269,7 +269,7 @@
 
                 const index = layer.open({
                     type: 1,
-                    area: ['95%', '95%'],
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
                     content: `<div id="audioSplitView"></div>`,
                     btn: ['确定', '取消'],
                     yes: function(){
@@ -336,8 +336,8 @@
 
                 const dialogId = layer.open({
                     type: 1,
-                    area: ['95%', '95%'],
-                    content: `<div id="soundFusionManagerView"></div>`,
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
+                    content: `<div id="soundFusionManagerView" class="view-body"></div>`,
                     btn: ['关闭'],
                     yes: function(){
                         layui.layer.close(dialogId)

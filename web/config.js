@@ -54,6 +54,9 @@ const SysConfig = (function () {
     const defaultTextDelimiter = `,.;?!、，。？！；：…"`
     const defaultSpeed = 1.0
     
+    const defaultDialogWidth = '95%'
+    const defaultDialogHeight = '95%'
+    
     return {
         languageList: languageList,
         defaultGptSovitsVersion: defaultGptSovitsVersion,
@@ -62,6 +65,8 @@ const SysConfig = (function () {
         defaultTemperature: defaultTemperature,
         defaultTextDelimiter: defaultTextDelimiter,
         defaultSpeed: defaultSpeed,
+        defaultDialogWidth: defaultDialogWidth,
+        defaultDialogHeight: defaultDialogHeight
     }
 })()
 

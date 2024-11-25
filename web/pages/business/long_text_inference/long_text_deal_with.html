@@ -221,8 +221,8 @@
 
                 const dialogId = layer.open({
                     type: 1,
-                    area: ['90%', '90%'],
-                    content: `<div id="textManagerView"></div>`,
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
+                    content: `<div id="textManagerView" class="view-body"></div>`,
                     btn: ['确定', '取消'],
                     yes: function(){
                         const textObj = select.getSelectedText()

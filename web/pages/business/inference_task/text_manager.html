@@ -75,13 +75,7 @@
       loadTextList(){
         const _this = this
 
-        const windowHeight = window.innerHeight;
-        
-        const header = $('#'+_this.viewId+' #textHeader').height()
-        const textListSearch = $('#'+_this.viewId+' #textListSearch').height()
-        console.log('header',header)
-
-        const height = windowHeight * 0.95 *0.95 - header - textListSearch - 200
+        const height = $('#textListDiv').height()
         
         const params = _this.getSearchParams()
 
@@ -96,14 +90,14 @@
           limits:[50,100,150,200],
           autoSort:false,
           initSort: {
-            order: 'audioLength', // 按 id 字段排序
+            order: 'id', // 按 id 字段排序
             desc: 'desc' // 降序排序
           },
           customSelect:{
             type:'checkbox',
             clickRow: row => {
-              const id = row.data.id
-              if(_this.selectedTextList.find(i => i.id == id)) {
+              const id = row.id
+              if(!_this.selectedTextList.find(i => i.id == id)) {
                 _this.selectedTextList.push(new C_ObjInferenceText(row))
               } else {
                 _this.selectedTextList = _this.selectedTextList.filter(i => i.id != id)
@@ -147,7 +141,7 @@
             {field:'category', width:'10%', title: '文本分类', templet: function(d){
                 return d.category;
               }},
-            {field:'textContent', width:'50%', title: '文本内容', templet: function(d){
+            {field:'textContent', width:'48%', title: '文本内容', templet: function(d){
                 return d.textContent;
               }},
             {field:'textLanguage', width:'10%', title: '文本语种', templet: function(d){
@@ -283,13 +277,8 @@
       
       loadSelectedTextList(){
         const _this = this
-
-        const windowHeight = window.innerHeight;
         
-        const header = $('#'+_this.viewId+' #textHeader').height()
-        console.log('header',header)
-
-        const height = windowHeight * 0.95 *0.95 - header - 190
+        const height = $('#contentDiv').height()
 
         initLayuiTable('selectedTextList', {
           height: height, // 最大高度减去其他容器已占有的高度差
@@ -345,38 +334,42 @@
 </script>
 
 <script id="textManagerTemplate" type="text/html">
-  <div class="layui-tab layui-tab-brief" lay-filter="textManagerTab" style="padding: 10px">
+  <div class="layui-tab layui-tab-brief view-body" lay-filter="textManagerTab" style="padding: 10px;">
     <ul class="layui-tab-title" id="textHeader">
       <li class="layui-this" lay-id="1">候选列表</li>
       <li lay-id="2">已选中（<span id="selectedTextCount">{{d.selectedTextList.length}}</span>）</li>
     </ul>
-    <div class="layui-tab-content">
-      <div class="layui-tab-item layui-show">
+    <div class="layui-tab-content view-fill-height" id="contentDiv">
+      <div class="layui-tab-item layui-show" style="height: 100%">
+        <div class="view-body">
+          <table class="table3">
+            <tr>
+              <td>文本分类：</td>
+              <td><input type="text" autocomplete="off" id="searchTextCategory" placeholder="文本分类" class="layui-input" style="width: auto;"></td>
+              <td>文本语种：</td>
+              <td>
+                <select class="customSelect" id="searchTextLanguage">
+                  <option value="">请选择</option>
+                  <option value="refer_audio">参考音频</option>
+                  <option value="speed">speed值</option>
+                  <option value="text_delimiter">文本分隔符</option>
+                  <option value="other">其余参数</option>
+                </select>
+              </td>
+              <td>文本内容：</td>
+              <td><input type="text" autocomplete="off" id="searchTextContent" placeholder="文本内容" class="layui-input" style="width: auto;"></td>
+              <td colspan="2">
+                <button type="submit" class="layui-btn layui-btn-sm" id="searchText">搜索</button>
+                <button type="submit" class="layui-btn layui-btn-sm" id="createText">新建文本</button>
+              </td>
+            </tr>
+          </table>
 
-        <table class="table3" id="textListSearch">
-          <tr>
-            <td>文本分类：</td>
-            <td><input type="text" autocomplete="off" id="searchTextCategory" placeholder="文本分类" class="layui-input" style="width: auto;"></td>
-            <td>文本语种：</td>
-            <td>
-              <select class="customSelect" id="searchTextLanguage">
-                <option value="">请选择</option>
-                <option value="refer_audio">参考音频</option>
-                <option value="speed">speed值</option>
-                <option value="text_delimiter">文本分隔符</option>
-                <option value="other">其余参数</option>
-              </select>
-            </td>
-            <td>文本内容：</td>
-            <td><input type="text" autocomplete="off" id="searchTextContent" placeholder="文本内容" class="layui-input" style="width: auto;"></td>
-            <td colspan="2">
-              <button type="submit" class="layui-btn layui-btn-sm" id="searchText">搜索</button>
-              <button type="submit" class="layui-btn layui-btn-sm" id="createText">新建文本</button>
-            </td>
-          </tr>
-        </table>
-        
-        <table class="layui-hide" id="textList" lay-filter="textList" style="height: 100%"></table>
+          <div id="textListDiv" class="view-fill-height">
+            <table class="layui-hide" id="textList" lay-filter="textList"></table>
+          </div>
+        </div>
+
       </div>
       <div class="layui-tab-item">
         <table class="layui-hide" id="selectedTextList" lay-filter="selectedTextList" style="height: 100%"></table>

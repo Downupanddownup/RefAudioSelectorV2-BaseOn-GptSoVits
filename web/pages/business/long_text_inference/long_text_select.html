@@ -55,11 +55,7 @@
             loadTextList(){
                 const _this = this
 
-                const windowHeight = window.innerHeight;
-
-                const textListSearch = $('#'+_this.viewId+' #textListSearch').height()
-
-                const height = windowHeight * 0.95 *0.95 - textListSearch - 150
+                const height = $('#textListDiv').height()
 
                 const params = _this.getSearchParams()
 
@@ -285,7 +281,11 @@
             </td>
         </tr>
     </table>
-    <table class="layui-hide" id="textList" lay-filter="textList" style="height: 100%"></table>
+    
+    <div id="textListDiv" class="view-fill-height">
+        <table class="layui-hide" id="textList" lay-filter="textList"></table>
+    </div>
+    
 </script>
 
 <script id="longTextEditTemplate" type="text/html">

@@ -53,12 +53,8 @@
 
             loadAudioList(){
                 const _this = this
-
-                const windowHeight = window.innerHeight;
-
-                const audioListSearch = $('#'+_this.viewId+' #audioListSearch').height()
-
-                const height = windowHeight * 0.95 *0.95 - audioListSearch - 150
+                
+                const height = $('#audioListDiv').height()
 
                 initLayuiTable('audioList', {
                     url: BaseUrl+'evaluation/get_result_evaluation_list', // 此处为静态模拟数据，实际使用时需换成真实接口
@@ -225,6 +221,9 @@
             </td>
         </tr>
     </table>
+    
+    <div id="audioListDiv" class="view-fill-height">
+        <table class="layui-hide" id="audioList" lay-filter="audioList"></table>
+    </div>
 
-    <table class="layui-hide" id="audioList" lay-filter="audioList" style="height: 100%"></table>
 </script>
