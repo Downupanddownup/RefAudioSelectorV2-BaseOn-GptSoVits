@@ -64,14 +64,7 @@
 
             loadSelectedAudioList(){
                 const _this = this
-
-                const windowHeight = window.innerHeight;
-
-                const header = $('#'+_this.viewId+' #audioHeader').height()
-                console.log('header',header)
-
-                const height = windowHeight * 0.95 *0.95 - header - 190
-
+                
                 initLayuiTable('selectedAudioList', {
                     data: _this.taskInpRefsAudioList,
                     // height: height, // 最大高度减去其他容器已占有的高度差
@@ -99,7 +92,7 @@
                                 return `<div data-content-id="${d.id}" style="cursor: pointer">${d.content}</div>`;
                             }},
                         {field:'language', width:'8%', title: '音频语种', templet: function(d){
-                                return d.language;
+                                return SysConfig.languageList.find(i => i.code === d.language)?.name;
                             }},
                         {field:'audioLength', width:'8%', title: '音频时长', sort: true, templet: function(d){
                                 return d.audioLength.toFixed(1);

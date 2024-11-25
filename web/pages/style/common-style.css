@@ -20,7 +20,7 @@ body {
     height: 100%;
 }
 
-.view-body .fill-height {
+.view-body .view-fill-height {
     flex: 1;
 }
 
@@ -90,7 +90,7 @@ body {
 }
 
 .api-close {
-    background-color: #ac3d1a;
+    background-color: #e64a19;
 }
 
 #tabContentView {

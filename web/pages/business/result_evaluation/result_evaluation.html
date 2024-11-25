@@ -11,7 +11,7 @@
                 this.textList = []
             }
             
-            loadData(){
+            loadData(params){
                 const _this = this
                 $.customAjax({
                     url: BaseUrl+'task/get_inference_task_list',
@@ -19,7 +19,11 @@
                     success: function(res){
                         if (res.code == 0) {
                             _this.taskList = res.data ? res.data.map(i => new C_ObjInferenceTask(i)) : []
-                            _this.render()
+                            if (params.taskId) {
+                                _this.changeTask(params.taskId)
+                            } else {
+                                _this.render()
+                            }
                         } else {
                             layui.layer.msg(res.msg)
                         }
@@ -165,7 +169,7 @@
 
                 const dialogIndex = layer.open({
                     type: 1,
-                    area: ['95%', '95%'],
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
                     content: `<div id="showResultAudioListView"></div>`,
                     btn: ['关闭'],
                     yes: function(){

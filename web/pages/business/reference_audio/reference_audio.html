@@ -59,6 +59,10 @@
                         _this.openSoundFusionDialog()
                     })
                     
+                    obj.find('#addCategory').on('click', function(){
+                        _this.addCategoryDialog()
+                    })
+                    
                     obj.find('#searchAudioName').on('keydown', function(event){
                         if (event.key === 'Enter') {
                             console.log('Enter key pressed');
@@ -73,6 +77,10 @@
                             // 在这里处理回车事件
                             _this.reloadReferenceList()
                         }
+                    })
+                    
+                    obj.find('#searchCategory').on('change', function() {
+                        _this.reloadReferenceList()
                     })
                     
                     
@@ -131,10 +139,20 @@
                     cols: [[
                         {field:'index', width:'5%', title: '序号', type: 'numbers'},
                         {field:'audioName', width:'10%', title: '音频名称', templet: function(d){
-                                return d.audioName;
+                                return `<div data-audio-name="${d.id}" style="cursor: pointer">${d.audioName}</div>`;
                             }},
                         {field:'category', width:'8%', title: '音频分类', templet: function(d){
-                                return d.category;
+                                
+                                const options = _this.categoryList.map(category => {
+                                    const selected = d.category == category.name ? 'selected' : ''
+                                    return `<option ${selected} value="${category.name}">${category.name}</option>`
+                                }).join('')
+                            
+                                return `
+                                    <select lay-ignore class="customSelect" data-audio-category="${d.id}" style="width: auto">
+                                        ${options}
+                                    </select>
+                                `;
                             }},
                         {field:'audioPlay', width:'20%', title: '音频播放', templet: function(d){
                                 return ` 
@@ -144,21 +162,38 @@
                                     您的浏览器不支持 HTML5 audio 标签。
                                 </audio>`
                             }},
-                        {field:'content', width:'20%', title: '音频内容', templet: function(d){
-                                return `<div data-content-id="${d.id}" style="cursor: pointer">${d.content}</div>`;
+                        {field:'content', width:'22%', title: '音频内容', templet: function(d){
+                                return `
+                                <div class="view-body">
+                                  <input value="${d.content}" class="layui-input" data-content-id="${d.id}">
+                                </div>
+                                `
                             }},
                         {field:'language', width:'8%', title: '音频语种', templet: function(d){
-                                return d.language;
+                                return SysConfig.languageList.find(i => i.code === d.language)?.name;
                             }},
-                        {field:'audioLength', width:'8%', title: '音频时长', sort: true, templet: function(d){
+                        {field:'audioLength', width:'10%', title: '音频时长', sort: true, templet: function(d){
                                 return d.audioLength.toFixed(1);
                             }},
-                        {field:'opt', width:'20%', title: '操作', templet: function(d){
+                        {field:'score', width:'10%', title: '结果评分', sort: true, templet: function(d){
+                                return `<div id="audio-score-${d.id}" class="no-wrap"></div>`;
+                            }},
+                        {field:'longTextScore', width:'10%', title: '长文评分', sort: true, templet: function(d){
+                                return `<div id="audio-long-text-score-${d.id}" class="no-wrap"></div>`;
+                            }},
+                        {field:'remark', width:'10%', title: '备注', templet: function(d){
+                                return `
+                                <div class="view-body">
+                                  <input value="${d.remark}" class="layui-input" data-remark-id="${d.id}">
+                                </div>
+                                `
+                            }},
+                        {field:'opt', width:'16%', title: '操作',fixed: 'right', templet: function(d){
                                 const html = []
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-edit="${d.id}">编辑</button>`)
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-compare="${d.id}">比对</button>`)
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-split="${d.id}">分割</button>`)
-                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-download="${d.id}">下载</button>`)
+                                // html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-download="${d.id}">下载</button>`)
                                 return html.join(' ');
                             }},
                     ]],
@@ -167,8 +202,8 @@
                         // 创建 AudioController 实例并传入音频元素集合
                         const audioController = new AudioController(Array.from(audioElements));
 
-                        $('#' + _this.viewId + ' div[data-content-id]').on('click', function() {
-                            const audioId = $(this).attr('data-content-id')
+                        $('#' + _this.viewId + ' div[data-audio-name]').on('click', function() {
+                            const audioId = $(this).attr('data-audio-name')
                             _this.audioList.forEach(i => {
                                 if (i.id == audioId) {
                                     const audioElement = $('#' + _this.viewId + ' audio[data-audio="' + audioId + '"]')[0]
@@ -176,6 +211,18 @@
                                     audioController.dispatchClickEvent(audioElement)
                                 }
                             })
+                        })
+
+                        $('#' + _this.viewId + ' input[data-content-id]').on('blur', function() {
+                            const audioId = $(this).attr('data-content-id')
+                            const value = $(this).val()
+                            _this.updateAudioContent(audioId, value)
+                        })
+
+                        $('#' + _this.viewId + ' input[data-remark-id]').on('blur', function() {
+                            const audioId = $(this).attr('data-remark-id')
+                            const value = $(this).val()
+                            _this.updateAudioRemark(audioId, value)
                         })
 
                         $('#' + _this.viewId + ' button[data-go-to-edit]').on('click', function(){
@@ -198,9 +245,117 @@
                             _this.downloadAudio(id)
                         })
 
+                        $('#' + _this.viewId + ' select[data-audio-category]').on('change', function(){
+                            const id = $(this).attr('data-audio-category')
+                            const value = $(this).val()
+                            _this.updateAudioCategory(id, value)
+                        })
+                        
+                        _this.initScore()
+
                     },
                     error: function(res, msg){
                         console.log(res, msg)
+                    }
+                })
+            }
+            
+            initScore() {
+                
+                const _this = this
+                
+                _this.audioList.forEach(audio => {
+                    const id = audio.id
+                    layui.rate.render({
+                        elem: '#audio-score-'+id,
+                        value: audio.score,
+                        readonly: true,
+                    });    
+                    layui.rate.render({
+                        elem: '#audio-long-text-score-'+id,
+                        value: audio.longTextScore,
+                        readonly: true,
+                    });           
+                })
+
+            }
+
+            updateAudioCategory(audioId, category) {
+                const _this = this
+                $.customAjax({
+                    url: BaseUrl+'audio/update_audio_category',
+                    type: 'post',
+                    data:{
+                        id: audioId,
+                        category: category
+                    },
+                    success: function(res){
+                        if (res.code == 0) {
+                            _this.audioList.find(i => i.id == audioId).category = category
+                        } else {
+                            layui.layer.msg(res.msg)
+                        }
+                    },
+                    error: function(res, msg){
+                        layui.layer.msg(msg)
+                    }
+                })
+            }
+
+            updateAudioContent(audioId, content) {
+                const _this = this
+
+                const audio = _this.audioList.find(i => i.id == audioId)
+
+                if (audio.content === content) {
+                    return
+                }
+                
+                $.customAjax({
+                    url: BaseUrl+'audio/update_audio_content',
+                    type: 'post',
+                    data:{
+                        id: audioId,
+                        content: content
+                    },
+                    success: function(res){
+                        if (res.code == 0) {
+                            
+                        } else {
+                            layui.layer.msg(res.msg)
+                        }
+                    },
+                    error: function(res, msg){
+                        layui.layer.msg(msg)
+                    }
+                })
+            }
+
+            updateAudioRemark(audioId, remark) {
+                const _this = this
+                
+                const audio = _this.audioList.find(i => i.id == audioId)
+                
+                if (audio.remark === remark) {
+                    return
+                }
+                
+                $.customAjax({
+                    url: BaseUrl+'audio/update_audio_remark',
+                    type: 'post',
+                    data:{
+                        id: audioId,
+                        remark: remark
+                    },
+                    success: function(res){
+                        if (res.code == 0) {
+                            
+                        } else {
+                            layui.layer.msg(res.msg)
+                        }
+                    },
+                    error: function(res, msg){
+                        layui.layer.msg(msg)
                     }
                 })
             }
@@ -214,7 +369,7 @@
 
                 const index = layer.open({
                     type: 1,
-                    area: ['95%', '95%'],
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
                     content: `<div id="audioCompareView"></div>`,
                     btn: ['确定', '取消'],
                     yes: function(){
@@ -236,7 +391,7 @@
 
                 const index = layer.open({
                     type: 1,
-                    area: ['95%', '95%'],
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
                     content: `<div id="audioEditView"></div>`,
                     btn: ['确定', '取消'],
                     yes: function(){
@@ -269,7 +424,7 @@
 
                 const index = layer.open({
                     type: 1,
-                    area: ['95%', '95%'],
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
                     content: `<div id="audioSplitView"></div>`,
                     btn: ['确定', '取消'],
                     yes: function(){
@@ -336,8 +491,8 @@
 
                 const dialogId = layer.open({
                     type: 1,
-                    area: ['95%', '95%'],
-                    content: `<div id="soundFusionManagerView"></div>`,
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
+                    content: `<div id="soundFusionManagerView" class="view-body"></div>`,
                     btn: ['关闭'],
                     yes: function(){
                         layui.layer.close(dialogId)
@@ -345,6 +500,55 @@
                 });
 
                 select.render()
+            }
+
+            addCategoryDialog() {
+                const _this = this
+
+                const html = `<div style="display: flex;align-items: center;justify-content: center;height: 100%;width: 100%">
+                                <input type="text" autocomplete="off" id="newCategory" placeholder="分类" class="layui-input" style="width: auto;">
+                            </div>`
+
+                const dialogId = layer.open({
+                    type: 1,
+                    area: ['500px', '300px'],
+                    content: html,
+                    btn: ['确定', '取消'],
+                    yes: function(){
+                        
+                        const category = $('#newCategory').val()
+                        
+                        if (!category) {
+                            layui.layer.alert('请输入分类')
+                            return
+                        }
+
+                        $.customAjax({
+                            url: BaseUrl+'audio/add_category',
+                            type: 'post',
+                            data: {
+                                category: category
+                            },
+                            success: function(res){
+                                if (res.code == 0) {
+                                    
+                                    _this.loadData()
+
+                                    layui.layer.close(dialogId)
+
+                                } else {
+                                    layui.layer.msg(res.msg)
+                                }
+                            },
+                            error: function(res, msg){
+                                layer.msg(msg)
+                            }
+                        })
+                        
+                       
+                    }
+                });
+
             }
 
 
@@ -382,6 +586,7 @@
                 <button type="submit" class="layui-btn layui-btn-sm" id="addAudio">新增</button>
                 <button type="submit" class="layui-btn layui-btn-sm" id="importAudio">导入</button>
                 <button type="submit" class="layui-btn layui-btn-sm" id="soundFusionManager">融合音频</button>
+                <button type="submit" class="layui-btn layui-btn-sm" id="addCategory">新增分类</button>
             </td>
         </tr>
     </table>

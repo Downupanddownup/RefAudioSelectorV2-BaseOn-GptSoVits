@@ -135,19 +135,19 @@
                                 }
                                 return d.inferenceStatus
                             }},
-                        {field:'executeTextSimilarity', width:'10%', title: '文本相似度', templet: function(d){
+                        {field:'executeTextSimilarity', width:'10%', title: '文本相似执行', templet: function(d){
                                 if (d.executeTextSimilarity == 1) {
                                     return '是'
                                 }
                                 return '否'
                             }},
-                        {field:'executeAudioSimilarity', width:'10%', title: '音频相似度', templet: function(d){
+                        {field:'executeAudioSimilarity', width:'10%', title: '音频相似执行', templet: function(d){
                                 if (d.executeAudioSimilarity == 1) {
                                     return '是'
                                 }
                                 return '否'
                             }},
-                        {field:'opt', width:'20%', title: '操作', templet: function(d){
+                        {field:'opt', width:'20%', title: '操作',fixed:'right', templet: function(d){
                                 const html = []
                                 if (d.inferenceStatus == 0) {
                                     html.push(`<button type="button" class="layui-btn layui-btn-sm" data-task-edit="${d.id}">编辑</button>`)
@@ -180,6 +180,13 @@
                         obj.find('button[data-task-start-inference]').on('click', function () {
                             const taskId = $(this).attr('data-task-start-inference')
                             _this.startInferenceTask(taskId)
+                        })
+
+                        obj.find('button[data-task-go-to-result]').on('click', function () {
+                            const taskId = $(this).attr('data-task-go-to-result')
+                            HomePage.switchTab(3, {
+                                taskId: taskId
+                            })
                         })
 
                         obj.find('button[data-task-start-analysis]').on('click', function () {
@@ -245,7 +252,7 @@
                 
                 const dialogIndex = layer.open({
                     type: 1,
-                    area: ['95%', '95%'],
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
                     content: `<div id="createInferenceTaskView" style="overflow-x: hidden"></div>`,
                     btn: ['确定', '取消'],
                     yes: function(){
@@ -281,8 +288,8 @@
                 
                 const dialogIndex = layer.open({
                     type: 1,
-                    area: ['95%', '95%'],
-                    content: `<div id="resultAudioListView" style="overflow-x: hidden"></div>`,
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
+                    content: `<div id="resultAudioListView" class="view-body"></div>`,
                     btn: ['关闭'],
                     yes: function(){
                         layui.layer.close(dialogIndex)
@@ -300,7 +307,7 @@
                 
                 const dialogIndex = layer.open({
                     type: 1,
-                    area: ['95%', '95%'],
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
                     content: `<div id="createInferenceTaskView"></div>`,
                     btn: ['关闭'],
                     yes: function(){

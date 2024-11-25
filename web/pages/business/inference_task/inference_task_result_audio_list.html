@@ -61,9 +61,7 @@
 
                 const params = _this.getSearchParams()
 
-                const windowHeight = window.innerHeight;
-
-                const height = windowHeight*0.95 - $('#searchHeader').height() - 100
+                const height = $('#resultAudioListDiv').height()
 
                 initLayuiTable('resultAudioList', {
                     url: BaseUrl+'evaluation/get_inference_task_result_audio_list', // 此处为静态模拟数据，实际使用时需换成真实接口
@@ -147,7 +145,7 @@
                         {field:'remark', width:'8%', title: '备注', sort: true, templet: function(d){
                                 return d.remark;
                             }},
-                        {field:'opt', width:'20%', title: '操作', templet: function(d){
+                        {field:'opt', width:'20%', title: '操作',fixed:'right', templet: function(d){
                                 const html = []
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-detail="${d.id}">详情</button>`)
                                 return html.join(' ');
@@ -195,7 +193,7 @@
 
                 const dialogIndex = layer.open({
                     type: 1,
-                    area: ['95%', '95%'],
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
                     content: `<div id="resultAudioDetailView" style="overflow-x: hidden"></div>`,
                     btn: ['关闭'],
                     yes: function(){
@@ -254,5 +252,8 @@
         </tr>
     </table>
 
-    <table class="layui-hide" id="resultAudioList" lay-filter="resultAudioList" style="height: 100%"></table>
+    <div id="resultAudioListDiv" class="view-fill-height">
+        <table class="layui-hide" id="resultAudioList" lay-filter="resultAudioList" style="height: 100%"></table>
+    </div>
+    
 </script>

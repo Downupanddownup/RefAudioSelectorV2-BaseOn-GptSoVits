@@ -55,11 +55,7 @@
             loadTextList(){
                 const _this = this
 
-                const windowHeight = window.innerHeight;
-
-                const textListSearch = $('#'+_this.viewId+' #textListSearch').height()
-
-                const height = windowHeight * 0.95 *0.95 - textListSearch - 150
+                const height = $('#textListDiv').height()
 
                 const params = _this.getSearchParams()
 
@@ -116,9 +112,9 @@
                                 return d.textContent;
                             }},
                         {field:'textLanguage', width:'10%', title: '文本语种', templet: function(d){
-                                return d.textLanguage;
+                                return SysConfig.languageList.find(i => i.code === d.textLanguage)?.name;
                             }},
-                        {field:'opt', width:'20%', title: '操作', templet: function(d){
+                        {field:'opt', width:'20%', title: '操作',fixed:'right', templet: function(d){
                                 const html = []
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-edit-text="${d.id}"><i class="layui-icon"></i></button>`)
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-delete-text="${d.id}"><i class="layui-icon"></i></button>`)
@@ -285,7 +281,11 @@
             </td>
         </tr>
     </table>
-    <table class="layui-hide" id="textList" lay-filter="textList" style="height: 100%"></table>
+    
+    <div id="textListDiv" class="view-fill-height">
+        <table class="layui-hide" id="textList" lay-filter="textList"></table>
+    </div>
+    
 </script>
 
 <script id="longTextEditTemplate" type="text/html">

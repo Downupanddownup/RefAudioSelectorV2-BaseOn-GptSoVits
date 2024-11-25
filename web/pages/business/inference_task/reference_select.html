@@ -108,14 +108,8 @@
 
             loadAudioList(){
                 const _this = this
-
-                const windowHeight = window.innerHeight;
-
-                const header = $('#'+_this.viewId+' #audioHeader').height()
-                const audioListSearch = $('#'+_this.viewId+' #audioListSearch').height()
-                console.log('header',header)
-
-                const height = windowHeight * 0.95 *0.95 - header - audioListSearch - 200
+                
+                const height = $('#audioListDiv').height()
 
                 const params = _this.getSearchParams()
 
@@ -135,8 +129,9 @@
                     customSelect:{
                         type:'checkbox',
                         clickRow: row => {
+                            console.log('row', row)
                             const id = row.id
-                            if(_this.selectedAudioList.find(i => i.id == id)) {
+                            if(!_this.selectedAudioList.find(i => i.id == id)) {
                                 _this.selectedAudioList.push(new C_ObjReferenceAudio(row))
                             } else {
                                 _this.selectedAudioList = _this.selectedAudioList.filter(i => i.id != id)
@@ -185,7 +180,7 @@
                         {field:'category', width:'8%', title: '音频分类', templet: function(d){
                                 return d.category;
                             }},
-                        {field:'audioPlay', width:'20%', title: '音频播放', templet: function(d){
+                        {field:'audioPlay', width:'27%', title: '音频播放', templet: function(d){
                                 return ` 
                                  <audio controls class="custom-audio" data-audio-wait="${d.id}">
                                     <source src="${d.audioPath}" type="audio/wav">
@@ -193,11 +188,11 @@
                                     您的浏览器不支持 HTML5 audio 标签。
                                 </audio>`
                             }},
-                        {field:'content', width:'20%', title: '音频内容', templet: function(d){
+                        {field:'content', width:'27%', title: '音频内容', templet: function(d){
                                 return `<div data-content-wait-id="${d.id}" style="cursor: pointer">${d.content}</div>`;
                             }},
                         {field:'language', width:'8%', title: '音频语种', templet: function(d){
-                                return d.language;
+                                return SysConfig.languageList.find(i => i.code === d.language)?.name;
                             }},
                         {field:'audioLength', width:'8%', title: '音频时长', sort: true, templet: function(d){
                                 return d.audioLength.toFixed(1);
@@ -228,13 +223,9 @@
             }
             loadSelectedAudioList(){
                 const _this = this
-
-                const windowHeight = window.innerHeight;
-
-                const header = $('#'+_this.viewId+' #audioHeader').height()
-                console.log('header',header)
-
-                const height = windowHeight * 0.95 *0.95 - header - 190
+                
+                const height = $('#contentDiv').height()*0.95
+                
 
                 initLayuiTable('selectedAudioList', {
                     data: _this.selectedAudioList,
@@ -248,7 +239,7 @@
                         {field:'category', width:'8%', title: '音频分类', templet: function(d){
                                 return d.category;
                             }},
-                        {field:'audioPlay', width:'20%', title: '音频播放', templet: function(d){
+                        {field:'audioPlay', width:'25%', title: '音频播放', templet: function(d){
                                 return ` 
                                  <audio controls class="custom-audio" data-audio="${d.id}">
                                     <source src="${d.audioPath}" type="audio/wav">
@@ -256,16 +247,16 @@
                                     您的浏览器不支持 HTML5 audio 标签。
                                 </audio>`
                             }},
-                        {field:'content', width:'20%', title: '音频内容', templet: function(d){
+                        {field:'content', width:'25%', title: '音频内容', templet: function(d){
                                 return `<div data-content-id="${d.id}" style="cursor: pointer">${d.content}</div>`;
                             }},
                         {field:'language', width:'8%', title: '音频语种', templet: function(d){
-                                return d.language;
+                                return SysConfig.languageList.find(i => i.code === d.language)?.name;
                             }},
                         {field:'audioLength', width:'8%', title: '音频时长', sort: true, templet: function(d){
                                 return d.audioLength.toFixed(1);
                             }},
-                        {field:'opt', width:'20%', title: '操作', templet: function(d){
+                        {field:'opt', width:'10%', title: '操作',fixed:'right', templet: function(d){
                                 const html = []
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-remove-audio="${d.id}"><i class="layui-icon"></i></button>`)
                                 return html.join(' ');
@@ -322,39 +313,43 @@
 </script>
 
 <script id="referenceSelectTemplate" type="text/html">
-    <div class="layui-tab layui-tab-brief" lay-filter="audioManagerTab" style="padding: 10px">
+    <div class="layui-tab layui-tab-brief view-body" lay-filter="audioManagerTab" style="height: 100%;margin: 0">
         <ul class="layui-tab-title" id="audioHeader">
             <li class="layui-this" lay-id="1">候选列表</li>
             <li lay-id="2">已选中（<span id="selectedAudioCount">{{d.selectedAudioList.length}}</span>）</li>
         </ul>
-        <div class="layui-tab-content">
-            <div class="layui-tab-item layui-show">
+        <div class="layui-tab-content view-fill-height" id="contentDiv">
+            <div class="layui-tab-item layui-show" style="height: 100%">
+                <div class="view-body">
+                    <table class="table3" id="audioListSearch">
+                        <tr>
+                            <td>音频名称：</td>
+                            <td><input type="text" autocomplete="off" id="searchAudioName" placeholder="音频名称" class="layui-input" style="width: auto;"></td>
+                            <td>音频分类：</td>
+                            <td>
+                                <select class="customSelect" id="searchCategory">
+                                    <option value="">请选择</option>
+                                    {{# layui.each(d.categoryList, function(index,item){ }}
+                                    <option value="{{item.name}}">{{item.name}}</option>
+                                    {{# }) }}
+                                </select>
+                            </td>
+                            <td>音频内容：</td>
+                            <td><input type="text" autocomplete="off" id="searchContent" placeholder="音频内容" class="layui-input" style="width: auto;"></td>
+                            <td colspan="2">
+                                <button type="submit" class="layui-btn layui-btn-sm" id="searchAudio">搜索</button>
+                            </td>
+                        </tr>
+                    </table>
 
-                <table class="table3" id="audioListSearch">
-                    <tr>
-                        <td>音频名称：</td>
-                        <td><input type="text" autocomplete="off" id="searchAudioName" placeholder="音频名称" class="layui-input" style="width: auto;"></td>
-                        <td>音频分类：</td>
-                        <td>
-                            <select class="customSelect" id="searchCategory">
-                                <option value="">请选择</option>
-                                {{# layui.each(d.categoryList, function(index,item){ }}
-                                <option value="{{item.name}}">{{item.name}}</option>
-                                {{# }) }}
-                            </select>
-                        </td>
-                        <td>音频内容：</td>
-                        <td><input type="text" autocomplete="off" id="searchContent" placeholder="音频内容" class="layui-input" style="width: auto;"></td>
-                        <td colspan="2">
-                            <button type="submit" class="layui-btn layui-btn-sm" id="searchAudio">搜索</button>
-                        </td>
-                    </tr>
-                </table>
-                
-                <table class="layui-hide" id="audioList" lay-filter="audioList" style="height: 100%"></table>
+                    <div id="audioListDiv" class="view-fill-height">
+                        <table class="layui-hide" id="audioList" lay-filter="audioList"></table>
+                    </div>
+                </div>
+
             </div>
             <div class="layui-tab-item">
-                <table class="layui-hide" id="selectedAudioList" lay-filter="selectedAudioList" style="height: 100%"></table>
+                <table class="layui-hide" id="selectedAudioList" lay-filter="selectedAudioList"></table>
             </div>
         </div>
     </div>

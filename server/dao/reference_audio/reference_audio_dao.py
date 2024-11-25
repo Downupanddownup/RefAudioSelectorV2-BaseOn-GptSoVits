@@ -66,10 +66,10 @@ class ReferenceAudioDao:
             x.language,
             x.category,
             x.audio_length,
+            x.valid_or_not,
             x.score,
             x.long_text_score,
-            x.remark,
-            x.valid_or_not
+            x.remark
         ) for x in audio_list])
 
     @staticmethod
@@ -79,6 +79,19 @@ class ReferenceAudioDao:
         '''
         return DBSlaveSQLExecutor.execute_update(sql, (target_category,))
 
+    @staticmethod
+    def update_audio_content(audio_id: int, content: str):
+        sql = f'''
+        UPDATE tab_obj_reference_audio SET Content = ? WHERE Id = ?
+        '''
+        return DBSlaveSQLExecutor.execute_update(sql, (content, audio_id))
+
+    @staticmethod
+    def update_audio_remark(audio_id: int, remark: str):
+        sql = f'''
+        UPDATE tab_obj_reference_audio SET Remark = ? WHERE Id = ?
+        '''
+        return DBSlaveSQLExecutor.execute_update(sql, (remark, audio_id))
     @staticmethod
     def update_reference_audio(audio: ObjReferenceAudio) -> int:
         sql = f'''

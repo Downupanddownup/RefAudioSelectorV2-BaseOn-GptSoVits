@@ -37,26 +37,27 @@
                 const _this = this
                 $('button[data-tab]').on('click', function () {
                     const tab = parseInt($(this).data('tab'))
-                    $('button[data-tab]').removeClass('active')
-                    $(this).addClass('active')
-                    _this.switchTab(tab)
+                    _this.switchTab(tab, {})
                 })
             }
 
-            switchTab(tab) {
+            switchTab(tab, params) {
                 const _this = this
+                $('button[data-tab]').removeClass('active')
+                $('button[data-tab='+tab+']').addClass('active')
+                
                 if (tab === 1) {
-                    ReferenceAudioSpace.getReferenceAudio(_this.contentView).loadData()
+                    ReferenceAudioSpace.getReferenceAudio(_this.contentView).loadData(params)
                 } else if (tab === 2) {
-                    InferenceTaskSpace.getInferenceTask(_this.contentView).render()
+                    InferenceTaskSpace.getInferenceTask(_this.contentView).render(params)
                 } else if (tab === 3) {
-                    ResultEvaluationSpace.getResultEvaluation(_this.contentView).loadData()
+                    ResultEvaluationSpace.getResultEvaluation(_this.contentView).loadData(params)
                 } else if (tab === 4) {
-                    LongTextInferenceSpace.getLongTextInference(_this.contentView).render()
+                    LongTextInferenceSpace.getLongTextInference(_this.contentView).render(params)
                 } else if (tab === 5) {
-                    FinishedProductSpace.getFinishedProduct(_this.contentView).render()
+                    FinishedProductSpace.getFinishedProduct(_this.contentView).render(params)
                 } else if (tab === 6) {
-                    TtsCorrectionListSpace.getTtsCorrectionList(_this.contentView).render()
+                    TtsCorrectionListSpace.getTtsCorrectionList(_this.contentView).render(params)
                 }
                 _this.tab = tab
             }

@@ -40,8 +40,8 @@
 
                 const dialogId = layer.open({
                     type: 1,
-                    area: ['90%', '90%'],
-                    content: `<div id="audioSelectView"></div>`,
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
+                    content: `<div id="audioSelectView" class="view-body"></div>`,
                     btn: ['确定', '取消'],
                     yes: function(){
                         const selectedAudioList = C_ReferenceSelect$1.getAllSelectedAudioList()
@@ -104,7 +104,7 @@
 
                 const index = layer.open({
                     type: 1,
-                    area: ['95%', '95%'],
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
                     content: `<div id="audioEditView"></div>`,
                     btn: ['确定', '取消'],
                     yes: function(){
@@ -142,12 +142,8 @@
 
             loadAudioList(){
                 const _this = this
-
-                const windowHeight = window.innerHeight;
-
-                const audioListSearch = $('#'+_this.viewId+' #audioListSearch').height()
-
-                const height = windowHeight * 0.95 *0.95 - audioListSearch - 150
+                
+                const height = $('#soundFusionAudioListDiv').height()
 
                 initLayuiTable('soundFusionAudioList', {
                     url: BaseUrl+'fusion/get_sound_fusion_audio_list', // 此处为静态模拟数据，实际使用时需换成真实接口
@@ -176,10 +172,13 @@
                     },
                     cols: [[
                         {field:'index', width:'5%', title: '序号', type: 'numbers'},
-                        {field:'audioName', width:'10%', title: '音频名称', templet: function(d){
+                        {field:'roleName', width:'8%', title: '角色', templet: function(d){
+                                return d.roleName;
+                            }},
+                        {field:'audioName', width:'8%', title: '音频名称', templet: function(d){
                                 return d.audioName;
                             }},
-                        {field:'category', width:'10%', title: '音频分类', templet: function(d){
+                        {field:'category', width:'8%', title: '音频分类', templet: function(d){
                                 return d.category;
                             }},
                         {field:'audioPlay', width:'22%', title: '音频播放', templet: function(d){
@@ -193,10 +192,10 @@
                         {field:'content', width:'19%', title: '音频内容', templet: function(d){
                                 return `<div data-content-wait-id="${d.id}" style="cursor: pointer">${d.content}</div>`;
                             }},
-                        {field:'language', width:'10%', title: '音频语种', templet: function(d){
-                                return d.language;
+                        {field:'language', width:'8%', title: '音频语种', templet: function(d){
+                                return SysConfig.languageList.find(i => i.code === d.language)?.name;
                             }},
-                        {field:'audioLength', width:'9%', title: '音频时长', sort: true, templet: function(d){
+                        {field:'audioLength', width:'7%', title: '音频时长', sort: true, templet: function(d){
                                 let audioLength = d.audioLength
                                 try {
                                     audioLength = d.audioLength.toFixed(1)
@@ -204,7 +203,7 @@
                                 }
                                 return audioLength;
                             }},
-                        {field:'opt', width:'10%', title: '操作', templet: function(d){
+                        {field:'opt', width:'10%', title: '操作',fixed:'right', templet: function(d){
                                 const html = []
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-edit="${d.id}">编辑</button>`)
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-delete="${d.id}">删除</button>`)
@@ -270,10 +269,9 @@
             <td>
                 <select class="customSelect" id="searchLanguage">
                     <option value="">请选择</option>
-                    <option value="refer_audio">参考音频</option>
-                    <option value="speed">speed值</option>
-                    <option value="text_delimiter">文本分隔符</option>
-                    <option value="other">其余参数</option>
+                    {{# layui.each(SysConfig.languageList, function(index, item) { }}
+                        <option value="{{item.code}}">{{item.name}}</option>
+                    {{# }) }}
                 </select>
             </td>
             <td>音频内容：</td>
@@ -286,5 +284,7 @@
         </tr>
     </table>
 
-    <table class="layui-hide" id="soundFusionAudioList" lay-filter="soundFusionAudioList" style="height: 100%"></table>
+    <div id="soundFusionAudioListDiv" class="view-fill-height">
+        <table class="layui-hide" id="soundFusionAudioList" lay-filter="soundFusionAudioList"></table>
+    </div>
 </script>

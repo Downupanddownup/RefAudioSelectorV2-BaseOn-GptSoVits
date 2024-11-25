@@ -101,7 +101,7 @@
                         {field:'remark', width:'8%', title: '备注', sort: true, templet: function(d){
                                 return d.remark;
                             }},
-                        {field:'opt', width:'20%', title: '操作', templet: function(d){
+                        {field:'opt', width:'20%', title: '操作',fixed:'right', templet: function(d){
                                 const html = []
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-edit="${d.id}">编辑</button>`)
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-inference="${d.id}">开始推理</button>`)
@@ -143,7 +143,7 @@
 
                 const index = layer.open({
                     type: 1,
-                    area: ['95%', '95%'],
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
                     content: `<div id="addTaskView"></div>`,
                     btn: ['确定', '取消'],
                     yes: function(){
@@ -164,7 +164,7 @@
 
                 const index = layer.open({
                     type: 1,
-                    area: ['95%', '95%'],
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
                     content: `<div id="inferenceView"></div>`,
                     btn: ['确定', '取消'],
                     yes: function(){

@@ -67,7 +67,7 @@ class ReferenceAudioService:
                 if not os.path.exists(audio_path):
                     logger.info(f"Audio file does not exist: {audio_path}")
                     item = ObjReferenceAudio(audio_name=os.path.basename(audio_path), audio_path='',
-                                             content=transcription, language=language, category=category,
+                                             content=transcription, language=language.lower(), category='不存在',
                                              audio_length=0, valid_or_not=0)
                     audio_list.append(item)
                     continue
@@ -82,7 +82,7 @@ class ReferenceAudioService:
 
                 shutil.copy2(audio_path, new_path)
                 item = ObjReferenceAudio(audio_name=os.path.basename(audio_path), audio_path=new_path,
-                                         content=transcription, language=language, category=category,
+                                         content=transcription, language=language.lower(), category=category,
                                          audio_length=duration, valid_or_not=1)
                 audio_list.append(item)
 
@@ -115,8 +115,16 @@ class ReferenceAudioService:
         ReferenceAudioService.insert_reference_audio_list([audio])
 
     @staticmethod
-    def update_reference_audio(audio):
+    def update_reference_audio(audio: ObjReferenceAudio):
         ReferenceAudioDao.update_reference_audio(audio)
+
+    @staticmethod
+    def update_audio_content(audio_id: int, content: str):
+        return ReferenceAudioDao.update_audio_content(audio_id, content)
+
+    @staticmethod
+    def update_audio_remark(audio_id: int, remark: str):
+        return ReferenceAudioDao.update_audio_remark(audio_id, remark)
 
 
 def check_audio_duration(duration, min_duration=3, max_duration=10):

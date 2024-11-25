@@ -53,12 +53,8 @@
 
             loadAudioList(){
                 const _this = this
-
-                const windowHeight = window.innerHeight;
-
-                const audioListSearch = $('#'+_this.viewId+' #audioListSearch').height()
-
-                const height = windowHeight * 0.95 *0.95 - audioListSearch - 150
+                
+                const height = $('#audioListDiv').height()
 
                 initLayuiTable('audioList', {
                     url: BaseUrl+'evaluation/get_result_evaluation_list', // 此处为静态模拟数据，实际使用时需换成真实接口
@@ -101,12 +97,7 @@
                     },
                     cols: [[
                         {field:'radio', width:'3%', title: '选择', type: 'radio'},
-                        // {field:'index', width:'3%', title: '序号', type: 'numbers'},
-                        {field:'opt', width:'5%', title: '操作', templet: function(d){
-                                const html = []
-                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-detail="${d.id}">详情</button>`)
-                                return html.join(' ');
-                            }},
+                        {field:'index', width:'3%', title: '序号', type: 'numbers'},
                         {field:'path', width:'22%', title: '结果音频', templet: function(d){
                                 return ` 
                                  <audio controls class="custom-audio" data-result-audio="${d.id}">
@@ -154,15 +145,20 @@
                         {field:'textId', width:'20%', title: '推理文本', templet: function(d){
                                 return d.objText.textContent;
                             }},
-                        /* {field:'asrSimilarScore', width:'20%', title: '文本相似度', templet: function(d){
+                         {field:'asrSimilarScore', width:'20%', title: '文本相似度', templet: function(d){
                                  return d.asrSimilarScore.toFixed(4);
-                             }},*/
-                        /*{field:'audioSimilarScore', width:'20%', title: '音频相似度', templet: function(d){
+                             }},
+                        {field:'audioSimilarScore', width:'20%', title: '音频相似度', templet: function(d){
                                 return d.audioSimilarScore.toFixed(4);
-                            }},*/
-                        /*{field:'audioLength', width:'6%', title: '音频时长', sort: true, templet: function(d){
+                            }},
+                        {field:'audioLength', width:'6%', title: '音频时长', sort: true, templet: function(d){
                                 return d.audioLength.toFixed(1);
-                            }},*/
+                            }},
+                        {field:'opt', width:'5%', title: '操作',fixed: 'right', templet: function(d){
+                                const html = []
+                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-detail="${d.id}">详情</button>`)
+                                return html.join(' ');
+                            }},
 
                     ]],
                     done: function(){
@@ -181,12 +177,35 @@
                             })
                         })
 
+                        $('#' + _this.viewId + ' button[data-go-to-detail]').on('click', function() {
+                            const audioId = $(this).attr('data-go-to-detail')
+                            _this.openDetailDialog(audioId)
+                        })
+
                     },
                     error: function(res, msg){
                         console.log(res, msg)
                     }
                 })
                 
+            }
+
+            openDetailDialog(id){
+                const _this = this
+
+                const dialog = ResultAudioAllDetailSpace.getResultAudioAllDetail('resultAudioDetailView', id)
+
+                const dialogIndex = layer.open({
+                    type: 1,
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
+                    content: `<div id="resultAudioDetailView" style="overflow-x: hidden"></div>`,
+                    btn: ['关闭'],
+                    yes: function(){
+                        layui.layer.close(dialogIndex)
+                    }
+                });
+
+                dialog.loadData()
             }
 
         }
@@ -225,6 +244,9 @@
             </td>
         </tr>
     </table>
+    
+    <div id="audioListDiv" class="view-fill-height">
+        <table class="layui-hide" id="audioList" lay-filter="audioList"></table>
+    </div>
 
-    <table class="layui-hide" id="audioList" lay-filter="audioList" style="height: 100%"></table>
 </script>

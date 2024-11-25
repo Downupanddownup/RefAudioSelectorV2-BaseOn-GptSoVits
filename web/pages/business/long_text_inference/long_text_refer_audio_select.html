@@ -92,11 +92,7 @@
             loadAudioList(){
                 const _this = this
 
-                const windowHeight = window.innerHeight;
-
-                const audioListSearch = $('#'+_this.viewId+' #audioListSearch').height()
-
-                const height = windowHeight * 0.95 *0.95 - audioListSearch - 150
+                const height = $('#audioListDiv').height()
 
                 const params = _this.getSearchParams()
 
@@ -148,7 +144,7 @@
                         {field:'audioName', width:'10%', title: '音频名称', templet: function(d){
                                 return d.audioName;
                             }},
-                        {field:'category', width:'12%', title: '音频分类', templet: function(d){
+                        {field:'category', width:'10%', title: '音频分类', templet: function(d){
                                 return d.category;
                             }},
                         {field:'audioPlay', width:'22%', title: '音频播放', templet: function(d){
@@ -163,7 +159,7 @@
                                 return `<div data-content-wait-id="${d.id}" style="cursor: pointer">${d.content}</div>`;
                             }},
                         {field:'language', width:'12%', title: '音频语种', templet: function(d){
-                                return d.language;
+                                return SysConfig.languageList.find(i => i.code === d.language)?.name;
                             }},
                         {field:'audioLength', width:'12%', title: '音频时长', sort: true, templet: function(d){
                                 return d.audioLength.toFixed(1);
@@ -206,7 +202,7 @@
 </script>
 
 <script id="longTextReferenceSelectTemplate" type="text/html">
-    <table class="table3" id="audioListSearch">
+    <table class="table3">
         <tr>
             <td>音频名称：</td>
             <td><input type="text" autocomplete="off" id="searchAudioName" placeholder="音频名称" class="layui-input" style="width: auto;"></td>
@@ -236,6 +232,9 @@
             </td>
         </tr>
     </table>
+    
+    <div id="audioListDiv" class="view-fill-height">
+        <table class="layui-hide" id="audioList" lay-filter="audioList" style="height: 100%"></table>
+    </div>
 
-    <table class="layui-hide" id="audioList" lay-filter="audioList" style="height: 100%"></table>
 </script>
