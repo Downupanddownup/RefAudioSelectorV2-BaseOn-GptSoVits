@@ -193,7 +193,7 @@
                                 return `<div data-content-wait-id="${d.id}" style="cursor: pointer">${d.content}</div>`;
                             }},
                         {field:'language', width:'8%', title: '音频语种', templet: function(d){
-                                return d.language;
+                                return SysConfig.languageList.find(i => i.code === d.language)?.name;
                             }},
                         {field:'audioLength', width:'7%', title: '音频时长', sort: true, templet: function(d){
                                 let audioLength = d.audioLength

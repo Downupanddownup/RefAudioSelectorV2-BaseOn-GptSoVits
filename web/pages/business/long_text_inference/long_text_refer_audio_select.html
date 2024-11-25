@@ -159,7 +159,7 @@
                                 return `<div data-content-wait-id="${d.id}" style="cursor: pointer">${d.content}</div>`;
                             }},
                         {field:'language', width:'12%', title: '音频语种', templet: function(d){
-                                return d.language;
+                                return SysConfig.languageList.find(i => i.code === d.language)?.name;
                             }},
                         {field:'audioLength', width:'12%', title: '音频时长', sort: true, templet: function(d){
                                 return d.audioLength.toFixed(1);
