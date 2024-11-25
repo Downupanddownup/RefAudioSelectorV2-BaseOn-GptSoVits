@@ -112,7 +112,7 @@
                                 return d.textContent;
                             }},
                         {field:'textLanguage', width:'10%', title: '文本语种', templet: function(d){
-                                return d.textLanguage;
+                                return SysConfig.languageList.find(i => i.code === d.textLanguage)?.name;
                             }},
                         {field:'opt', width:'20%', title: '操作',fixed:'right', templet: function(d){
                                 const html = []

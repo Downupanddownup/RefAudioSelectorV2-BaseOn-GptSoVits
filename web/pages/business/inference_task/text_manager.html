@@ -145,7 +145,7 @@
                 return d.textContent;
               }},
             {field:'textLanguage', width:'10%', title: '文本语种', templet: function(d){
-                return d.textLanguage;
+                return SysConfig.languageList.find(i => i.code === d.textLanguage)?.name;
               }},
             {field:'opt', width:'20%', title: '操作',fixed:'right', templet: function(d){
                 const html = []
@@ -293,7 +293,7 @@
                 return d.textContent;
               }},
             {field:'textLanguage', width:'10%', title: '文本语种', templet: function(d){
-                return d.textLanguage;
+                return SysConfig.languageList.find(i => i.code === d.textLanguage)?.name;
               }},
             {field:'opt', width:'20%', title: '操作',fixed:'right', templet: function(d){
                 const html = []
@@ -350,10 +350,9 @@
               <td>
                 <select class="customSelect" id="searchTextLanguage">
                   <option value="">请选择</option>
-                  <option value="refer_audio">参考音频</option>
-                  <option value="speed">speed值</option>
-                  <option value="text_delimiter">文本分隔符</option>
-                  <option value="other">其余参数</option>
+                  {{# layui.each(SysConfig.languageList, function(index, item) { }}
+                    <option value="{{item.code}}">{{item.name}}</option>
+                  {{# }) }}
                 </select>
               </td>
               <td>文本内容：</td>
@@ -391,8 +390,8 @@
       <td>语种：</td>
       <td>
         <select class="customSelect" id="textLanguage">
-          {{# layui.each(SysConfig.languages, function(index, item) { }}
-            <option {{isTrue(item.value==d.textLanguage,'selected','')}} value="{{item.value}}">{{item.name}}</option>
+          {{# layui.each(SysConfig.languageList, function(index, item) { }}
+            <option {{isTrue(item.code==d.textLanguage,'selected','')}} value="{{item.code}}">{{item.name}}</option>
           {{# }) }}
         </select>
       </td>
