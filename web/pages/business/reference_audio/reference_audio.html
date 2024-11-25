@@ -175,6 +175,19 @@
                         {field:'audioLength', width:'10%', title: '音频时长', sort: true, templet: function(d){
                                 return d.audioLength.toFixed(1);
                             }},
+                        {field:'score', width:'10%', title: '结果评分', sort: true, templet: function(d){
+                                return `<div id="audio-score-${d.id}" class="no-wrap"></div>`;
+                            }},
+                        {field:'longTextScore', width:'10%', title: '长文评分', sort: true, templet: function(d){
+                                return `<div id="audio-long-text-score-${d.id}" class="no-wrap"></div>`;
+                            }},
+                        {field:'remark', width:'10%', title: '备注', templet: function(d){
+                                return `
+                                <div class="view-body">
+                                  <input value="${d.remark}" class="layui-input" data-remark-id="${d.id}">
+                                </div>
+                                `
+                            }},
                         {field:'opt', width:'16%', title: '操作',fixed: 'right', templet: function(d){
                                 const html = []
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-edit="${d.id}">编辑</button>`)
@@ -206,6 +219,12 @@
                             _this.updateAudioContent(audioId, value)
                         })
 
+                        $('#' + _this.viewId + ' input[data-remark-id]').on('blur', function() {
+                            const audioId = $(this).attr('data-remark-id')
+                            const value = $(this).val()
+                            _this.updateAudioRemark(audioId, value)
+                        })
+
                         $('#' + _this.viewId + ' button[data-go-to-edit]').on('click', function(){
                             const id = $(this).attr('data-go-to-edit')
                             _this.openEditDialog(id)
@@ -231,12 +250,34 @@
                             const value = $(this).val()
                             _this.updateAudioCategory(id, value)
                         })
+                        
+                        _this.initScore()
 
                     },
                     error: function(res, msg){
                         console.log(res, msg)
                     }
                 })
+            }
+            
+            initScore() {
+                
+                const _this = this
+                
+                _this.audioList.forEach(audio => {
+                    const id = audio.id
+                    layui.rate.render({
+                        elem: '#audio-score-'+id,
+                        value: audio.score,
+                        readonly: true,
+                    });    
+                    layui.rate.render({
+                        elem: '#audio-long-text-score-'+id,
+                        value: audio.longTextScore,
+                        readonly: true,
+                    });           
+                })
+
             }
 
             updateAudioCategory(audioId, category) {
@@ -263,12 +304,48 @@
 
             updateAudioContent(audioId, content) {
                 const _this = this
+
+                const audio = _this.audioList.find(i => i.id == audioId)
+
+                if (audio.content === content) {
+                    return
+                }
+                
                 $.customAjax({
                     url: BaseUrl+'audio/update_audio_content',
                     type: 'post',
                     data:{
                         id: audioId,
                         content: content
+                    },
+                    success: function(res){
+                        if (res.code == 0) {
+                            
+                        } else {
+                            layui.layer.msg(res.msg)
+                        }
+                    },
+                    error: function(res, msg){
+                        layui.layer.msg(msg)
+                    }
+                })
+            }
+
+            updateAudioRemark(audioId, remark) {
+                const _this = this
+                
+                const audio = _this.audioList.find(i => i.id == audioId)
+                
+                if (audio.remark === remark) {
+                    return
+                }
+                
+                $.customAjax({
+                    url: BaseUrl+'audio/update_audio_remark',
+                    type: 'post',
+                    data:{
+                        id: audioId,
+                        remark: remark
                     },
                     success: function(res){
                         if (res.code == 0) {

@@ -195,6 +195,21 @@ async def update_audio_content(request: Request):
     return ResponseResult()
 
 
+@router.post("/update_audio_remark")
+async def update_audio_remark(request: Request):
+    form_data = await request.form()
+
+    audio_id = str_to_int(form_data.get('id'), 0)
+
+    remark = form_data.get('remark')
+
+    if audio_id < 1:
+        return ResponseResult(code=1, msg='参数错误')
+    ReferenceAudioService.update_audio_remark(audio_id, remark)
+
+    return ResponseResult()
+
+
 @router.post("/update_audio_category")
 async def update_audio_category(request: Request):
     form_data = await request.form()

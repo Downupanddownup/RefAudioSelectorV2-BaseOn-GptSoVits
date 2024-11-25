@@ -122,6 +122,10 @@ class ReferenceAudioService:
     def update_audio_content(audio_id: int, content: str):
         return ReferenceAudioDao.update_audio_content(audio_id, content)
 
+    @staticmethod
+    def update_audio_remark(audio_id: int, remark: str):
+        return ReferenceAudioDao.update_audio_remark(audio_id, remark)
+
 
 def check_audio_duration(duration, min_duration=3, max_duration=10):
     # 判断时长是否在3s至10s之间
