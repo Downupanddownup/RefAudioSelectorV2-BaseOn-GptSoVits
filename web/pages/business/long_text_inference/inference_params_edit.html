@@ -379,9 +379,6 @@
                 <button type="button" class="layui-btn layui-btn-sm" id="resultAudioSelect">结果音频选择</button>
             </td>
         </tr>
-
-        {{# if (d.C_ObjInferenceTaskResultAudio$1 != null) { }}
-
         <tr>
             <td>
                 GPT-Sovits 版本：
@@ -524,6 +521,9 @@
                 <button type="button" class="layui-btn" id="startInference">选择文本</button>
             </td>
         </tr>
+
+        {{# if (d.C_ObjInferenceTaskResultAudio$1 != null) { }}
+        
         <tr>
             <td>长文评分：</td>
             <td>

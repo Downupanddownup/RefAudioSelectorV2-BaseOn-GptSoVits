@@ -82,8 +82,8 @@ class InferenceTaskDao:
             task.other_parameters,
             task.inference_status,
             task.execute_text_similarity,
+            task.execute_audio_similarity,
             task.conclusion,
-            task.execute_audio_similarity
         ))
 
     @staticmethod

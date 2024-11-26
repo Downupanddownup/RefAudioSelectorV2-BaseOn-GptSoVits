@@ -50,25 +50,24 @@
                     obj.find('#searchTaskResult').on('click', function () {
                         _this.searchTaskResult()
                     })
-
-                    obj.find('#conclusion]').on('blur', function() {
-                        const taskId = _this.selectedTask.id
-                        const value = $(this).val()
-                        _this.updateTaskConclusion(taskId, value)
-                    })
                     
+                    if (_this.selectedTask != null) {
+                        obj.find('#conclusion').on('blur', function() {
+                            const value = $(this).val()
+                            _this.updateTaskConclusion(value)
+                        })
+                    }
+
                     _this.initSelect()
                     
                     _this.renderSelect()
                 });
             }
 
-            updateTaskConclusion(taskId, conclusion) {
+            updateTaskConclusion(conclusion) {
                 const _this = this
 
-                const audio = _this.audioList.find(i => i.id == taskId)
-
-                if (audio.conclusion === conclusion) {
+                if (_this.selectedTask.conclusion === conclusion) {
                     return
                 }
 
@@ -76,7 +75,7 @@
                     url: BaseUrl+'task/update_task_conclusion',
                     type: 'post',
                     data:{
-                        id: taskId,
+                        id: _this.selectedTask.id,
                         conclusion: conclusion
                     },
                     success: function(res){
