@@ -90,6 +90,13 @@ class ReferenceAudioDao:
         UPDATE tab_obj_reference_audio SET Remark = ? WHERE Id = ?
         '''
         return DBSlaveSQLExecutor.execute_update(sql, (remark, audio_id))
+
+    @staticmethod
+    def delete_reference_audio(audio_id: int):
+        sql = f'''
+        DELETE FROM tab_obj_reference_audio WHERE Id = ?
+        '''
+        return DBSlaveSQLExecutor.execute_update(sql, (audio_id,))
     @staticmethod
     def update_reference_audio(audio: ObjReferenceAudio) -> int:
         sql = f'''

@@ -188,11 +188,12 @@
                                 </div>
                                 `
                             }},
-                        {field:'opt', width:'16%', title: '操作',fixed: 'right', templet: function(d){
+                        {field:'opt', width:'20%', title: '操作',fixed: 'right', templet: function(d){
                                 const html = []
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-edit="${d.id}">编辑</button>`)
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-compare="${d.id}">比对</button>`)
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-split="${d.id}">分割</button>`)
+                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-delete="${d.id}">删除</button>`)
                                 // html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-download="${d.id}">下载</button>`)
                                 return html.join(' ');
                             }},
@@ -228,6 +229,11 @@
                         $('#' + _this.viewId + ' button[data-go-to-edit]').on('click', function(){
                             const id = $(this).attr('data-go-to-edit')
                             _this.openEditDialog(id)
+                        })
+
+                        $('#' + _this.viewId + ' button[data-go-to-delete]').on('click', function(){
+                            const id = $(this).attr('data-go-to-delete')
+                            _this.deleteAudio(id)
                         })
 
                         $('#' + _this.viewId + ' button[data-go-to-compare]').on('click', function(){
@@ -404,6 +410,28 @@
 
                 edit.loadData()
                 
+            }
+
+            deleteAudio(id) {
+                const _this = this
+                layui.layer.confirm('是否删除此参考音频？', () => {
+                    $.customAjax({
+                        url: BaseUrl+'audio/delete_reference_audio',
+                        type: 'post',
+                        data:{
+                            id: id
+                        },
+                        success: function(res){
+                            if (res.code == 0) {
+                                layui.layer.msg('删除成功')
+                                refreshListData('referenceAudioList')
+                            } else {
+                                layui.layer.msg(res.msg)
+                            }
+                        },
+                        error: function(res,msg){}
+                    })
+                })
             }
 
             downloadAudio(id){

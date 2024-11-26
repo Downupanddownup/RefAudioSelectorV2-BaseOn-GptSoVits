@@ -239,3 +239,16 @@ async def add_category(request: Request):
     ReferenceCategoryService.add_category(category)
 
     return ResponseResult()
+
+
+@router.post("/delete_reference_audio")
+async def delete_reference_audio(request: Request):
+    form_data = await request.form()
+    audio_id = str_to_int(form_data.get('id'), 0)
+
+    if audio_id < 1:
+        return ResponseResult(code=1, msg='参数错误')
+
+    ReferenceAudioService.delete_reference_audio(audio_id)
+
+    return ResponseResult()
