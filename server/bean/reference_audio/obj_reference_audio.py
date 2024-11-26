@@ -5,7 +5,7 @@ from server.util.util import ValidationUtils, str_to_int
 
 class ObjReferenceAudio(BaseModel):
     def __init__(self, id=None, audio_name=None, audio_path=None, content=None,
-                 language=None, category=None, audio_length=None, valid_or_not=None,
+                 language=None, category=None, audio_length=None,
                  score=None, long_text_score=None, remark=None,
                  create_time=None):
         self.id = id  # 主键ID，允许从外部传入
@@ -15,7 +15,6 @@ class ObjReferenceAudio(BaseModel):
         self.language = language  # 音频语种
         self.category = category  # 音频分类
         self.audio_length = audio_length  # 音频时长
-        self.valid_or_not = valid_or_not  # 是否有效 1 有效 0 无效
         self.score = score  # 评分
         self.long_text_score = long_text_score  # 长文评分
         self.remark = remark  # 备注
@@ -24,7 +23,7 @@ class ObjReferenceAudio(BaseModel):
     def __str__(self):
         return (f"Id: {self.id}, AudioName: {self.audio_name}, "
                 f"AudioPath: {self.audio_path}, Content: {self.content}, "
-                f"Language: {self.language}, Category: {self.category}, ValidOrNot: {self.valid_or_not},"
+                f"Language: {self.language}, Category: {self.category},"
                 f"Score: {self.score}, LongTextScore: {self.long_text_score}, remark: {self.remark}, "
                 f"AudioLength: {self.audio_length}, CreateTime: {self.create_time}")
 

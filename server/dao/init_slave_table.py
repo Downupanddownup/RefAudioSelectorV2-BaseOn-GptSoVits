@@ -128,7 +128,6 @@ def init_slave_table(db_path):
             Language TEXT COMMENT '音频语种',
             Category TEXT COMMENT '音频分类',
             AudioLength REAL COMMENT '音频时长',
-            ValidOrNot INTEGER COMMENT '是否有效 1 有效 0 无效' DEFAULT 1,
             Score INTEGER COMMENT '评分',
             LongTextScore INTEGER COMMENT '长文评分',
             Remark TEXT COMMENT '备注',

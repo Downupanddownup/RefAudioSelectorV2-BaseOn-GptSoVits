@@ -67,8 +67,8 @@ class ReferenceAudioService:
                 if not os.path.exists(audio_path):
                     logger.info(f"Audio file does not exist: {audio_path}")
                     item = ObjReferenceAudio(audio_name=os.path.basename(audio_path), audio_path='',
-                                             content=transcription, language=language.lower(), category='不存在',
-                                             audio_length=0, valid_or_not=0)
+                                             content=transcription, language=language.lower(), category='无效',
+                                             audio_length=0)
                     audio_list.append(item)
                     continue
 
@@ -83,7 +83,7 @@ class ReferenceAudioService:
                 shutil.copy2(audio_path, new_path)
                 item = ObjReferenceAudio(audio_name=os.path.basename(audio_path), audio_path=new_path,
                                          content=transcription, language=language.lower(), category=category,
-                                         audio_length=duration, valid_or_not=1)
+                                         audio_length=duration)
                 audio_list.append(item)
 
             except Exception as e:
