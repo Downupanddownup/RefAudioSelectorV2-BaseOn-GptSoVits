@@ -213,6 +213,14 @@ class InferenceTaskService:
                     inp_ref.compare_param_id = param_id
                 InferenceTaskDao.batch_insert_task_sound_fusion_audio(inp_refs_list)
 
+    @staticmethod
+    def update_task_name(task_id: int, task_name: str):
+        return InferenceTaskDao.update_task_name(task_id, task_name)
+
+    @staticmethod
+    def update_task_conclusion(task_id: int, conclusion: str):
+        return InferenceTaskDao.update_task_conclusion(task_id, conclusion)
+
 
 def create_task_cell_list_if_not_inference(task: ObjInferenceTask) -> list[TaskCell]:
     task_result_audio_list = create_task_result_audio_list_if_not_inference(task)

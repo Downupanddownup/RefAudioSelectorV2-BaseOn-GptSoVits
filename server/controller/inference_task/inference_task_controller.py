@@ -338,3 +338,33 @@ async def start_task_analysis(request: Request):
     start_task_audio_analysis(task_id)
 
     return ResponseResult(msg='完成任务结果分析')
+
+
+@router.post("/update_task_name")
+async def update_task_name(request: Request):
+    form_data = await request.form()
+
+    task_id = str_to_int(form_data.get('id'), 0)
+
+    task_name = form_data.get('taskName')
+
+    if task_id < 1:
+        return ResponseResult(code=1, msg='参数错误')
+    InferenceTaskService.update_task_name(task_id, task_name)
+
+    return ResponseResult()
+
+
+@router.post("/update_task_conclusion")
+async def update_task_conclusion(request: Request):
+    form_data = await request.form()
+
+    task_id = str_to_int(form_data.get('id'), 0)
+
+    conclusion = form_data.get('conclusion')
+
+    if task_id < 1:
+        return ResponseResult(code=1, msg='参数错误')
+    InferenceTaskService.update_task_conclusion(task_id, conclusion)
+
+    return ResponseResult()

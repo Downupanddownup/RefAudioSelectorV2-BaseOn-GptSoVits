@@ -368,3 +368,23 @@ class InferenceTaskDao:
             execute_text_similarity,
             task_id
         ))
+
+    @staticmethod
+    def update_task_name(task_id: int, task_name: str):
+        sql = '''
+            UPDATE tab_obj_inference_task SET TaskName = ? WHERE Id = ?
+            '''
+        return DBSlaveSQLExecutor.execute_update(sql, (
+            task_name,
+            task_id
+        ))
+
+    @staticmethod
+    def update_task_conclusion(task_id: int, conclusion: str):
+        sql = '''
+            UPDATE tab_obj_inference_task SET Conclusion = ? WHERE Id = ?
+            '''
+        return DBSlaveSQLExecutor.execute_update(sql, (
+            conclusion,
+            task_id
+        ))

@@ -79,7 +79,11 @@
                     cols: [[
                         {field:'index', width:'5%', title: '序号', type: 'numbers'},
                         {field:'taskName', width:'15%', title: '任务名称', templet: function(d){
-                                return d.taskName;
+                                return `
+                                <div class="view-body">
+                                  <input value="${d.taskName}" class="layui-input" data-task-name="${d.id}">
+                                </div>
+                                `
                             }},
                         {field:'compareType', width:'15%', title: '任务变量', templet: function(d){
                                 if (d.compareType === 'refer_audio') {
@@ -147,6 +151,13 @@
                                 }
                                 return '否'
                             }},
+                        {field:'conclusion', width:'10%', title: '备注', templet: function(d){
+                                return `
+                                <div class="view-body">
+                                  <input value="${d.conclusion}" class="layui-input" data-conclusion-id="${d.id}">
+                                </div>
+                                `
+                            }},
                         {field:'opt', width:'20%', title: '操作',fixed:'right', templet: function(d){
                                 const html = []
                                 if (d.inferenceStatus == 0) {
@@ -166,6 +177,18 @@
                     ]],
                     done: function(){
                         const obj = $('#' + _this.viewId)
+
+                        obj.find('input[data-task-name]').on('blur', function() {
+                            const taskId = $(this).attr('data-task-name')
+                            const value = $(this).val()
+                            _this.updateTaskName(taskId, value)
+                        })
+
+                        obj.find('input[data-conclusion-id]').on('blur', function() {
+                            const taskId = $(this).attr('data-conclusion-id')
+                            const value = $(this).val()
+                            _this.updateTaskConclusion(taskId, value)
+                        })
 
                         obj.find('button[data-task-edit]').on('click', function () {
                             const taskId = $(this).attr('data-task-edit')
@@ -205,6 +228,64 @@
                     }
                 })
 
+            }
+
+            updateTaskName(taskId, taskName) {
+                const _this = this
+
+                const audio = _this.audioList.find(i => i.id == taskId)
+
+                if (audio.taskName === taskName) {
+                    return
+                }
+
+                $.customAjax({
+                    url: BaseUrl+'task/update_task_name',
+                    type: 'post',
+                    data:{
+                        id: taskId,
+                        taskName: taskName
+                    },
+                    success: function(res){
+                        if (res.code == 0) {
+
+                        } else {
+                            layui.layer.msg(res.msg)
+                        }
+                    },
+                    error: function(res, msg){
+                        layui.layer.msg(msg)
+                    }
+                })
+            }
+
+            updateTaskConclusion(taskId, conclusion) {
+                const _this = this
+
+                const audio = _this.audioList.find(i => i.id == taskId)
+
+                if (audio.conclusion === conclusion) {
+                    return
+                }
+
+                $.customAjax({
+                    url: BaseUrl+'task/update_task_conclusion',
+                    type: 'post',
+                    data:{
+                        id: taskId,
+                        conclusion: conclusion
+                    },
+                    success: function(res){
+                        if (res.code == 0) {
+
+                        } else {
+                            layui.layer.msg(res.msg)
+                        }
+                    },
+                    error: function(res, msg){
+                        layui.layer.msg(msg)
+                    }
+                })
             }
 
             startInferenceTask(taskId){
