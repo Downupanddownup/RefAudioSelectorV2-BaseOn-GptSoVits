@@ -178,60 +178,24 @@
             }
 
             setInferenceParams(){
-
                 const _this = this
-
                 HomePage.startApiServerIfNotRunning(() => {
-                    const data = {
-                        gpt_model_path:_this.product.gptModelPath,
-                        sovits_model_path:_this.product.vitsModelPath
-                    }
-                    $.customAjax({
-                        url: RasApiUrl+'set_model',
-                        type: 'post',
-                        data:JSON.stringify(data),
-                        success: function(res){
-                            console.log(res)
-                            if (res.code == 0) {
-                                $.customAjax({
-                                    url: RasApiUrl+'ras/set_default_params',
-                                    type: 'post',
-                                    data:JSON.stringify({
-                                        refer_wav_path:_this.product.audioPath,
-                                        prompt_text:_this.product.content,
-                                        prompt_language:_this.product.language,
-                                        cut_punc:_this.product.textDelimiter,
-                                        top_k:_this.product.topK,
-                                        top_p:_this.product.topP,
-                                        temperature:_this.product.temperature,
-                                        speed:_this.product.speed,
-                                        stream_mode:1,
-                                        media_type:_this.mediaType,
-                                        inp_refs:_this.product.sound_fusion_list.map(r => r.audioPath),
-                                    }),
-                                    success: function(res){
-                                        if (res == 'ok') {
-                                            layui.layer.msg('参数设置成功')
-                                        } else {
-                                            layui.layer.msg('参数设置失败：' + res)
-                                        }
-                                    },
-                                    error: function(res, msg){
-                                        layui.layer.msg(msg)
-                                    }
-                                })
-                            } else {
-                                layui.layer.msg('模型设置失败：' + res)
-                            }
-                        },
-                        error: function(jqXHR, textStatus, errorThrown) {
-                            $('#response').text('发生错误: ' + textStatus + ', ' + errorThrown);
-                            console.error('Error details:', jqXHR.responseText);
-                            layui.layer.msg(textStatus)
-                        }
+                    RasApiSpace.getInstance().setModel(_this.product.gptModelPath,_this.product.vitsModelPath, () => {
+                        RasApiSpace.getInstance().setDefaultParams({
+                            refer_wav_path:_this.product.audioPath,
+                            prompt_text:_this.product.content,
+                            prompt_language:_this.product.language,
+                            cut_punc:_this.product.textDelimiter,
+                            top_k:_this.product.topK,
+                            top_p:_this.product.topP,
+                            temperature:_this.product.temperature,
+                            speed:_this.product.speed,
+                            inp_refs:_this.product.taskInpRefsAudioList.map(r => r.audioPath),
+                        }, () => {
+                            layui.layer.msg('参数设置成功')
+                        })
                     })
                 })
-
             }
 
             openInpRefsAudioSelectDialog(){

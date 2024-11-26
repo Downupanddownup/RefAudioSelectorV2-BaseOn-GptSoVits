@@ -64,7 +64,7 @@ class RasApiMonitor:
         return f'http://localhost:{config_params.api_port}'
 
     @staticmethod
-    def start_service(stream_mode: bool) -> bool:
+    def start_service(stream_mode: bool, media_type: str) -> bool:
         if RasApiMonitor.check_service_status():
             logger.info("Service has started")
             return True
@@ -73,12 +73,12 @@ class RasApiMonitor:
             if stream_mode:
                 params = {
                     "sm": "normal",
-                    "mt": "aac"
+                    "mt": media_type
                 }
             else:
                 params = {
                     "sm": "close",
-                    "mt": "wav"
+                    "mt": media_type
                 }
             service_process = _start_new_service('server/api/ras_api.py', params)
             end_time = time.time() + startup_timeout

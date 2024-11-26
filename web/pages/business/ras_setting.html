@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<script>
+    const RasSettingSpace = (function () {
+        class C_RasSetting {
+            constructor(viewId) {
+                this.viewId = viewId
+                this.streamMode = RasApiSpace.getInstance().streamMode
+                this.mediaType = RasApiSpace.getInstance().mediaType
+            }
+            
+            get ttsUrl() {
+                return `${RasApiUrl}ras?text=xxx&text_language=zh`
+            }
+
+            render() {
+                const _this = this
+                const getTpl = $('#rasSettingTemplate').html(); // 获取模板字符
+                // 渲染并输出结果
+                layui.laytpl(getTpl).render(_this, function(html){
+                    const obj = $('#'+_this.viewId)
+                    obj.html(html)
+
+                    obj.find('#setMediaParams').on('click', function() {
+                        _this.setMediaParams()
+                    })
+
+                    obj.find('input[name=streamMode]').on('change', function() {
+                        _this.streamMode = $(this).val() == 1
+                        if (_this.streamMode) {
+                            _this.mediaType = 'aac'
+                        } else {
+                            _this.mediaType = 'wav'
+                        }
+                        _this.render()
+                    })
+
+                    obj.find('#mediaType').on('change', function() {
+                        _this.mediaType = $(this).val()
+                    })
+                    
+                });
+                return _this
+            }
+
+            setMediaParams() {
+                const _this = this
+
+                RasApiSpace.getInstance().streamMode = _this.streamMode
+                RasApiSpace.getInstance().mediaType = _this.mediaType
+                
+                RasApiSpace.getInstance().setDefaultParams({}, () => {
+                    layui.layer.msg('参数设置成功')
+                })
+            }
+            
+        }
+        
+        function getRasSetting(viewId) {
+            return new C_RasSetting(viewId)
+        }
+        
+        return {
+            getRasSetting: getRasSetting
+        }
+    })()
+</script>
+
+<script id="rasSettingTemplate" type="text/html">
+    <table class="table1">
+        <tr>
+            <td>rasApi推理地址：</td>
+            <td colspan="4">
+                <input type="text" autocomplete="off" readonly class="layui-input" style="width: 100%;" value="{{d.ttsUrl}}">
+            </td>
+        </tr>
+        <tr>
+            <td>流式推理：</td>
+            <td>
+                <label class="custom-radio" style="margin-right: 30px">
+                    <input type="radio" name="streamMode" value="1" title="是" {{isTrue(d.streamMode == 1,'checked','') }}>
+                    <span></span>是
+                </label>
+                <label class="custom-radio">
+                    <input type="radio" name="streamMode" value="0" title="否" {{isTrue(d.streamMode == 1,'','checked') }}>
+                    <span></span>否
+                </label>
+            </td>
+            <td>
+                音频格式：
+            </td>
+            <td>
+                <select class="customSelect" id="mediaType">
+                    {{# if (d.streamMode != 1) { }}
+                    <option {{isTrue(d.mediaType=="wav",'selected','')}} value="wav">wav</option>
+                    {{# } }}
+                    <option {{isTrue(d.mediaType=="aac",'selected','')}} value="aac">aac</option>
+                    <option {{isTrue(d.mediaType=="ogg",'selected','')}} value="ogg">ogg</option>
+                </select>
+            </td>
+            <td>
+                <button type="button" class="layui-btn layui-btn-sm" id="setMediaParams">设置参数</button>
+            </td>
+        </tr>
+    </table>
+</script>

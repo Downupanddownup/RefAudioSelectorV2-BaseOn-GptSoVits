@@ -168,7 +168,7 @@ class InferenceTaskService:
     @staticmethod
     def start_execute_inference_task(task: ObjInferenceTask, num_processes: int):
         if task.inference_status != 2:
-            if RasApiMonitor.start_service(False):
+            if RasApiMonitor.start_service(False, 'wav'):
                 RasApiMonitor.set_stream_mode_to_off()
                 task_cell_list = create_task_cell_list_if_not_inference(task)
                 result = True

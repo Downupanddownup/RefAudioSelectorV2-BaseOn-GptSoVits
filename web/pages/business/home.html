@@ -18,10 +18,12 @@
                     const obj = $('#'+_this.viewId)
                     obj.append(html)
                     
-                    console.log('home渲染了？')
-                    
                     $('#rasApiStatus').on('click', function () {
                         _this.changeRasApiStatus()
+                    })
+                    
+                    $('#rasApiSetting').on('click', function () {
+                        _this.openRasApiSettingDialog()
                     })
                     
                     _this.initTab()
@@ -31,6 +33,24 @@
                     _this.checkApiStatus()
                 });
                 return _this
+            }
+
+            openRasApiSettingDialog() {
+                const _this = this
+                const dialog = RasSettingSpace.getRasSetting('rasSettingView')
+
+                const dialogIndex = layer.open({
+                    type: 1,
+                    area: ['800px', '300px'],
+                    content: `<div id="rasSettingView"></div>`,
+                    btn: ['关闭'],
+                    yes: function(){
+                        layui.layer.close(dialogIndex)
+                    }
+                });
+
+
+                dialog.render()
             }
 
             initTab() {
@@ -262,9 +282,11 @@
                     if (isRunning) {
                        obj.addClass('api-close')
                        obj.html('关闭API')
+                        $('#rasApiSetting').show()
                     } else {
                        obj.addClass('api-open')
                        obj.html('启动API')
+                        $('#rasApiSetting').hide()
                     }
                 })
             }
@@ -287,9 +309,10 @@
                 obj.removeClass('api-open')
                 obj.addClass('api-changing')
                 obj.html('启动中')
-                RasApiSpace.getInstance().startApi(true, res => {
+                RasApiSpace.getInstance().startApi(res => {
                     obj.html('关闭API')
                     obj.addClass('api-close')
+                    $('#rasApiSetting').show()
                     if (callback) {
                         callback(res)
                     }
@@ -301,6 +324,7 @@
                 obj.removeClass('api-close')
                 obj.addClass('api-changing')
                 obj.html('关闭中')
+                $('#rasApiSetting').hide()
                 RasApiSpace.getInstance().stopApi(res => {
                     obj.html('启动API')
                     obj.addClass('api-open')
@@ -348,6 +372,7 @@
             </div>
             <div class="tab-right">
                 <button type="button" class="layui-btn layui-btn-sm" id="rasApiStatus">启动API</button>
+                <button type="button" class="layui-btn layui-btn-sm layui-bg-blue" id="rasApiSetting" style="display: none">API信息</button>
                 <div class="info-button">
                     <div id="roleList" style="width: 150px;color: #333"></div>
                 </div>

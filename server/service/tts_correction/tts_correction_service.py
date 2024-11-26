@@ -97,7 +97,7 @@ class TtsCorrectionService:
 
     @staticmethod
     def start_execute_tts_correction_task(task: ObjTtsCorrectionTask, inference_process_num: int):
-        if RasApiMonitor.start_service(False):
+        if RasApiMonitor.start_service(False, 'wav'):
             RasApiMonitor.set_stream_mode_to_off()
             TtsCorrectionService.change_task_status_to_start(task.id)
             generate_audio_files_parallel(task, inference_process_num)
