@@ -14,8 +14,6 @@
                 this.textDelimiter = data.textDelimiter || SysConfig.defaultTextDelimiter; // 文本分隔符
                 this.speed = data.speed || SysConfig.defaultSpeed; // 语速
                 this.inp_refs = data.inp_refs || []; // 融合音频
-                this.streamMode = data.streamMode || true; // 是否开启流式
-                this.mediaType = data.mediaType || 'aac'; // 音频类型
             }
         }
 
@@ -99,16 +97,6 @@
                     obj.find('#speed').on('blur', function(){
                         _this.config.speed = $(this).val()
                     })
-
-                    obj.find('input[name=streamMode]').on('change', function() {
-                        _this.config.streamMode = $(this).val() === '是'
-                        if (_this.config.streamMode) {
-                            _this.config.mediaType = 'aac'
-                        } else {
-                            _this.config.mediaType = 'wav'
-                        }
-                        _this.render()
-                    })
                     
                     obj.find('#setInferenceParams').on('click', function() {
                         _this.setInferenceParams()
@@ -116,6 +104,10 @@
 
                     obj.find('#startInference').on('click', function() {
                        _this.startInferenceDialog()
+                    })
+
+                    obj.find('#joinProduct').on('click', function() {
+                       _this.joinProductDialog()
                     })
 
                     obj.find('#audioSelect').on('click', function() {
@@ -217,6 +209,76 @@
                 });
 
                 dialog.render()
+            }
+
+            joinProductDialog() {
+                const _this = this
+                
+                if (_this.C_ObjReferenceAudio$1 == null) {
+                    layui.layer.alert('请先选择参考音频')
+                    return
+                }
+                
+                if (!_this.config.gptModelPath || !_this.config.vitsModelPath) {
+                    layui.layer.alert('请先设置模型')
+                    return
+                }
+                
+                const dialogIndex = layer.open({
+                    type: 1,
+                    area: ['600px', '300px'],
+                    content: `<div style="display: flex;align-items: center;justify-content: center;height: 100%;width: 100%">
+                                        <input type="text" autocomplete="off" id="productName" placeholder="成品名称" class="layui-input" style="width: auto;">
+                                </div>`,
+                    btn: ['确定','关闭'],
+                    yes: function(){
+                        const productName = $('#productName').val()
+                        if (!productName) {
+                            layui.layer.alert('请输入成品名称')
+                            return
+                        }
+                        $.customAjax({
+                            url: BaseUrl+'product/save_finished_product',
+                            type: 'post',
+                            data: JSON.stringify({
+                                id:0,
+                                name:productName,
+                                category:_this.C_ObjReferenceAudio$1.category,
+                                gptSovitsVersion:_this.config.gptSovitsVersion,
+                                gptModelName:_this.config.gptModelName,
+                                gptModelPath:_this.config.gptModelPath,
+                                vitsModelName:_this.config.vitsModelName,
+                                vitsModelPath:_this.config.vitsModelPath,
+                                audioId:_this.C_ObjReferenceAudio$1.id,
+                                audioName:_this.C_ObjReferenceAudio$1.audioName,
+                                audioPath:_this.C_ObjReferenceAudio$1.audioPath,
+                                content:_this.C_ObjReferenceAudio$1.content,
+                                language:_this.C_ObjReferenceAudio$1.language,
+                                audioLength:_this.C_ObjReferenceAudio$1.audioLength,
+                                textDelimiter:_this.config.textDelimiter,
+                                topK:_this.config.topK,
+                                topP:_this.config.topP,
+                                temperature:_this.config.temperature,
+                                speed:_this.config.speed,
+                                score:_this.C_ObjInferenceTaskResultAudio$1?.longTextScore || 0,
+                                remark:_this.C_ObjInferenceTaskResultAudio$1?.remark || '',
+                                inpRefs:_this.taskInpRefsAudioList,
+                            }),
+                            success: function(res){
+                                if (res.code == 0) {
+                                    layui.layer.msg('加入成功')
+                                    layui.layer.close(dialogIndex)
+                                } else {
+                                    layui.layer.msg(res.msg)
+                                }
+                            },
+                            error: function(res, msg){
+                                layui.layer.msg(msg)
+                            }
+                        })
+                    }
+                });
+
             }
 
             openInpRefsAudioSelectDialog(){
@@ -485,40 +547,20 @@
         </tr>
         <tr>
             <td>融合音频：</td>
-            <td>
+            <td colspan="5">
                 已选中待融合音频数量：<span id="inpRefsAudioSelectedCount">{{d.taskInpRefsAudioList.length}}</span>
                 <button type="button" class="layui-btn layui-btn-sm" id="inpRefsAudioSelect">音频选择</button>
             </td>
-            <td>流式推理：</td>
-            <td>
-                <label class="custom-radio" style="margin-right: 30px">
-                    <input type="radio" name="streamMode" value="是" title="是" {{d.config.streamMode ? 'checked' : ''}}>
-                    <span></span>是
-                </label>
-                <label class="custom-radio">
-                    <input type="radio" name="streamMode" value="否" title="否" {{d.config.streamMode ? '' : 'checked'}}>
-                    <span></span>否
-                </label>
-            </td>
-            <td>
-                音频格式：
-            </td>
-            <td>
-                <select class="customSelect" id="mediaType">
-                    {{# if (!d.config.streamMode) { }}
-                        <option {{isTrue(d.config.mediaType=="wav",'selected','')}} value="wav">wav</option>
-                    {{# } }}
-                    <option {{isTrue(d.config.mediaType=="aac",'selected','')}} value="aac">aac</option>
-                    <option {{isTrue(d.config.mediaType=="ogg",'selected','')}} value="ogg">ogg</option>
-                </select>
-            </td>
         </tr>
         <tr>
-            <td colspan="3">
+            <td colspan="2">
                 <button type="button" class="layui-btn" id="setInferenceParams">设置参数</button>
             </td>
-            <td colspan="3">
+            <td colspan="2">
                 <button type="button" class="layui-btn" id="startInference">选择文本</button>
+            </td>
+            <td colspan="2">
+                <button type="button" class="layui-btn" id="joinProduct">加入成品</button>
             </td>
         </tr>
 
@@ -532,12 +574,8 @@
             <td>
                 备注：
             </td>
-            <td>
+            <td colspan="3">
                 <textarea placeholder="备注" class="layui-textarea" id="remark">{{d.C_ObjInferenceTaskResultAudio$1.remark}}</textarea>
-            </td>
-            <td>加入成品：</td>
-            <td>
-                
             </td>
         </tr>
         
