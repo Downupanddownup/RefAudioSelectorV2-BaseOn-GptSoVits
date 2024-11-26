@@ -129,9 +129,77 @@
                     obj.find('#inpRefsAudioSelect').on('click', function() {
                         _this.openInpRefsAudioSelectDialog()
                     })
+
+                    obj.find('#remark').on('blur', function() {
+                        const value = $(this).val()
+                        _this.updateRemark(value)
+                    })
+                    
+                    _this.initScore()
                     
                 });
                 return _this
+            }
+
+            updateRemark(taskId, remark) {
+                const _this = this
+
+                if (_this.C_ObjInferenceTaskResultAudio$1.remark === remark) {
+                    return
+                }
+
+                $.customAjax({
+                    url: BaseUrl+'evaluation/update_result_audio_remark',
+                    type: 'post',
+                    data:{
+                        id: _this.C_ObjInferenceTaskResultAudio$1.id,
+                        remark: remark
+                    },
+                    success: function(res){
+                        if (res.code == 0) {
+                            _this.C_ObjInferenceTaskResultAudio$1.remark = remark
+                        } else {
+                            layui.layer.msg(res.msg)
+                        }
+                    },
+                    error: function(res, msg){
+                        layui.layer.msg(msg)
+                    }
+                })
+            }
+            
+            initScore() {
+                const _this = this
+                if (_this.C_ObjInferenceTaskResultAudio$1 != null) {
+                    layui.rate.render({
+                        elem: '#longTextScore',
+                        value: _this.C_ObjInferenceTaskResultAudio$1.longTextScore,
+                        choose: function(value){
+                            console.log('评分',value); // 获得选中的评分值
+                            _this.updateResultAudioLongTextScore(_this.C_ObjInferenceTaskResultAudio$1.id, value)
+                        }
+                    });
+                }
+               
+            }
+
+            updateResultAudioLongTextScore(id, score){
+                const _this = this
+                $.customAjax({
+                    url: BaseUrl + 'evaluation/update_result_audio_long_text_score',
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        long_text_score: score
+                    },
+                    success: function (data) {
+                        if (data.code == 0) {
+                            _this.C_ObjInferenceTaskResultAudio$1.longTextScore = score
+                        } else {
+                            layui.layer.msg(data.msg)
+                        }
+                    }
+                })
             }
 
             startInferenceDialog() {
@@ -309,10 +377,11 @@
         <tr>
             <td colspan="6">
                 <button type="button" class="layui-btn layui-btn-sm" id="resultAudioSelect">结果音频选择</button>
-                {{# if (d.C_ObjReferenceAudio$1 != null) { }}
-                {{# } }}
             </td>
         </tr>
+
+        {{# if (d.C_ObjInferenceTaskResultAudio$1 != null) { }}
+
         <tr>
             <td>
                 GPT-Sovits 版本：
@@ -455,6 +524,26 @@
                 <button type="button" class="layui-btn" id="startInference">选择文本</button>
             </td>
         </tr>
+        <tr>
+            <td>长文评分：</td>
+            <td>
+                <div id="longTextScore" class="no-wrap"></div>
+            </td>
+            <td>
+                备注：
+            </td>
+            <td>
+                <textarea placeholder="备注" class="layui-textarea" id="remark">{{d.C_ObjInferenceTaskResultAudio$1.remark}}</textarea>
+            </td>
+            <td>加入成品：</td>
+            <td>
+                
+            </td>
+        </tr>
+        
+        {{# } }}
+        
+        
     </table>
     
 </script>
