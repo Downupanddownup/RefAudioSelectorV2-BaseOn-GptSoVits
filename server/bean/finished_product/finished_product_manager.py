@@ -62,6 +62,11 @@ class ObjFinishedProductManager(BaseModel):
         self.remark = remark  # 备注
         self.create_time = create_time  # 创建时间
         self.set_sound_fusion_list_from_json(self.inp_refs)
+        
+    def get_text_delimiter_safe_for_json(self):
+        if not self.text_delimiter:
+            return ''
+        return self.text_delimiter.replace('"', '\\"')
 
     def set_sound_fusion_list(self, sound_fusion_list: list[ObjSoundFusionAudio]):
         self.sound_fusion_list = sound_fusion_list

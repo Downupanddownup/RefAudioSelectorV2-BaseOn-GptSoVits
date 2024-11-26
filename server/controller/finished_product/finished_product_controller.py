@@ -1,3 +1,4 @@
+import urllib.parse
 import os
 from fastapi import APIRouter, Request, BackgroundTasks
 from fastapi.responses import StreamingResponse
@@ -31,7 +32,7 @@ async def load_finished_product_detail(request: Request):
     form_data = await request.form()
 
     product = None
-    
+
     product_id = str_to_int(form_data.get('product_id'))
     if product_id > 0:
         product = FinishedProductService.find_by_id(product_id)
@@ -106,11 +107,11 @@ async def save_finished_product(request: Request):
         if result == 0:
             return ResponseResult(code=1, msg="修改失败")
 
-    return ResponseResult(data={"product_id": product_id},msg="保存成功")
+    return ResponseResult(data={"product_id": product_id}, msg="保存成功")
 
 
-@router.post("/download_finished_product_list")
-async def download_finished_product_list(request: Request, background_tasks: BackgroundTasks):
+@router.post("/generate_finished_product_zip")
+async def generate_finished_product_zip(request: Request, background_tasks: BackgroundTasks):
     form_data = await request.form()
     product_ids = form_data.get('product_ids')
     is_merge = str_to_int(form_data.get('is_merge'), 0)
@@ -121,28 +122,10 @@ async def download_finished_product_list(request: Request, background_tasks: Bac
     config_template = ProductParamConfigTemplate(db_config.role.name, is_merge == 1, need_model == 1, product_list)
     temp_dir, zip_file_path = config_template.generate_zip_file()
 
-
-    # 文件读取生成器
-    def file_iterator(file_path: str):
-        with open(file_path, "rb") as f:
-            while chunk := f.read(8192):  # 每次读取 8KB
-                yield chunk
-
-    # 在响应完成后删除文件
-    # background_tasks.add_task(delete_directory, temp_dir)
-
-    # 获取文件大小
-    file_size = os.path.getsize(zip_file_path)
-
-    # 设置响应头
-    headers = {
-        'Content-Disposition': 'attachment; filename=example.zip',
-        'Content-Type': 'application/zip',
-        "Content-Length": str(file_size),  # 文件总大小
-    }
-
-    # 使用 StreamingResponse 返回 BytesIO 对象
-    return StreamingResponse(file_iterator(zip_file_path), headers=headers)
+    return ResponseResult(data={
+        "temp_dir": temp_dir,
+        "zip_file_path": zip_file_path,
+    }, msg="生成成功")
 
 
 @router.post("/download_product_file")
@@ -150,6 +133,10 @@ async def download_product_file(request: Request, background_tasks: BackgroundTa
     form_data = await request.form()
     file_path = form_data.get('file_path')
     temp_dir = form_data.get('temp_dir')
+    file_name = form_data.get('file_name')
+
+    if not file_name.endswith(".zip"):
+        file_name += ".zip"
 
     # 文件读取生成器
     def file_iterator(file_path: str):
@@ -163,11 +150,15 @@ async def download_product_file(request: Request, background_tasks: BackgroundTa
     # 获取文件大小
     file_size = os.path.getsize(file_path)
 
-    # 设置响应头
+    # URL 编码 UTF-8 文件名
+    encoded_filename = urllib.parse.quote(file_name)
+
+    # 修复响应头
     headers = {
-        'Content-Disposition': 'attachment; filename=example.zip',
+        'Content-Disposition': f'attachment; filename="{file_name.encode("ascii", "ignore").decode()}";'
+                               f' filename*=UTF-8\'\'{encoded_filename}',
         'Content-Type': 'application/zip',
-        "Content-Length": str(file_size),  # 文件总大小
+        'Content-Length': str(file_size),  # 文件总大小
     }
 
     # 使用 StreamingResponse 返回 BytesIO 对象

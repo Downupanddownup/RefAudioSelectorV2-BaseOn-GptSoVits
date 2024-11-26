@@ -67,8 +67,6 @@
                     <input type="radio" name="needModel" value="0" title="否">
                     <span></span>否
                 </label>
-                <a href="workspace\\temp\\d647ed20-a949-11ef-add6-d4f32d34a165\\伊薇特.zip">下载模型</a>
-                <div id="test">下载模型2</div>
             </td>
         </tr>
     </table>
@@ -97,18 +95,9 @@
                     }
                 });
                 
-                $('#test').on('click', function () {
-                    _this.downloadFile()
-                })
-                
-                
-                
             }
 
-            downloadFile() {
-                const fileName = 'large_file.zip';
-                const url = 'workspace\\temp\\d647ed20-a949-11ef-add6-d4f32d34a165\\伊薇特.zip'; // 后端接口地址
-                const temp_dir = 'workspace\\temp\\d647ed20-a949-11ef-add6-d4f32d34a165'; // 后端接口地址
+            downloadFile(fileName, temp_dir, zip_file_path) {
 
                 const form = document.createElement('form');
                 form.method = 'POST';
@@ -125,8 +114,9 @@
                 };
 
                 // 动态追加参数
-                addInput('file_path', url);      // 文件名
+                addInput('file_path', zip_file_path);      // 文件名
                 addInput('temp_dir', temp_dir);      // 文件名
+                addInput('file_name', fileName);      // 文件名
 
                 document.body.appendChild(form);
                 form.submit(); // 提交表单发起文件下载
@@ -135,34 +125,29 @@
 
 
             downloadProducts(fileName,ids,isMerge,needModel) {
-                // 准备请求数据
-                const formData = new FormData();
-                formData.append('product_ids', ids); // 示例产品ID
-                formData.append('is_merge', isMerge); // 是否合并
-                formData.append('need_model', needModel); // 是否需要模型
-
-                // 发起POST请求
-                fetch(BaseUrl+'product/download_finished_product_list', {
-                    method: 'POST',
-                    body: formData
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error("Network response was not ok");
+                const _this = this
+                $.customAjax({
+                    url: BaseUrl+'product/generate_finished_product_zip',
+                    type: 'post',
+                    data: {
+                        product_ids: ids,
+                        is_merge: isMerge,
+                        need_model: needModel
+                    },
+                    success: function(res){
+                        if (res.code == 0) {
+                            const temp_dir = res.data.temp_dir
+                            const zip_file_path = res.data.zip_file_path
+                           _this.downloadFile(fileName, temp_dir, zip_file_path)
+                        } else {
+                            layui.layer.msg(res.msg)
                         }
-                        return response.blob(); // 获取Blob对象
-                    })
-                    .then(blob => {
-                        const url = window.URL.createObjectURL(blob); // 创建一个指向Blob对象的URL
-                        const a = document.createElement('a'); // 创建a标签
-                        a.href = url;
-                        a.download = fileName + '.zip'; // 下载的文件名
-                        document.body.appendChild(a);
-                        a.click(); // 触发点击事件
-                        a.remove(); // 移除a标签
-                        window.URL.revokeObjectURL(url); // 释放URL对象
-                    })
-                    .catch(error => console.error('Error:', error));
+                    },
+                    error: function(res, msg){
+                        layui.layer.msg(msg)
+                    }
+                })
+               
             }
             
             openFinishedProductSpeakDialog(id) {

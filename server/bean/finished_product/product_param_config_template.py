@@ -29,7 +29,7 @@ config_template = """
             "top_k": {{ audio.top_k }},
             "top_p": {{ audio.top_p }},
             "temperature": {{ audio.temperature }},
-            "text_delimiter": "{{ audio.text_delimiter }}",
+            "text_delimiter": "{{ audio.get_text_delimiter_safe_for_json() }}",
             "speed": {{ audio.speed }},
             "inp_refs": [
                 {%- for sound in audio.sound_fusion_list %}
