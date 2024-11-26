@@ -139,6 +139,7 @@ async def update_reference_audio(request: Request):
         content=form_data.get('content'),
         language=form_data.get('language'),
         category=form_data.get('category'),
+        remark=form_data.get('remark'),
     )
 
     if audio.id < 1:
@@ -162,6 +163,7 @@ async def add_reference_audio(request: Request):
         content=form_data.get('content'),
         language=form_data.get('language'),
         category=form_data.get('category'),
+        remark=form_data.get('remark'),
     )
 
     new_path = ReferenceAudioService.get_new_reference_audio_path()

@@ -42,9 +42,24 @@
                     
                     _this.initWaveForm()
                     _this.initCategorySelect()
+                    _this.initScore()
                     
                 });
                 return _this
+            }
+            
+            initScore(){
+                const _this = this
+                layui.rate.render({
+                    elem: '#audio-score',
+                    value: _this.audio.score,
+                    readonly: true,
+                });
+                layui.rate.render({
+                    elem: '#audio-long-text-score',
+                    value: _this.audio.longTextScore,
+                    readonly: true,
+                });
             }
             
             initCategorySelect(){
@@ -154,6 +169,8 @@
                     layui.layer.alert('音频分类不能为空')
                     return
                 }
+
+                _this.audio.remark = obj.find('#remark').val()
                 
                 if (_this.audio.id > 0) {
                     $.customAjax({
@@ -164,7 +181,8 @@
                             audioName: _this.audio.audioName,
                             content: _this.audio.content,
                             language: _this.audio.language,
-                            category: _this.audio.category
+                            category: _this.audio.category,
+                            remark: _this.audio.remark,
                         },
                         success: function (data) {
                             if (data.code == 0) {
@@ -203,6 +221,7 @@
                 formData.append('content', _this.audio.content)
                 formData.append('language', _this.audio.language)
                 formData.append('category', _this.audio.category)
+                formData.append('remark', _this.audio.remark)
 
                 fetch(BaseUrl + 'audio/add_reference_audio', {
                     method: 'POST',
@@ -283,6 +302,20 @@
             </td>
             <td>
                 <div id="category" style="width: 200px"></div>
+            </td>
+        </tr>
+        <tr>
+            <td>结果评分：</td>
+            <td>
+                <div id="audio-score" class="no-wrap"></div>
+            </td>
+            <td>长文评分：</td>
+            <td>
+                <div id="audio-long-text-score" class="no-wrap"></div>
+            </td>
+            <td>备注：</td>
+            <td colspan="3">
+                <textarea placeholder="备注" class="layui-textarea" id="remark">{{d.audio.remark}}</textarea>
             </td>
         </tr>
         <tr>

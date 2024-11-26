@@ -65,6 +65,10 @@
           obj.find('#content').on('blur',function(){
             _this.newAudio.content = $(this).val()
           })
+
+          obj.find('#remark').on('blur',function(){
+            _this.newAudio.remark = $(this).val()
+          })
           
           createXmSelect('#' + _this.viewId + ' #category', _this.categoryList.map(category => {
             return {
@@ -201,6 +205,7 @@
         formData.append('language', _this.newAudio.language)
         formData.append('content', _this.newAudio.content)
         formData.append('category', _this.newAudio.category)
+        formData.append('remark', _this.newAudio.remark)
         try {
           const response = await fetch(BaseUrl+'audio/add_reference_audio', {
             method: 'POST',
@@ -304,6 +309,12 @@
               <td>音频内容：</td>
               <td colspan="5">
                 <textarea placeholder="音频内容" class="layui-textarea" id="content">{{d.newAudio.content}}</textarea>
+              </td>
+            </tr>
+            <tr>
+              <td>音频备注：</td>
+              <td colspan="5">
+                <textarea placeholder="音频内容" class="layui-textarea" id="remark">{{d.newAudio.remark}}</textarea>
               </td>
             </tr>
           </table>
