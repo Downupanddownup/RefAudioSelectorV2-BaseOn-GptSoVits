@@ -1,15 +1,31 @@
 <!DOCTYPE html>
 <script>
     const InferenceParamsEditSpace = (function () {
-
+        class C_ParamsConfig {//推理任务
+            constructor(data) {
+                this.gptSovitsVersion = data.gptSovitsVersion || SysConfig.defaultGptSovitsVersion; // 模型版本
+                this.gptModelName = data.gptModelName || ''; // GPT模型名称
+                this.gptModelPath = data.gptModelPath || ''; // GPT模型名称
+                this.vitsModelName = data.vitsModelName || ''; // Vits模型名称
+                this.vitsModelPath = data.vitsModelPath || ''; // Vits模型名称
+                this.topK = data.topK || SysConfig.defaultTopK; // top_k值
+                this.topP = data.topP || SysConfig.defaultTopP; // top_p值
+                this.temperature = data.temperature || SysConfig.defaultTemperature; // 温度
+                this.textDelimiter = data.textDelimiter || SysConfig.defaultTextDelimiter; // 文本分隔符
+                this.speed = data.speed || SysConfig.defaultSpeed; // 语速
+                this.inp_refs = data.inp_refs || []; // 融合音频
+                this.streamMode = data.streamMode || true; // 是否开启流式
+                this.mediaType = data.mediaType || 'aac'; // 音频类型
+            }
+        }
 
         
         class C_InferenceParamsEdit {
-            constructor(viewId, config) {
+            constructor(viewId) {
                 this.viewId = viewId
                 this.gptModels = []
                 this.vitsModels = []
-                this.config = config
+                this.config = new C_ParamsConfig({})
                 this.C_ObjReferenceAudio$1 = null
                 this.C_ObjInferenceTaskResultAudio$1 = null
                 this.taskInpRefsAudioList = []
@@ -98,6 +114,10 @@
                         _this.setInferenceParams()
                     })
 
+                    obj.find('#startInference').on('click', function() {
+                       _this.startInferenceDialog()
+                    })
+
                     obj.find('#audioSelect').on('click', function() {
                         _this.openAudioSelectDialog()
                     })
@@ -112,6 +132,23 @@
                     
                 });
                 return _this
+            }
+
+            startInferenceDialog() {
+                const _this = this
+                const dialog = LongTextDealWithSpace.getLongTextDealWith('longTextDealWithView')
+
+                const dialogIndex = layer.open({
+                    type: 1,
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
+                    content: `<div id="longTextDealWithView"></div>`,
+                    btn: ['关闭'],
+                    yes: function(){
+                        layui.layer.close(dialogIndex)
+                    }
+                });
+
+                dialog.render()
             }
 
             openInpRefsAudioSelectDialog(){
@@ -256,8 +293,8 @@
 
         }
 
-        function getInferenceParamsEdit(viewId, config) {
-            return new C_InferenceParamsEdit(viewId, config)
+        function getInferenceParamsEdit(viewId) {
+            return new C_InferenceParamsEdit(viewId)
         }
 
         return {
@@ -411,8 +448,11 @@
             </td>
         </tr>
         <tr>
-            <td colspan="6">
-                <button type="button" class="layui-btn layui-btn-lg" id="setInferenceParams">设置参数</button>
+            <td colspan="3">
+                <button type="button" class="layui-btn" id="setInferenceParams">设置参数</button>
+            </td>
+            <td colspan="3">
+                <button type="button" class="layui-btn" id="startInference">选择文本</button>
             </td>
         </tr>
     </table>

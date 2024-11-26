@@ -159,9 +159,7 @@
             openInferenceTxtDialog() {
                 const _this = this
 
-                const dealWithObj = LongTextDealWithSpace.getLongTextDealWith('longTextDealWithView', {
-                    mediaType: _this.mediaType,
-                })
+                const dealWithObj = LongTextDealWithSpace.getLongTextDealWith('longTextDealWithView')
                 dealWithObj.render()
 
                 const dialogId = layer.open({
@@ -551,12 +549,12 @@
     <table class="table1">
         <tr>
             <td>
-                <button type="button" class="layui-btn layui-btn-lg" id="setInferenceParams">设置参数</button>
+                <button type="button" class="layui-btn" id="setInferenceParams">设置参数</button>
             </td>
         </tr>
         <tr>
             <td>
-                <button type="button" class="layui-btn layui-btn-lg" id="openInferenceTxt">打开推理文本</button>
+                <button type="button" class="layui-btn" id="openInferenceTxt">打开推理文本</button>
             </td>
         </tr>
     </table>

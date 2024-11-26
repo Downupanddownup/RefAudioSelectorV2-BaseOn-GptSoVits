@@ -180,10 +180,9 @@
         }
         
         class C_LongTextDealWith {
-            constructor(viewId, config) {
+            constructor(viewId) {
                 this.viewId = viewId
                 this.setting = new C_InferenceSetting()
-                this.config = config
                 this.url = RasApiUrl+'ras'
             }
 
@@ -199,7 +198,7 @@
                     
                     obj.find('span[data-long-text-index]').on('click', function() {
                         const index = $(this).attr('data-long-text-index')
-                        _this.setting.playAudio(obj, _this.url, index, _this.config.mediaType)
+                        _this.setting.playAudio(obj, _this.url, index, RasApiSpace.getInstance().mediaType)
                     })
                     
                     obj.find('#startInference').on('click', function() {
@@ -239,7 +238,7 @@
                 const _this = this
                 const obj = $('#' + _this.viewId)
 
-                _this.setting.playAudio(obj, _this.url, 0, _this.config.mediaType)
+                _this.setting.playAudio(obj, _this.url, 0, RasApiSpace.getInstance().mediaType)
             }
 
             // 定义一个函数来按顺序播放多个音频流
@@ -247,8 +246,8 @@
 
         }
 
-        function getLongTextDealWith(viewId, config) {
-            return new C_LongTextDealWith(viewId, config)
+        function getLongTextDealWith(viewId) {
+            return new C_LongTextDealWith(viewId)
         }
 
         return {
@@ -266,7 +265,7 @@
                 <button type="button" class="layui-btn layui-btn-sm" id="textManager">选择</button>
             </td>
             <td>
-                <button type="button" class="layui-btn layui-btn-lg" id="startInference">开始推理</button>
+                <button type="button" class="layui-btn" id="startInference">开始推理</button>
                 <div id="playLongTextAudioDiv" style="display: none">
                     <audio controls id="playLongTextAudio">
                         <source type="audio/mpeg">
