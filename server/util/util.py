@@ -269,3 +269,20 @@ def merge_audio_files(audio_files, output_file):
 
     # 导出合并后的音频文件
     combined.export(output_file, format=os.path.splitext(output_file)[1][1:])
+
+
+def create_directories(file_path: str):
+    """
+    根据文件的绝对路径创建其父目录。
+
+    :param file_path: 文件的绝对路径
+    """
+    # 获取文件的父目录
+    directory = os.path.dirname(file_path)
+
+    # 如果父目录不存在，则创建
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+        print(f"目录 {directory} 已创建。")
+    else:
+        print(f"目录 {directory} 已存在。")

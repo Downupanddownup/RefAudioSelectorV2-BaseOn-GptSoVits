@@ -97,6 +97,44 @@
                 
             }
 
+            openDownloadOneDialog(fileName,id) {
+                const _this = this
+                
+                const html = `
+    <table class="table1" id="downloadProduct">
+        <tr>
+            <td>是否需要包含模型：</td>
+            <td>
+                <label class="custom-radio" style="margin-right: 30px">
+                    <input type="radio" name="needModel" value="1" title="是" checked>
+                    <span></span>是
+                </label>
+                <label class="custom-radio">
+                    <input type="radio" name="needModel" value="0" title="否">
+                    <span></span>否
+                </label>
+            </td>
+        </tr>
+    </table>
+                `
+
+                const index = layer.open({
+                    type: 1,
+                    area: ['500px', '250px'],
+                    content: html,
+                    btn: ['确定', '取消'],
+                    yes: function(){
+                        
+                        const needModel = $('#downloadProduct input[name="needModel"]:checked').val()
+                        
+                        _this.downloadProducts(fileName, id,0,needModel)
+                        layui.layer.close(index)
+                        
+                    }
+                });
+                
+            }
+
             downloadFile(fileName, temp_dir, zip_file_path) {
 
                 const form = document.createElement('form');
@@ -318,7 +356,7 @@
                         $('#' + _this.viewId + ' button[data-go-to-download]').on('click', function(){
                             const id = $(this).attr('data-go-to-download')
                             const product = _this.productList.find(i => i.id == id)
-                            _this.downloadProducts(HomePage.currentRole.name + '-' + product.name, id,0,1)
+                            _this.openDownloadOneDialog(HomePage.currentRole.name + '-' + product.name, id)
                         })
 
                     },

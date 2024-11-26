@@ -8,7 +8,7 @@ from jinja2 import Template
 
 from server.dao.data_base_manager import db_config
 from server.util.util import delete_directory, zip_directory, read_zip_to_memory, write_text_to_file, \
-    copy_file_to_dest_file
+    copy_file_to_dest_file, create_directories
 import server.common.config_params as params
 
 config_template = """
@@ -84,13 +84,18 @@ class ParamItem:
         self.copy_file(model_dir, real_obj, need_model)
 
     def copy_file(self, model_dir: str, real_obj: dict, need_model: bool):
+        gpt_path = real_obj.get('gpt_path')
+        real_gpt_path = os.path.join(model_dir, gpt_path)
         if need_model:
-            gpt_path = real_obj.get('gpt_path')
-            real_gpt_path = os.path.join(model_dir, gpt_path)
             copy_file_to_dest_file(self.gpt_model_path, real_gpt_path)
-            sovits_path = real_obj.get('sovits_path')
-            real_sovits_path = os.path.join(model_dir, sovits_path)
+        else:
+            create_directories(real_gpt_path)
+        sovits_path = real_obj.get('sovits_path')
+        real_sovits_path = os.path.join(model_dir, sovits_path)
+        if need_model:
             copy_file_to_dest_file(self.vits_model_path, real_sovits_path)
+        else:
+            create_directories(real_sovits_path)
         json_product_list = real_obj.get('product_list')
         # 使用 enumerate 函数
         for index, product in enumerate(self.product_list):
