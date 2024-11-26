@@ -58,8 +58,28 @@
                         _this.loadSelectedAudioList()
                     }
                     
+                    _this.initScore()
+                    
                 });
                 return _this
+            }
+
+            initScore(){
+                const _this = this
+                
+                if (_this.resultAudio.status == 1) {
+                    layui.rate.render({
+                        elem: '#score',
+                        value: _this.resultAudio.score,
+                        readonly: true,
+                    });
+                    layui.rate.render({
+                        elem: '#longTextScore',
+                        value: _this.resultAudio.longTextScore,
+                        readonly: true,
+                    });
+                }
+              
             }
 
             loadSelectedAudioList(){
@@ -240,8 +260,8 @@
                 <td>音频相似度：{{d.resultAudio.audioSimilarScore.toFixed(4)}}</td>
             </tr>
             <tr>
-                <td>评分：{{d.resultAudio.score}}</td>
-                <td>长文评分：{{d.resultAudio.longTextScore}}</td>
+                <td>评分：<div id="score" class="no-wrap"></div></td>
+                <td>长文评分：<div id="longTextScore" class="no-wrap"></div></td>
                 <td>备注：{{d.resultAudio.remark}}</td>
             </tr>
         </table>

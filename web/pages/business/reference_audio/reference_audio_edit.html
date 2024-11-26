@@ -51,12 +51,12 @@
             initScore(){
                 const _this = this
                 layui.rate.render({
-                    elem: '#audio-score',
+                    elem: '#audioScore',
                     value: _this.audio.score,
                     readonly: true,
                 });
                 layui.rate.render({
-                    elem: '#audio-long-text-score',
+                    elem: '#audioLongTextScore',
                     value: _this.audio.longTextScore,
                     readonly: true,
                 });
@@ -307,11 +307,11 @@
         <tr>
             <td>结果评分：</td>
             <td>
-                <div id="audio-score" class="no-wrap"></div>
+                <div id="audioScore" class="no-wrap"></div>
             </td>
             <td>长文评分：</td>
             <td>
-                <div id="audio-long-text-score" class="no-wrap"></div>
+                <div id="audioLongTextScore" class="no-wrap"></div>
             </td>
             <td>备注：</td>
             <td colspan="3">

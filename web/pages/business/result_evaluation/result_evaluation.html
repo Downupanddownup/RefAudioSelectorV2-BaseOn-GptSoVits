@@ -50,11 +50,46 @@
                     obj.find('#searchTaskResult').on('click', function () {
                         _this.searchTaskResult()
                     })
+
+                    obj.find('#conclusion]').on('blur', function() {
+                        const taskId = _this.selectedTask.id
+                        const value = $(this).val()
+                        _this.updateTaskConclusion(taskId, value)
+                    })
                     
                     _this.initSelect()
                     
                     _this.renderSelect()
                 });
+            }
+
+            updateTaskConclusion(taskId, conclusion) {
+                const _this = this
+
+                const audio = _this.audioList.find(i => i.id == taskId)
+
+                if (audio.conclusion === conclusion) {
+                    return
+                }
+
+                $.customAjax({
+                    url: BaseUrl+'task/update_task_conclusion',
+                    type: 'post',
+                    data:{
+                        id: taskId,
+                        conclusion: conclusion
+                    },
+                    success: function(res){
+                        if (res.code == 0) {
+
+                        } else {
+                            layui.layer.msg(res.msg)
+                        }
+                    },
+                    error: function(res, msg){
+                        layui.layer.msg(msg)
+                    }
+                })
             }
 
             initSelect(){
@@ -316,7 +351,15 @@
             </tr>
             <tr>
                 <td colspan="6">
-                    <button type="submit" class="layui-btn layui-btn-lg" id="searchTaskResult">查询推理结果</button>
+                    <button type="submit" class="layui-btn" id="searchTaskResult">查询推理结果</button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    结论：
+                </td>
+                <td colspan="5">
+                    <textarea placeholder="结论" class="layui-textarea" id="conclusion">{{d.selectedTask.conclusion}}</textarea>
                 </td>
             </tr>
         
