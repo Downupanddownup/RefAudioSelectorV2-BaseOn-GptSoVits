@@ -82,6 +82,10 @@ class C_ObjReferenceAudio {//参考音频
         this.language = data.language || ''; // 音频语种
         this.category = data.category || ''; // 音频分类
         this.audioLength = data.audioLength || 0; // 音频时长
+        this.validOrNot = data.validOrNot || 0; // 是否有效 1 有效 0 无效
+        this.md5Value = data.md5Value || ''; // md5值
+        this.isManualCalib = data.isManualCalib || 0; // 是否人工校准 1 是； 0 否
+        this.fileSize = data.fileSize || 0; // 文件大小
         this.score = data.score || 0; // 评分
         this.longTextScore = data.longTextScore || 0; // 长文评分
         this.remark = data.remark || ''; // 备注
