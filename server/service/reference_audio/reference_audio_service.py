@@ -9,6 +9,7 @@ from server.bean.reference_audio.obj_reference_audio import ObjReferenceAudio, O
 from server.dao.data_base_manager import db_config
 from server.dao.reference_audio.reference_audio_dao import ReferenceAudioDao
 from server.common.log_config import logger
+from server.util.util import get_file_size, calculate_md5
 
 
 class ReferenceAudioService:
@@ -67,7 +68,8 @@ class ReferenceAudioService:
                 if not os.path.exists(audio_path):
                     logger.info(f"Audio file does not exist: {audio_path}")
                     item = ObjReferenceAudio(audio_name=os.path.basename(audio_path), audio_path='',
-                                             content=transcription, language=language.lower(), category='无效',
+                                             content=transcription, language=language.lower(), category=category,
+                                             valid_or_not=0, md5_value='', is_manual_calib=0, file_size=0,
                                              audio_length=0)
                     audio_list.append(item)
                     continue
@@ -75,14 +77,23 @@ class ReferenceAudioService:
                 # 直接计算音频文件的时长（单位：秒）
                 duration = librosa.get_duration(filename=audio_path)
 
-                if not check_audio_duration(duration):
+                valid_or_not = 1
+
+                if not ReferenceAudioService.check_audio_duration(duration):
                     # 复制音频文件到output目录并重命名
-                    category = '无效'
+                    valid_or_not = 0
                     logger.info(f"File copied and renamed to: {new_path}")
 
                 shutil.copy2(audio_path, new_path)
+
+                file_size = get_file_size(new_path)
+
+                md5_value = calculate_md5(new_path)
+
                 item = ObjReferenceAudio(audio_name=os.path.basename(audio_path), audio_path=new_path,
                                          content=transcription, language=language.lower(), category=category,
+                                         valid_or_not=valid_or_not, md5_value=md5_value, is_manual_calib=0,
+                                         file_size=file_size,
                                          audio_length=duration)
                 audio_list.append(item)
 
@@ -130,10 +141,10 @@ class ReferenceAudioService:
     def delete_reference_audio(audio_id: int):
         return ReferenceAudioDao.delete_reference_audio(audio_id)
 
-
-def check_audio_duration(duration, min_duration=3, max_duration=10):
-    # 判断时长是否在3s至10s之间
-    if min_duration <= duration <= max_duration:
-        return True
-    else:
-        return False
+    @staticmethod
+    def check_audio_duration(duration, min_duration=3, max_duration=10):
+        # 判断时长是否在3s至10s之间
+        if min_duration <= duration <= max_duration:
+            return True
+        else:
+            return False

@@ -1,3 +1,4 @@
+import hashlib
 import subprocess
 import sys
 import os
@@ -286,3 +287,39 @@ def create_directories(file_path: str):
         print(f"目录 {directory} 已创建。")
     else:
         print(f"目录 {directory} 已存在。")
+
+
+def calculate_md5(file_path):
+    # 创建一个md5对象
+    hash_md5 = hashlib.md5()
+
+    try:
+        # 以二进制模式打开文件
+        with open(file_path, "rb") as f:
+            # 分块读取文件内容，避免大文件时内存不足
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_md5.update(chunk)
+        # 获取最终的16进制形式的哈希值
+        return hash_md5.hexdigest()
+    except IOError:
+        print(f"Error opening or reading file: {file_path}")
+        return None
+
+
+def get_file_size(file_path):
+    """
+    获取指定路径文件的大小（以字节为单位）。
+
+    :param file_path: 文件的路径
+    :return: 文件大小（字节），如果文件不存在或发生错误则返回None
+    """
+    try:
+        # 使用os.path.getsize()获取文件大小
+        size = os.path.getsize(file_path)
+        return size
+    except FileNotFoundError:
+        print(f"文件未找到: {file_path}")
+        return None
+    except Exception as e:
+        print(f"获取文件大小时发生错误: {e}")
+        return None

@@ -11,9 +11,9 @@ gsv2_dir = config.get_base('gsv2_dir')
 # 推理任务并发进程数量
 inference_process_num = str_to_int(config.get_base('inference_process_num'), 1)
 # service port
-service_port = config.get_base('service_port')
+service_port = str_to_int(config.get_base('service_port'), 8000)
 # api port
-api_port = config.get_base('api_port')
+api_port = str_to_int(config.get_base('api_port'), 8001)
 
 # [Log]
 # 日志保存目录路径

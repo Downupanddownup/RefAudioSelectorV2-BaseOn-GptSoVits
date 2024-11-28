@@ -13,7 +13,8 @@ from server.dao.data_base_manager import db_config
 from server.service.reference_audio.reference_audio_compare_sevice import ReferenceAudioCompareService
 from server.service.reference_audio.reference_audio_service import ReferenceAudioService
 from server.service.reference_audio.reference_category_service import ReferenceCategoryService
-from server.util.util import ValidationUtils, clean_path, str_to_int, str_to_float, save_file
+from server.util.util import ValidationUtils, clean_path, str_to_int, str_to_float, save_file, get_file_size, \
+    calculate_md5
 from server.common.log_config import logger
 from subprocess import Popen
 
@@ -164,6 +165,7 @@ async def add_reference_audio(request: Request):
         language=form_data.get('language'),
         category=form_data.get('category'),
         remark=form_data.get('remark'),
+        is_manual_calib=form_data.get('isManualCalib'),
     )
 
     new_path = ReferenceAudioService.get_new_reference_audio_path()
@@ -174,6 +176,16 @@ async def add_reference_audio(request: Request):
 
     # 直接计算音频文件的时长（单位：秒）
     audio.audio_length = librosa.get_duration(filename=new_path)
+
+    valid_or_not = 0
+    if ReferenceAudioService.check_audio_duration(audio.audio_length):
+        valid_or_not = 1
+
+    audio.valid_or_not = valid_or_not
+
+    audio.file_size = get_file_size(new_path)
+
+    audio.md5_value = calculate_md5(new_path)
 
     ReferenceCategoryService.add_category(audio.category)
 
