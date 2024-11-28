@@ -76,11 +76,19 @@ class ResultEvaluationService:
 
     @staticmethod
     def update_result_audio_score(result_audio_id: int, score: int) -> int:
-        return ResultEvaluationDao.update_result_audio_score(result_audio_id, score)
+        result = ResultEvaluationDao.update_result_audio_score(result_audio_id, score)
+        if result > 0:
+            from server.service.reference_audio.reference_audio_service import ReferenceAudioService
+            ReferenceAudioService.update_audio_score_by_task_result_id(result_audio_id)
+        return result
 
     @staticmethod
     def update_result_audio_long_text_score(result_audio_id: int, long_text_score: int) -> int:
-        return ResultEvaluationDao.update_result_audio_long_text_score(result_audio_id, long_text_score)
+        result = ResultEvaluationDao.update_result_audio_long_text_score(result_audio_id, long_text_score)
+        if result > 0:
+            from server.service.reference_audio.reference_audio_service import ReferenceAudioService
+            ReferenceAudioService.update_audio_long_text_score_by_task_result_id(result_audio_id)
+        return result
 
     @staticmethod
     def update_result_audio_remark(result_audio_id: int, remark: str) -> int:

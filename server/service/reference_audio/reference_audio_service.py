@@ -148,3 +148,11 @@ class ReferenceAudioService:
             return True
         else:
             return False
+
+    @staticmethod
+    def update_audio_score_by_task_result_id(result_audio_id: int):
+        return ReferenceAudioDao.update_audio_score_by_task_result_id(result_audio_id)
+
+    @staticmethod
+    def update_audio_long_text_score_by_task_result_id(result_audio_id: int):
+        return ReferenceAudioDao.update_audio_long_text_score_by_task_result_id(result_audio_id)
