@@ -1,9 +1,11 @@
+import urllib.parse
 import sys
 import os
 import librosa
 import uuid
 import time
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, BackgroundTasks
+from fastapi.responses import StreamingResponse
 
 from server.bean.reference_audio.obj_inference_category import ObjInferenceCategory
 from server.bean.reference_audio.obj_reference_audio import ObjReferenceAudioFilter, ObjReferenceAudio
@@ -14,7 +16,7 @@ from server.service.reference_audio.reference_audio_compare_sevice import Refere
 from server.service.reference_audio.reference_audio_service import ReferenceAudioService
 from server.service.reference_audio.reference_category_service import ReferenceCategoryService
 from server.util.util import ValidationUtils, clean_path, str_to_int, str_to_float, save_file, get_file_size, \
-    calculate_md5
+    calculate_md5, delete_directory
 from server.common.log_config import logger
 from subprocess import Popen
 
@@ -264,3 +266,57 @@ async def delete_reference_audio(request: Request):
     ReferenceAudioService.delete_reference_audio(audio_id)
 
     return ResponseResult()
+
+
+@router.post("/generate_audio_list_zip")
+async def generate_audio_list_zip(request: Request):
+    form_data = await request.form()
+    audio_filter = ObjReferenceAudioFilter(form_data)
+    audio_filter.page = 0
+    audio_filter.limit = 0
+
+    audio_list = ReferenceAudioService.find_list(audio_filter)
+
+    temp_dir, zip_file_path = ReferenceAudioService.generate_audio_list_zip(audio_list)
+
+    return ResponseResult(data={
+        "temp_dir": temp_dir,
+        "zip_file_path": zip_file_path,
+    }, msg="生成成功")
+
+
+@router.post("/download_audio_list_zip")
+async def download_audio_list_zip(request: Request, background_tasks: BackgroundTasks):
+    form_data = await request.form()
+    file_path = form_data.get('file_path')
+    temp_dir = form_data.get('temp_dir')
+    file_name = form_data.get('file_name')
+
+    if not file_name.endswith(".zip"):
+        file_name += ".zip"
+
+    # 文件读取生成器
+    def file_iterator(file_path2: str):
+        with open(file_path2, "rb") as f:
+            while chunk := f.read(8192):  # 每次读取 8KB
+                yield chunk
+
+    # 在响应完成后删除文件
+    background_tasks.add_task(delete_directory, temp_dir)
+
+    # 获取文件大小
+    file_size = os.path.getsize(file_path)
+
+    # URL 编码 UTF-8 文件名
+    encoded_filename = urllib.parse.quote(file_name)
+
+    # 修复响应头
+    headers = {
+        'Content-Disposition': f'attachment; filename="{file_name.encode("ascii", "ignore").decode()}";'
+                               f' filename*=UTF-8\'\'{encoded_filename}',
+        'Content-Type': 'application/zip',
+        'Content-Length': str(file_size),  # 文件总大小
+    }
+
+    # 使用 StreamingResponse 返回 BytesIO 对象
+    return StreamingResponse(file_iterator(file_path), headers=headers)

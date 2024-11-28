@@ -9,7 +9,7 @@ from server.bean.reference_audio.obj_reference_audio import ObjReferenceAudio, O
 from server.dao.data_base_manager import db_config
 from server.dao.reference_audio.reference_audio_dao import ReferenceAudioDao
 from server.common.log_config import logger
-from server.util.util import get_file_size, calculate_md5
+from server.util.util import get_file_size, calculate_md5, zip_directory, write_text_to_file
 
 
 class ReferenceAudioService:
@@ -156,3 +156,45 @@ class ReferenceAudioService:
     @staticmethod
     def update_audio_long_text_score_by_task_result_id(result_audio_id: int):
         return ReferenceAudioDao.update_audio_long_text_score_by_task_result_id(result_audio_id)
+
+    @staticmethod
+    def generate_audio_list_zip(audio_list: list[ObjReferenceAudio]):
+        if len(audio_list) == 0:
+            return None
+
+        temp_dir = f'{db_config.workspace}/temp/{uuid.uuid1()}'
+        if not os.path.exists(temp_dir):
+            os.makedirs(temp_dir)
+
+        role_dir = os.path.join(temp_dir, db_config.role_name)
+        if not os.path.exists(role_dir):
+            os.makedirs(role_dir)
+
+        try:
+
+            ReferenceAudioService.export_audio_list(audio_list, role_dir)
+
+            zip_directory(role_dir, role_dir)
+
+            zip_file_path = f'{role_dir}.zip'
+        finally:
+            pass
+
+        return temp_dir, zip_file_path
+
+    @staticmethod
+    def export_audio_list(audio_list: list[ObjReferenceAudio], role_dir: str):
+        dir_name = 'refer_audio'
+        reference_dir = os.path.join(role_dir, dir_name)
+        if not os.path.exists(reference_dir):
+            os.makedirs(reference_dir)
+        list_file = []
+        for audio in audio_list:
+            if audio.audio_path is not None and os.path.exists(audio.audio_path):
+                new_path = os.path.join(reference_dir, audio.audio_name)
+                shutil.copy2(audio.audio_path, new_path)
+                list_file.append(f'{new_path}|{dir_name}|{audio.language.upper()}|{audio.content}')
+        list_file_path = os.path.join(role_dir, db_config.role.name+'.list')
+        write_text_to_file('\n'.join(list_file), list_file_path)
+        explain_file = '只保存了音频相对路径，实际使用时，请更改为绝对路径.txt'
+        write_text_to_file('', os.path.join(role_dir, explain_file))

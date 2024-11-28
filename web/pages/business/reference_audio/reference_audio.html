@@ -55,6 +55,10 @@
                         _this.openImportDialog()
                     })
                     
+                    obj.find('#exportAudio').on('click', function(){
+                        _this.openExportDialog()
+                    })
+                    
                     obj.find('#soundFusionManager').on('click', function(){
                         _this.openSoundFusionDialog()
                     })
@@ -468,6 +472,58 @@
                 audioSplit.loadAudio()
                 
             }
+
+            openExportDialog() {
+                const _this = this
+                layui.layer.confirm('是否确认导出音频？', () => {
+
+                    const params = _this.getSearchParams()
+                    
+                    $.customAjax({
+                        url: BaseUrl+'audio/generate_audio_list_zip',
+                        type: 'post',
+                        data: params,
+                        success: function(res){
+                            if (res.code == 0) {
+                                const temp_dir = res.data.temp_dir
+                                const zip_file_path = res.data.zip_file_path
+                                _this.downloadFile(HomePage.currentRole.name, temp_dir, zip_file_path)
+                            } else {
+                                layui.layer.msg(res.msg)
+                            }
+                        },
+                        error: function(res, msg){
+                            layui.layer.msg(msg)
+                        }
+                    })
+                })
+            }
+
+            downloadFile(fileName, temp_dir, zip_file_path) {
+
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = BaseUrl + 'audio/download_audio_list_zip'; // 后端文件下载接口
+                form.style.display = 'none';
+
+                // 添加参数到表单
+                const addInput = (name, value) => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden'; // 隐藏的 input
+                    input.name = name;     // 参数名
+                    input.value = value;   // 参数值
+                    form.appendChild(input);
+                };
+
+                // 动态追加参数
+                addInput('file_path', zip_file_path);      // 文件名
+                addInput('temp_dir', temp_dir);      // 文件名
+                addInput('file_name', fileName);      // 文件名
+
+                document.body.appendChild(form);
+                form.submit(); // 提交表单发起文件下载
+                document.body.removeChild(form);
+            }
             
             openImportDialog(){
                 const _this = this
@@ -613,6 +669,7 @@
                 <button type="submit" class="layui-btn layui-btn-sm" id="searchAudio">搜索</button>
                 <button type="submit" class="layui-btn layui-btn-sm" id="addAudio">新增</button>
                 <button type="submit" class="layui-btn layui-btn-sm" id="importAudio">导入</button>
+                <button type="submit" class="layui-btn layui-btn-sm" id="exportAudio">导出</button>
                 <button type="submit" class="layui-btn layui-btn-sm" id="soundFusionManager">融合音频</button>
                 <button type="submit" class="layui-btn layui-btn-sm" id="addCategory">新增分类</button>
             </td>

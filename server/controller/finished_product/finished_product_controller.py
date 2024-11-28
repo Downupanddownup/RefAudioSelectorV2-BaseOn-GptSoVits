@@ -111,7 +111,7 @@ async def save_finished_product(request: Request):
 
 
 @router.post("/generate_finished_product_zip")
-async def generate_finished_product_zip(request: Request, background_tasks: BackgroundTasks):
+async def generate_finished_product_zip(request: Request):
     form_data = await request.form()
     product_ids = form_data.get('product_ids')
     is_merge = str_to_int(form_data.get('is_merge'), 0)
@@ -139,8 +139,8 @@ async def download_product_file(request: Request, background_tasks: BackgroundTa
         file_name += ".zip"
 
     # 文件读取生成器
-    def file_iterator(file_path: str):
-        with open(file_path, "rb") as f:
+    def file_iterator(file_path2: str):
+        with open(file_path2, "rb") as f:
             while chunk := f.read(8192):  # 每次读取 8KB
                 yield chunk
 
