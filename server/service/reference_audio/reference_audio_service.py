@@ -226,3 +226,18 @@ class ReferenceAudioService:
         write_text_to_file('\n'.join(list_file), list_file_path)
         explain_file = '只保存了音频相对路径，实际使用时，请更改为绝对路径.txt'
         write_text_to_file('', os.path.join(role_dir, explain_file))
+
+    @staticmethod
+    def get_audio_by_name(audio_name: str) -> ObjReferenceAudio:
+        if not audio_name:
+            return None
+        audio_filter = ObjReferenceAudioFilter({
+            'audio_name': audio_name
+        })
+        audio_list = ReferenceAudioDao.find_list(audio_filter)
+        audio = None
+        for item in audio_list:
+            if item.audio_name == audio_name:
+                audio = item
+                break
+        return audio
