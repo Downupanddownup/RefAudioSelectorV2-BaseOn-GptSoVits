@@ -31,14 +31,29 @@ p_similarity = None
 async def load_audio_list_file(request: Request):
     form_data = await request.form()
     audio_list_file = form_data.get("audioListFile")
+    category = form_data.get("category")
+    is_manual_calib = str_to_int(form_data.get("isManualCalib"), 0)
+    write_policy = form_data.get("writePolicy")
     if ValidationUtils.is_empty(audio_list_file):
         return ResponseResult(code=1, msg="audioListFile is empty")
+
+    if write_policy not in ['overwrite', 'skip', 'rename']:
+        return ResponseResult(code=1, msg="writePolicy is invalid")
+
     audio_list_file = clean_path(audio_list_file)
 
-    audio_list = ReferenceAudioService.convert_from_list(audio_list_file)
-    count = ReferenceAudioService.insert_reference_audio_list(audio_list)
+    add_audio_list, update_audio_list = ReferenceAudioService.convert_from_list(audio_list_file, category,
+                                                                                is_manual_calib, write_policy)
 
-    return ResponseResult(msg=f'导入{count}个音频')
+    add_count = 0
+    overwrite_count = 0
+
+    if len(add_audio_list) > 0:
+        add_count = ReferenceAudioService.insert_reference_audio_list(add_audio_list)
+    if len(update_audio_list) > 0:
+        overwrite_count = ReferenceAudioService.update_reference_audio_list(update_audio_list)
+
+    return ResponseResult(msg=f'新增{add_count}个音频；覆盖{overwrite_count}个音频')
 
 
 @router.post("/get_reference_audio_list")

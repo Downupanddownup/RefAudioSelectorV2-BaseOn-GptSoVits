@@ -475,7 +475,7 @@
 
             openExportDialog() {
                 const _this = this
-                layui.layer.confirm('是否确认导出音频？', () => {
+                const index = layui.layer.confirm('是否确认导出音频？', () => {
 
                     const params = _this.getSearchParams()
                     
@@ -488,6 +488,7 @@
                                 const temp_dir = res.data.temp_dir
                                 const zip_file_path = res.data.zip_file_path
                                 _this.downloadFile(HomePage.currentRole.name, temp_dir, zip_file_path)
+                                layui.layer.close(index)
                             } else {
                                 layui.layer.msg(res.msg)
                             }
@@ -527,12 +528,53 @@
             
             openImportDialog(){
                 const _this = this
+                
+                const options = _this.categoryList.map(item => `<option value="${item.name}">${item.name}</option>`).join('')
+                
                 const index = layer.open({
                     type: 1,
-                    area: ['600px', '300px'],
+                    area: ['600px', '500px'],
                     content: `
                     <div style="display: flex;align-items: center;justify-content: center;height: 100%;width: 100%">
-                        <input type="text" id="listFile" autocomplete="off" placeholder="请输入list路径" class="layui-input" style="width: 400px;">
+                        <table class="table1">
+                            <tr>
+                                <td>请输入list路径：</td>
+                                <td>
+                                    <input type="text" id="listFile" autocomplete="off" placeholder="请输入list路径" class="layui-input" style="width: 300px;">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>请选择分类：</td>
+                                <td>
+                                    <select class="customSelect" id="importCategory">
+                                        ${options}
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>是否人工校验：</td>
+                                <td>
+                                    <label class="custom-radio" style="margin-right: 30px">
+                                        <input type="radio" name="isManualCalib" value="1" title="是">
+                                        <span></span>是
+                                    </label>
+                                    <label class="custom-radio">
+                                        <input type="radio" name="isManualCalib" value="0" title="否" checked>
+                                        <span></span>否
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>遇到同名文件时：</td>
+                                <td>
+                                    <select id="writePolicy" class="customSelect">
+                                        <option value="overwrite" selected>覆盖</option>
+                                        <option value="skip">跳过</option>
+                                        <option value="rename">重命名</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </table>
                     </div>
                     `,
                     btn: ['确定', '取消'],
@@ -549,11 +591,21 @@
                     layer.msg('请先选择音频列表文件')
                     return
                 }
+                
+                const category = $('#importCategory').val()
+                
+                const isManualCalib = $('input[name="isManualCalib"]:checked').val()
+                
+                const writePolicy = $('#writePolicy').val()
+                
                 $.customAjax({
                     url: BaseUrl+'audio/load_audio_list_file',
                     type: 'post',
                     data: {
-                        audioListFile: listFile
+                        audioListFile: listFile,
+                        category: category,
+                        isManualCalib: isManualCalib,
+                        writePolicy: writePolicy,
                     },
                     success: function(res){
                         layer.msg(res.msg)

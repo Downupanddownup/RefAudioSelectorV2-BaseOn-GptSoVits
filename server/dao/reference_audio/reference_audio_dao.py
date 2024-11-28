@@ -78,6 +78,29 @@ class ReferenceAudioDao:
             x.remark
         ) for x in audio_list])
 
+
+    @staticmethod
+    def update_reference_audio_list(audio_list: list[ObjReferenceAudio]) -> int:
+        sql = '''
+        UPDATE tab_obj_reference_audio SET AudioName=?,AudioPath=?,Content=?,Language=?,Category=?,AudioLength=?,ValidOrNot=?,Md5Value=?,IsManualCalib=?,FileSize=?,Score=?,LongTextScore=?,Remark=? WHERE Id = ? 
+        '''
+        return DBSlaveSQLExecutor.batch_execute(sql, [(
+            x.audio_name,
+            x.audio_path,
+            x.content,
+            x.language,
+            x.category,
+            x.audio_length,
+            x.valid_or_not,
+            x.md5_value,
+            x.is_manual_calib,
+            x.file_size,
+            x.score,
+            x.long_text_score,
+            x.remark,
+            x.id
+        ) for x in audio_list])
+
     @staticmethod
     def update_audio_category(change_audio_id_str: str, target_category: str) -> int:
         sql = f'''
