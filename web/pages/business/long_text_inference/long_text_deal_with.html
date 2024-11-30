@@ -191,7 +191,7 @@
                 const _this = this
 
                 $.customAjax({
-                    url: BaseUrl+'task/get_last_select_inference_text',
+                    url: BaseUrl+'text/get_last_select_inference_text',
                     type: 'post',
                     success: function(res){
                         if (res.code == 0) {
@@ -262,7 +262,7 @@
                 const _this = this
 
                 $.customAjax({
-                    url: BaseUrl+'task/update_last_select_inference_text_id',
+                    url: BaseUrl+'text/update_last_select_inference_text_id',
                     type: 'post',
                     data: {
                         text_id: text_id

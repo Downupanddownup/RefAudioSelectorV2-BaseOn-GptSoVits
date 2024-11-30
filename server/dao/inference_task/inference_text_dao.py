@@ -1,4 +1,4 @@
-from server.bean.inference_task.obj_inference_text import ObjInferenceTextFilter, ObjInferenceText
+from server.bean.text.obj_inference_text import ObjInferenceTextFilter, ObjInferenceText
 from server.dao.data_base_manager import DBMasterSQLExecutor
 
 

@@ -1,6 +1,6 @@
 from server.bean.base_model import BaseModel
 from server.bean.finished_product.finished_product_manager import ObjFinishedProductManager
-from server.bean.inference_task.obj_inference_text import ObjInferenceText
+from server.bean.text.obj_inference_text import ObjInferenceText
 from server.bean.tts_correction.obj_tts_correction_task_detail import ObjTtsCorrectionTaskDetail
 from server.common.filter import Filter
 from server.util.util import str_to_int, ValidationUtils

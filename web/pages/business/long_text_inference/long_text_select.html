@@ -60,7 +60,7 @@
                 const params = _this.getSearchParams()
 
                 initLayuiTable('textList',{
-                    url: BaseUrl+'task/get_inference_text_list', // 此处为静态模拟数据，实际使用时需换成真实接口
+                    url: BaseUrl+'text/get_inference_text_list', // 此处为静态模拟数据，实际使用时需换成真实接口
                     method: 'post',
                     height: height, // 最大高度减去其他容器已占有的高度差
                     // cellMinWidth: 80,
@@ -133,7 +133,7 @@
                             const id = $(this).attr('data-delete-text')
                             layui.layer.confirm('确定删除该文本？', function(){
                                 $.customAjax({
-                                    url: BaseUrl+'task/delete_inference_text',
+                                    url: BaseUrl+'text/delete_inference_text',
                                     type: 'post',
                                     data:{
                                         text_id:id
@@ -213,7 +213,7 @@
                         })
 
                         $.customAjax({
-                            url: BaseUrl+'task/save_inference_text',
+                            url: BaseUrl+'text/save_inference_text',
                             type: 'post',
                             data:submitText,
                             dataType:'json',

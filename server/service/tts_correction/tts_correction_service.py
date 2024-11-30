@@ -8,7 +8,7 @@ import librosa
 from concurrent.futures import ProcessPoolExecutor
 
 from server.bean.finished_product.finished_product_manager import ObjFinishedProductManagerFilter
-from server.bean.inference_task.obj_inference_text import ObjInferenceTextFilter
+from server.bean.text.obj_inference_text import ObjInferenceTextFilter
 from server.bean.system.role import Role
 from server.bean.tts_correction.obj_tts_correction_task import ObjTtsCorrectionTask, ObjTtsCorrectionTaskFilter
 from server.bean.tts_correction.obj_tts_correction_task_detail import ObjTtsCorrectionTaskDetailFilter, \
