@@ -13,6 +13,7 @@ from server.bean.inference_task.obj_inference_text import ObjInferenceTextFilter
 from server.bean.inference_task.vits_model import VitsModel
 from server.bean.result_evaluation.obj_inference_task_result_audio import ObjInferenceTaskResultAudioFilter
 from server.bean.sound_fusion.obj_inference_task_sound_fusion_audio import ObjInferenceTaskSoundFusionAudio
+from server.bean.system.sys_cache_constants import TextConstants
 from server.common import config_params
 from server.common.custom_exception import CustomException
 from server.common.log_config import logger
@@ -23,6 +24,7 @@ from server.service.inference_task.inference_text_service import InferenceTextSe
 from server.service.inference_task.model_manager_service import ModelManagerService
 from server.service.reference_audio.reference_category_service import ReferenceCategoryService
 from server.service.result_evaluation.result_evaluation_service import ResultEvaluationService
+from server.service.system.system_service import SystemService
 from server.util.util import str_to_int, open_file, ValidationUtils
 
 python_exec = sys.executable or "python"
@@ -32,6 +34,31 @@ router = APIRouter(prefix="/task")
 inference_task_audio_analysis = None
 inference_task_asr_analysis = None
 inference_task_asr_text_analysis = None
+
+
+@router.post("/get_last_select_inference_text")
+async def get_last_select_inference_text(request: Request):
+    form_data = await request.form()
+
+    text = None
+
+    last_selected_id = SystemService.get_sys_cache(TextConstants.CACHE_TYPE, TextConstants.CACHE_KEY_LAST_SELECTED_ID)
+
+    if last_selected_id:
+        text = InferenceTextService.find_one_by_id(last_selected_id)
+    
+    return ResponseResult(data=text)
+
+
+@router.post("/update_last_select_inference_text_id")
+async def update_last_select_inference_text_id(request: Request):
+    form_data = await request.form()
+
+    text_id = form_data.get('text_id')
+
+    SystemService.update_sys_cache(TextConstants.CACHE_TYPE, TextConstants.CACHE_KEY_LAST_SELECTED_ID, text_id)
+    
+    return ResponseResult()
 
 
 @router.post("/get_inference_text_list")

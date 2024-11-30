@@ -30,7 +30,7 @@
             constructor() {
                 this.webCutPunc = `,.;?!、，。？！；：…"`
                 this.minTextLen = 50
-                this.textLanguage = 'ZH'
+                this.textLanguage = 'zh'
                 this.text = ''
                 this.subTexts = []
                 this.playAudioIndex = -1
@@ -184,6 +184,31 @@
                 this.viewId = viewId
                 this.setting = new C_InferenceSetting()
                 this.url = RasApiUrl+'ras'
+                this.textObj = null
+            }
+
+            loadData(){
+                const _this = this
+
+                $.customAjax({
+                    url: BaseUrl+'task/get_last_select_inference_text',
+                    type: 'post',
+                    success: function(res){
+                        if (res.code == 0) {
+                            if (res.data) {
+                                _this.textObj = new C_ObjInferenceText(res.data)
+                                _this.setting.setTextObj(_this.textObj)
+                            }
+                            _this.render()
+                        } else {
+                            layui.layer.msg(res.msg)
+                        }
+                    },
+                    error: function(res, msg){
+                        layui.layer.msg(msg)
+                    }
+                })
+
             }
 
             render() {
@@ -193,8 +218,6 @@
                 layui.laytpl(getTpl).render(_this, function(html){
                     const obj = $('#' + _this.viewId)
                     obj.html(html)
-                    
-                    _this.setting.textLanguage = obj.find('#textLanguage').val()
                     
                     obj.find('span[data-long-text-index]').on('click', function() {
                         const index = $(this).attr('data-long-text-index')
@@ -224,14 +247,37 @@
                     content: `<div id="textManagerView" class="view-body"></div>`,
                     btn: ['确定', '取消'],
                     yes: function(){
-                        const textObj = select.getSelectedText()
-                        _this.setting.setTextObj(textObj)
+                        _this.textObj = select.getSelectedText()
+                        _this.setting.setTextObj(_this.textObj)
                         layui.layer.close(dialogId)
+                        _this.updateLastSelectTextId(_this.textObj.id)
                         _this.render()
                     }
                 });
 
                 select.render()
+            }
+
+            updateLastSelectTextId(text_id){
+                const _this = this
+
+                $.customAjax({
+                    url: BaseUrl+'task/update_last_select_inference_text_id',
+                    type: 'post',
+                    data: {
+                        text_id: text_id
+                    },
+                    success: function(res){
+                        if (res.code == 0) {
+                        } else {
+                            layui.layer.msg(res.msg)
+                        }
+                    },
+                    error: function(res, msg){
+                        layui.layer.msg(msg)
+                    }
+                })
+
             }
 
             startInference(){

@@ -12,6 +12,17 @@ class InferenceTextService:
         return InferenceTextDao.find_list(audio_filter)
 
     @staticmethod
+    def find_one_by_id(text_id: int) -> ObjInferenceText:
+        text_list = InferenceTextDao.find_list(ObjInferenceTextFilter({
+            "id": text_id
+        }))
+        
+        if len(text_list) > 0:
+            return text_list[0]
+        
+        return None
+
+    @staticmethod
     def insert_inference_text(text: ObjInferenceText) -> int:
         return InferenceTextDao.insert_inference_text(text)
 

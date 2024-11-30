@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Request
 
 from server.bean.system.role import Role
+from server.bean.system.sys_cache_constants import SystemConstants
 from server.common.response_result import ResponseResult
 from server.dao.data_base_manager import db_config
 from server.service.system.system_service import SystemService
@@ -32,5 +33,5 @@ async def switch_role_workspace(request: Request):
         return ResponseResult(code=1, msg="roleCategory is empty")
     role = Role(category=role_category, name=role_name)
     db_config.update_db_path(role)
-    SystemService.update_sys_cache('system', 'role', role.to_json_string())
+    SystemService.update_sys_cache(SystemConstants.CACHE_TYPE, SystemConstants.CACHE_KEY_ROLE, role.to_json_string())
     return ResponseResult(code=0, msg="success")

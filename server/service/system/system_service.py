@@ -3,6 +3,7 @@ import os
 from server.bean.system.role import Role
 from server.bean.system.role_category import RoleCategory
 from server.bean.system.sys_cache import SysCache
+from server.bean.system.sys_cache_constants import SystemConstants
 from server.common.log_config import logger
 from server.dao.data_base_manager import db_config
 from server.dao.system.system_dao import SystemDao
@@ -61,7 +62,7 @@ class SystemService:
 
     @staticmethod
     def get_valid_role() -> Role:
-        role = SystemService.get_sys_cache('system', 'role')
+        role = SystemService.get_sys_cache(SystemConstants.CACHE_TYPE, SystemConstants.CACHE_KEY_ROLE)
         if role is not None:
             return Role.from_json_string(role)
         role_list = SystemService.get_role_list()

@@ -160,7 +160,6 @@
                 const _this = this
 
                 const dealWithObj = LongTextDealWithSpace.getLongTextDealWith('longTextDealWithView')
-                dealWithObj.render()
 
                 const dialogId = layer.open({
                     type: 1,
@@ -172,7 +171,7 @@
                     }
                 });
 
-                dealWithObj.render()
+                dealWithObj.loadData()
             }
 
             setInferenceParams(){
