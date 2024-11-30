@@ -1,7 +1,8 @@
 from server.bean.inference_task.obj_inference_task import ObjInferenceTaskFilter, ObjInferenceTask
-from server.bean.inference_task.obj_inference_task_audio import ObjInferenceTaskAudio
-from server.bean.inference_task.obj_inference_task_compare_params import ObjInferenceTaskCompareParams
-from server.bean.inference_task.obj_inference_task_text import ObjInferenceTaskText
+from server.bean.inference_task.obj_inference_task_audio import ObjInferenceTaskAudio, ObjInferenceTaskAudioFilter
+from server.bean.inference_task.obj_inference_task_compare_params import ObjInferenceTaskCompareParams, \
+    ObjInferenceTaskCompareParamsFilter
+from server.bean.inference_task.obj_inference_task_text import ObjInferenceTaskText, ObjInferenceTaskTextFilter
 from server.bean.sound_fusion.obj_inference_task_sound_fusion_audio import ObjInferenceTaskSoundFusionAudio
 from server.dao.data_base_manager import DBSlaveSQLExecutor
 
@@ -173,13 +174,20 @@ class InferenceTaskDao:
         ) for x in text_list])
 
     @staticmethod
-    def get_task_param_list_by_task_id(task_id: int) -> list[ObjInferenceTaskCompareParams]:
+    def get_task_param_list(task_filter: ObjInferenceTaskCompareParamsFilter) -> list[ObjInferenceTaskCompareParams]:
         # 查询所有记录的SQL语句
         select_sql = '''
-            SELECT * FROM tab_obj_inference_task_compare_params where TaskId = ?
+            SELECT * FROM tab_obj_inference_task_compare_params where 1 = 1
             '''
+        condition_sql, condition = task_filter.make_sql()
 
-        records = DBSlaveSQLExecutor.execute_query(select_sql, (task_id,))
+        select_sql += condition_sql
+
+        select_sql += task_filter.get_order_by_sql()
+
+        select_sql += task_filter.get_limit_sql()
+
+        records = DBSlaveSQLExecutor.execute_query(select_sql, condition)
         record_list = []
         for data in records:
             record_list.append(ObjInferenceTaskCompareParams(
@@ -227,13 +235,20 @@ class InferenceTaskDao:
         return record_list
 
     @staticmethod
-    def get_task_audio_list_by_task_id(task_id: int) -> list[ObjInferenceTaskAudio]:
+    def get_task_audio_list(task_filter: ObjInferenceTaskAudioFilter) -> list[ObjInferenceTaskAudio]:
         # 查询所有记录的SQL语句
         select_sql = '''
-            SELECT * FROM tab_obj_inference_task_audio where TaskId = ?
+            SELECT * FROM tab_obj_inference_task_audio where 1 = 1
             '''
+        condition_sql, condition = task_filter.make_sql()
 
-        records = DBSlaveSQLExecutor.execute_query(select_sql, (task_id,))
+        select_sql += condition_sql
+
+        select_sql += task_filter.get_order_by_sql()
+
+        select_sql += task_filter.get_limit_sql()
+
+        records = DBSlaveSQLExecutor.execute_query(select_sql, condition)
         record_list = []
         for data in records:
             record_list.append(ObjInferenceTaskAudio(
@@ -251,13 +266,21 @@ class InferenceTaskDao:
         return record_list
 
     @staticmethod
-    def get_task_text_list_by_task_id(task_id: int) -> list[ObjInferenceTaskText]:
+    def get_task_text_list(task_filter: ObjInferenceTaskTextFilter) -> list[ObjInferenceTaskText]:
         # 查询所有记录的SQL语句
         select_sql = '''
-            SELECT * FROM tab_obj_inference_task_text where TaskId = ?
+            SELECT * FROM tab_obj_inference_task_text where 1 = 1
             '''
 
-        records = DBSlaveSQLExecutor.execute_query(select_sql, (task_id,))
+        condition_sql, condition = task_filter.make_sql()
+
+        select_sql += condition_sql
+
+        select_sql += task_filter.get_order_by_sql()
+
+        select_sql += task_filter.get_limit_sql()
+
+        records = DBSlaveSQLExecutor.execute_query(select_sql, condition)
         record_list = []
         for data in records:
             record_list.append(ObjInferenceTaskText(

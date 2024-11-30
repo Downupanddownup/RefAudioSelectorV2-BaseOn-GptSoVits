@@ -50,6 +50,17 @@ async def get_inference_task_result_audio_list(request: Request):
     return ResponseResult(data=audio_list, count=count)
 
 
+@router.post("/get_inference_task_result_audio_list2")
+async def get_inference_task_result_audio_list2(request: Request):
+    form_data = await request.form()
+    audio_filter = ObjInferenceTaskResultAudioFilter(form_data)
+
+    count = ResultEvaluationService.find_count(audio_filter)
+    audio_list = ResultEvaluationService.find_list2(audio_filter)
+
+    return ResponseResult(data=audio_list, count=count)
+
+
 @router.post("/update_result_audio_score")
 async def update_result_audio_score(request: Request):
     form_data = await request.form()

@@ -56,6 +56,7 @@ class ObjInferenceTaskFilter(Filter):
     def __init__(self, form_data):
         super().__init__(form_data)
         self.id = form_data.get('id')
+        self.ids = form_data.get('ids')
         self.task_name = form_data.get('task_name')
         self.compare_type = form_data.get('compare_type')
         self.inference_status = str_to_int(form_data.get('inference_status'))
@@ -66,6 +67,9 @@ class ObjInferenceTaskFilter(Filter):
         if not ValidationUtils.is_empty(self.id):
             sql += f" and id = ? "
             condition.append(f"{self.id}")
+        
+        if not ValidationUtils.is_empty(self.ids):
+            sql += f" and id in ({self.ids}) "
 
         if not ValidationUtils.is_empty(self.task_name):
             sql += f" and TaskName like ? "

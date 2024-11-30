@@ -1,4 +1,6 @@
 from server.bean.base_model import BaseModel
+from server.common.filter import Filter
+from server.util.util import ValidationUtils
 
 
 class ObjInferenceTaskText(BaseModel):
@@ -16,3 +18,27 @@ class ObjInferenceTaskText(BaseModel):
         return (f"Id: {self.id}, TaskId: {self.task_id}, Category: {self.category}, "
                 f"TextId: {self.text_id}, TextContent: {self.text_content}, "
                 f"TextLanguage: {self.text_language}, CreateTime: {self.create_time}")
+
+
+class ObjInferenceTaskTextFilter(Filter):
+    def __init__(self, form_data):
+        super().__init__(form_data)
+        self.id = form_data.get('id')
+        self.ids = form_data.get('ids')
+        self.task_id = form_data.get('task_id')
+
+    def make_sql(self) -> []:
+        sql = ''
+        condition = []
+        if not ValidationUtils.is_empty(self.id):
+            sql += f" and id = ? "
+            condition.append(f"{self.id}")
+
+        if not ValidationUtils.is_empty(self.ids):
+            sql += f" and id in ({self.ids}) "
+
+        if not ValidationUtils.is_empty(self.task_id):
+            sql += f" and taskId = ? "
+            condition.append(f"{self.task_id}")
+
+        return sql, tuple(condition)

@@ -74,7 +74,7 @@ class ResultEvaluationDao:
     def find_count(audio_filter: ObjInferenceTaskResultAudioFilter) -> int:
         # 查询所有记录的SQL语句
         select_sql = '''
-            SELECT COUNT(1) FROM tab_obj_inference_task_result_audio where 1=1
+            SELECT COUNT(1) FROM tab_obj_inference_task_result_audio r where 1=1
             '''
 
         condition_sql, condition = audio_filter.make_sql()
@@ -89,7 +89,7 @@ class ResultEvaluationDao:
     def find_list(audio_filter: ObjInferenceTaskResultAudioFilter) -> list[ObjInferenceTaskResultAudio]:
         # 查询所有记录的SQL语句
         select_sql = '''
-            SELECT * FROM tab_obj_inference_task_result_audio where 1=1
+            SELECT * FROM tab_obj_inference_task_result_audio r where 1=1
             '''
 
         condition_sql, condition = audio_filter.make_sql()

@@ -7,9 +7,10 @@ import librosa
 from concurrent.futures import ProcessPoolExecutor
 
 from server.bean.inference_task.obj_inference_task import ObjInferenceTaskFilter, ObjInferenceTask
-from server.bean.inference_task.obj_inference_task_audio import ObjInferenceTaskAudio
-from server.bean.inference_task.obj_inference_task_compare_params import ObjInferenceTaskCompareParams
-from server.bean.inference_task.obj_inference_task_text import ObjInferenceTaskText
+from server.bean.inference_task.obj_inference_task_audio import ObjInferenceTaskAudio, ObjInferenceTaskAudioFilter
+from server.bean.inference_task.obj_inference_task_compare_params import ObjInferenceTaskCompareParams, \
+    ObjInferenceTaskCompareParamsFilter
+from server.bean.inference_task.obj_inference_task_text import ObjInferenceTaskText, ObjInferenceTaskTextFilter
 from server.bean.inference_task.task_cell import TaskCell
 from server.bean.reference_audio.obj_reference_audio import ObjReferenceAudioFilter
 from server.bean.result_evaluation.obj_inference_task_result_audio import ObjInferenceTaskResultAudio, \
@@ -106,15 +107,21 @@ class InferenceTaskService:
 
     @staticmethod
     def get_task_param_list_by_task_id(task_id: int) -> list[ObjInferenceTaskCompareParams]:
-        return InferenceTaskDao.get_task_param_list_by_task_id(task_id)
+        return InferenceTaskDao.get_task_param_list(ObjInferenceTaskCompareParamsFilter({
+            'task_id': task_id
+        }))
 
     @staticmethod
     def get_task_audio_list_by_task_id(task_id: int) -> list[ObjInferenceTaskAudio]:
-        return InferenceTaskDao.get_task_audio_list_by_task_id(task_id)
+        return InferenceTaskDao.get_task_audio_list(ObjInferenceTaskAudioFilter({
+            'task_id': task_id
+        }))
 
     @staticmethod
     def get_task_text_list_by_task_id(task_id: int) -> list[ObjInferenceTaskText]:
-        return InferenceTaskDao.get_task_text_list_by_task_id(task_id)
+        return InferenceTaskDao.get_task_text_list(ObjInferenceTaskTextFilter({
+            'task_id': task_id
+        }))
 
     @staticmethod
     def get_task_sound_fusion_list_by_task_id(task_id: int) -> list[ObjInferenceTaskSoundFusionAudio]:

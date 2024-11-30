@@ -66,8 +66,8 @@
                     limits:[50,100,150,200],
                     autoSort:false,
                     initSort: {
-                        order: 'audioLength', // 按 id 字段排序
-                        desc: 'desc' // 降序排序
+                        field: 'score', // 按 id 字段排序
+                        type: 'desc' // 降序排序
                     },
                     customSelect:{
                         type:'radio',
@@ -98,6 +98,15 @@
                     cols: [[
                         {field:'radio', width:'3%', title: '选择', type: 'radio'},
                         {field:'index', width:'3%', title: '序号', type: 'numbers'},
+                        {field:'score', width:'8%', title: '评分', sort: true, templet: function(d){
+                                return `<div id="audio-score-${d.id}" class="no-wrap"></div>`;
+                            }},
+                        {field:'longTextScore', width:'8%', title: '长文评分', sort: true, templet: function(d){
+                                return `<div id="audio-long-text-score-${d.id}" class="no-wrap"></div>`;
+                            }},
+                        {field:'taskName', width:'8%', title: '任务', templet: function(d){
+                                return d.objTask.taskName;
+                            }},
                         {field:'path', width:'22%', title: '结果音频', templet: function(d){
                                 return ` 
                                  <audio controls class="custom-audio" data-result-audio="${d.id}">
@@ -106,7 +115,7 @@
                                     您的浏览器不支持 HTML5 audio 标签。
                                 </audio>`
                             }},
-                        {field:'compareParamId', width:'15%', title: '对比参数', templet: function(d){
+                        {field:'compareParamId', width:'8%', title: '对比参数', templet: function(d){
                                 return d.objParam.getShowTxt(d.objTask.compareType);
                             }},
                         {field:'audioId', width:'22%', title: '参考音频', templet: function(d){
@@ -118,13 +127,11 @@
                                     您的浏览器不支持 HTML5 audio 标签。
                                 </audio>`
                             }},
-                        {field:'score', width:'4%', title: '评分', templet: function(d){
-                                return d.score;
+                        {field:'audioContent', width:'10%', title: '参考文本', templet: function(d){
+                                const audio = d.objAudio
+                                return audio.audioContent
                             }},
-                        {field:'longTextScore', width:'6%', title: '长文评分', templet: function(d){
-                                return d.longTextScore;
-                            }},
-                        {field:'remark', width:'8%', title: '备注', sort: true, templet: function(d){
+                        {field:'remark', width:'8%', title: '备注', templet: function(d){
                                 return d.remark;
                             }},
                         {field:'status', width:'6%', title: '生成状态', templet: function(d){
@@ -139,22 +146,19 @@
                                 }
                                 return '';
                             }},
-                        {field:'taskName', width:'8%', title: '任务', templet: function(d){
-                                return d.objTask.taskName;
-                            }},
                         {field:'textId', width:'20%', title: '推理文本', templet: function(d){
                                 return d.objText.textContent;
                             }},
-                         {field:'asrSimilarScore', width:'20%', title: '文本相似度', templet: function(d){
+                         {field:'asrSimilarScore', width:'8%', title: '文本相似度', sort: true, templet: function(d){
                                  return d.asrSimilarScore.toFixed(4);
                              }},
-                        {field:'audioSimilarScore', width:'20%', title: '音频相似度', templet: function(d){
+                        {field:'audioSimilarScore', width:'8%', title: '音频相似度', sort: true, templet: function(d){
                                 return d.audioSimilarScore.toFixed(4);
                             }},
                         {field:'audioLength', width:'6%', title: '音频时长', sort: true, templet: function(d){
                                 return d.audioLength.toFixed(1);
                             }},
-                        {field:'opt', width:'5%', title: '操作',fixed: 'right', templet: function(d){
+                        {field:'opt', width:'50px', title: '操作',fixed: 'right', templet: function(d){
                                 const html = []
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-detail="${d.id}">详情</button>`)
                                 return html.join(' ');
@@ -181,6 +185,8 @@
                             const audioId = $(this).attr('data-go-to-detail')
                             _this.openDetailDialog(audioId)
                         })
+                        
+                        _this.initScore()
 
                     },
                     error: function(res, msg){
@@ -188,6 +194,26 @@
                     }
                 })
                 
+            }
+
+            initScore() {
+
+                const _this = this
+
+                _this.audioList.forEach(audio => {
+                    const id = audio.id
+                    layui.rate.render({
+                        elem: '#audio-score-'+id,
+                        value: audio.score,
+                        readonly: true,
+                    });
+                    layui.rate.render({
+                        elem: '#audio-long-text-score-'+id,
+                        value: audio.longTextScore,
+                        readonly: true,
+                    });
+                })
+
             }
 
             openDetailDialog(id){

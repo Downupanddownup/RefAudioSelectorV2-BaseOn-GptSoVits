@@ -1,6 +1,10 @@
-from server.bean.inference_task.obj_inference_task import ObjInferenceTask
+from server.bean.inference_task.obj_inference_task import ObjInferenceTask, ObjInferenceTaskFilter
+from server.bean.inference_task.obj_inference_task_audio import ObjInferenceTaskAudioFilter
+from server.bean.inference_task.obj_inference_task_compare_params import ObjInferenceTaskCompareParamsFilter
+from server.bean.inference_task.obj_inference_task_text import ObjInferenceTaskTextFilter
 from server.bean.result_evaluation.obj_inference_task_result_audio import ObjInferenceTaskResultAudio, \
     ObjInferenceTaskResultAudioFilter
+from server.dao.inference_task.inference_task_dao import InferenceTaskDao
 from server.dao.result_evaluation.result_evaluation_dao import ResultEvaluationDao
 
 
@@ -51,6 +55,40 @@ class ResultEvaluationService:
     @staticmethod
     def find_list(audio_filter: ObjInferenceTaskResultAudioFilter) -> list[ObjInferenceTaskResultAudio]:
         return ResultEvaluationDao.find_list(audio_filter)
+
+    @staticmethod
+    def find_list2(audio_filter: ObjInferenceTaskResultAudioFilter) -> list[ObjInferenceTaskResultAudio]:
+        result_list = ResultEvaluationDao.find_list(audio_filter)
+        if result_list is None or len(result_list) == 0:
+            return result_list
+        task_ids = []
+        text_ids = []
+        audio_ids = []
+        compare_param_ids = []
+        for result_audio in result_list:
+            task_ids.append(str(result_audio.task_id))
+            text_ids.append(str(result_audio.text_id))
+            audio_ids.append(str(result_audio.audio_id))
+            compare_param_ids.append(str(result_audio.compare_param_id))
+        task_list = InferenceTaskDao.find_list(ObjInferenceTaskFilter({
+            'ids':','.join(task_ids)
+        }))
+        text_list = InferenceTaskDao.get_task_text_list(ObjInferenceTaskTextFilter({
+            'ids':','.join(text_ids)
+        }))
+        audio_list = InferenceTaskDao.get_task_audio_list(ObjInferenceTaskAudioFilter({
+            'ids':','.join(audio_ids)
+        }))
+        compare_param_list = InferenceTaskDao.get_task_param_list(ObjInferenceTaskCompareParamsFilter({
+            'ids':','.join(compare_param_ids)
+        }))
+        for result_audio in result_list:
+            result_audio.obj_task = next((task for task in task_list if task.id == result_audio.task_id), None)
+            result_audio.obj_text = next((text for text in text_list if text.id == result_audio.text_id), None)
+            result_audio.obj_audio = next((audio for audio in audio_list if audio.id == result_audio.audio_id), None)
+            result_audio.obj_param = next((param for param in compare_param_list if param.id == result_audio.compare_param_id), None)
+
+        return result_list
 
     @staticmethod
     def find_one_by_id(result_audio_id: int):

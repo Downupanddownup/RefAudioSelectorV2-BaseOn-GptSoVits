@@ -1,42 +1,24 @@
 <!DOCTYPE html>
 <script>
-    const InferenceTaskResultAudioListSpace = (function () {
-        class C_InferenceTaskResultAudioList {
-            constructor(viewId, taskId) {
+    const InferenceAudioResultListSpace = (function () {
+        class C_InferenceAudioResultList {
+            constructor(viewId, referenceAudioId) {
                 this.viewId = viewId
                 this.audioList = []
-                this.taskId = taskId
+                this.referenceAudioId = referenceAudioId
                 this.task = null
             }
 
             loadData(){
                 const _this = this
 
-                $.customAjax({
-                    url: BaseUrl+'task/load_inference_task_detail',
-                    type: 'post',
-                    data:{
-                        task_id: _this.taskId
-                    },
-                    success: function(res){
-                        if (res.code == 0) {
-                            _this.task = new C_ObjInferenceTask(res.data.task)
-
-                            _this.render()
-                        } else {
-                            layui.layer.msg(res.msg)
-                        }
-                    },
-                    error: function(res, msg){
-                        layui.layer.msg(msg)
-                    }
-                })
+                _this.render()
 
             }
 
             render() {
                 const _this = this
-                const getTpl = $('#inferenceTaskResultAudioListTemplate').html(); // 获取模板字符
+                const getTpl = $('#inferenceAudioResultListTemplate').html(); // 获取模板字符
                 // 渲染并输出结果
                 layui.laytpl(getTpl).render(_this, function(html){
                     const obj = $('#'+_this.viewId)
@@ -80,7 +62,7 @@
                 const height = $('#resultAudioListDiv').height()
 
                 initLayuiTable('resultAudioList', {
-                    url: BaseUrl+'evaluation/get_inference_task_result_audio_list', // 此处为静态模拟数据，实际使用时需换成真实接口
+                    url: BaseUrl+'evaluation/get_inference_task_result_audio_list2', // 此处为静态模拟数据，实际使用时需换成真实接口
                     method: 'post',
                     height: height, // 最大高度减去其他容器已占有的高度差
                     // cellMinWidth: 80,
@@ -106,6 +88,9 @@
                     },
                     cols: [[
                         {field:'index', width:'5%', title: '序号', type: 'numbers'},
+                        {field:'taskName', width:'10%', title: '归属任务', templet: function(d){
+                                return d.objTask?.taskName;
+                            }},
                         {field:'score', width:'8%', title: '评分', sort: true, templet: function(d){
                                 return `<div id="audio-score-${d.id}" class="no-wrap"></div>`;
                             }},
@@ -113,26 +98,20 @@
                                 return `<div id="audio-long-text-score-${d.id}" class="no-wrap"></div>`;
                             }},
                         {field:'textId', width:'20%', title: '推理文本', templet: function(d){
-                                const text = _this.task.taskTextList.find(i => i.id == d.textId)
-                                return text.textContent;
+                                return d.objText?.textContent;
                             }},
                         {field:'compareParamId', width:'10%', title: '对比参数', templet: function(d){
-                                const compare = _this.task.compareParams.find(i => i.id == d.compareParamId)
-                                return compare.getShowTxt(_this.task.compareType);
+                                return d.objParam?.getShowTxt(d.objTask?.compareType);
                             }},
-                        {field:'audioId', width:'20%', title: '参考音频', templet: function(d){
-                                const audio = _this.task.taskAudioList.find(i => i.id == d.audioId)
+                        /*{field:'audioId', width:'20%', title: '参考音频', templet: function(d){
+                                const audio = d.objAudio
                                 return ` 
                                  <audio controls class="custom-audio" data-reference-audio="${d.id}">
                                     <source src="${audio.audioPath}" type="audio/wav">
                                     <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
                                     您的浏览器不支持 HTML5 audio 标签。
                                 </audio>`
-                            }},
-                        {field:'audioContent', width:'10%', title: '参考文本', templet: function(d){
-                                const audio = _this.task.taskAudioList.find(i => i.id == d.audioId)
-                                return audio.audioContent
-                            }},
+                            }},*/
                         {field:'path', width:'20%', title: '结果音频', templet: function(d){
                                 return ` 
                                  <audio controls class="custom-audio" data-result-audio="${d.id}">
@@ -216,7 +195,7 @@
                 const searchStatus = obj.find('#searchStatus').val()
                 return {
                     status: searchStatus,
-                    taskId: _this.taskId,
+                    referenceAudioId: _this.referenceAudioId,
                 }
             }
 
@@ -228,17 +207,17 @@
             
         }
 
-        function getInferenceTaskResultAudioList(viewId, taskId) {
-            return new C_InferenceTaskResultAudioList(viewId, taskId)
+        function getInferenceAudioResultList(viewId, referenceAudioId) {
+            return new C_InferenceAudioResultList(viewId, referenceAudioId)
         }
 
         return {
-            getInferenceTaskResultAudioList: getInferenceTaskResultAudioList
+            getInferenceAudioResultList: getInferenceAudioResultList
         }
     })()
 </script>
 
-<script id="inferenceTaskResultAudioListTemplate" type="text/html">
+<script id="inferenceAudioResultListTemplate" type="text/html">
     <table class="table3" id="searchHeader">
         <tr>
             <td>生成状态：</td>

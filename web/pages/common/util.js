@@ -187,12 +187,14 @@ function initLayuiTable(listId, config) {
             this.descName = customSort.descName ? customSort.descName : 'desc'
             
             this.pageParams = {}
-            this.pageParams[this.orderName] = initSort.order || ''
-            this.pageParams[this.descName] = initSort.desc || ''
+            this.pageParams[this.orderName] = initSort.field || ''
+            this.pageParams[this.descName] = initSort.type || ''
         }
         
         initWherePage(){
             const where = config.where || {}
+            
+            console.log('发生了什么', where)
 
             if (this.isOpenSortByServer) {
                 where[this.orderName] = this.pageParams[this.orderName]

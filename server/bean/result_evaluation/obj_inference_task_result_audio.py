@@ -89,6 +89,7 @@ class ObjInferenceTaskResultAudioFilter(Filter):
         super().__init__(form_data)
         self.id = form_data.get('id')
         self.task_id = form_data.get('taskId')
+        self.reference_audio_id = form_data.get('referenceAudioId')
         self.compare_param_ids = form_data.get('compareParamIds')
         self.audio_ids = form_data.get('audioIds')
         self.text_ids = form_data.get('textIds')
@@ -111,6 +112,9 @@ class ObjInferenceTaskResultAudioFilter(Filter):
         if not ValidationUtils.is_empty(self.id):
             sql += f" and id = ? "
             condition.append(f"{self.id}")
+        if not ValidationUtils.is_empty(self.reference_audio_id):
+            sql += f" and exists (select 1 from tab_obj_inference_task_audio where id = r.audioId and audioId = ? ) "
+            condition.append(f"{self.reference_audio_id}")
         if not ValidationUtils.is_empty(self.task_id):
             sql += f" and taskId = ? "
             condition.append(f"{self.task_id}")

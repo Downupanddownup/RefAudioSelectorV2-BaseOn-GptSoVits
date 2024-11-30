@@ -126,8 +126,8 @@
                     limits:[50,100,150,200],
                     autoSort:false,
                     initSort: {
-                        order: 'audioLength', // 按 id 字段排序
-                        desc: 'desc' // 降序排序
+                        field: 'audioLength', // 按 id 字段排序
+                        type: 'desc' // 降序排序
                     },
                     // lineStyle: 'height: 50px;', // 定义表格的多行样式
                     parseData: function(res){ //res 即为原始返回的数据
@@ -197,6 +197,7 @@
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-edit="${d.id}">编辑</button>`)
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-compare="${d.id}">比对</button>`)
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-split="${d.id}">分割</button>`)
+                                html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-result="${d.id}">关联结果</button>`)
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-delete="${d.id}">删除</button>`)
                                 // html.push(`<button type="button" class="layui-btn layui-btn-sm" data-go-to-download="${d.id}">下载</button>`)
                                 return html.join(' ');
@@ -248,6 +249,11 @@
                         $('#' + _this.viewId + ' button[data-go-to-split]').on('click', function(){
                             const id = $(this).attr('data-go-to-split')
                             _this.goToOpenSplitDialog(id)
+                        })
+
+                        $('#' + _this.viewId + ' button[data-go-to-result]').on('click', function(){
+                            const id = $(this).attr('data-go-to-result')
+                            _this.goToOpenResultDialog(id)
                         })
 
                         $('#' + _this.viewId + ' button[data-go-to-download]').on('click', function(){
@@ -470,6 +476,26 @@
                 });
 
                 audioSplit.loadAudio()
+                
+            }
+
+            goToOpenResultDialog(id){
+
+                const _this = this
+                const dialog = InferenceAudioResultListSpace.getInferenceAudioResultList('resultAudioListView', id)
+
+                const dialogIndex = layer.open({
+                    type: 1,
+                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
+                    content: `<div id="resultAudioListView" class="view-body"></div>`,
+                    btn: ['关闭'],
+                    yes: function(){
+                        layui.layer.close(dialogIndex)
+                    }
+                });
+
+
+                dialog.loadData()
                 
             }
 
