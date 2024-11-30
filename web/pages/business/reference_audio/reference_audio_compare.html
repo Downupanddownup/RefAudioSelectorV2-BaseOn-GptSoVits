@@ -8,6 +8,7 @@
                 this.audioList = []
                 this.compareAudio = compareAudio
                 this.categoryList = []
+                this.currentStepIndex = 0
             }
             
             loadData() {
@@ -18,7 +19,6 @@
                     success: function(res){
                         if (res.code == 0) {
                             _this.categoryList = res.data ? res.data.map(item=>new C_ObjInferenceCategory(item)) : []
-                            _this.categoryList = _this.categoryList.filter(item=>item.name !== '无效')
                             _this.render()
                         } else {
                             layui.layer.msg(res.msg)
@@ -49,24 +49,67 @@
                     obj.find('#clearLimitScore').on('click', function(){
                         $('#' + _this.viewId + ' #limitScore').val('')
                     })
-                    
-                    obj.find('#changeCategory').on('click', function(){
-                        const targetCategory = $('#' + _this.viewId + ' #targetCategory').val()
-                        _this.changeCategory(targetCategory)
-                    })
+
+                    _this.initSteps()
                     
                 });
                 return _this
             }
 
-            changeCategory(targetCategory){
+            initSteps(){
                 const _this = this
-                if (_this.compareAudio == null) {
-                    layui.layer.alert('请先选择音频文件')
-                    return
-                }
+
+                const smartWizard = $('#' + _this.viewId + ' #smartwizard')
+
+                // SmartWizard initialize
+                smartWizard.smartWizard({
+                    selected: 0,
+                    theme: 'arrows',
+                    lang: { // Language variables for button
+                        next: '下一步',
+                        previous: '上一步'
+                    },
+                });
+
+                smartWizard.smartWizard("reset");
+
+                // Initialize the leaveStep event
+                smartWizard.on("leaveStep", function(e, anchorObject, currentStepIndex, nextStepIndex, stepDirection) {
+                    
+                    _this.currentStepIndex = currentStepIndex
+
+                    console.log('smartwizard', {
+                        anchorObject,
+                        currentStepIndex,
+                        nextStepIndex,
+                        stepDirection,
+                    })
+                    
+                    if (stepDirection === "forward") {
+                        if (_this.currentStepIndex == 0) {
+                            const compareCategory = $('#' + _this.viewId + ' #compareCategory').val()
+                            if (!compareCategory) {
+                                layui.layer.alert('请先选择比对分类')
+                                return false
+                            }
+                        } else if (_this.currentStepIndex == 1) {
+                            const limitScore = $('#' + _this.viewId + ' #limitScore').val()
+                            if (!limitScore) {
+                                layui.layer.alert('请先完成对比并输入分割值')
+                                return false
+                            }
+                        }
+                    }
+
+                    return true
+                });
+            }
+
+            submit(submitCallback){
+                const _this = this
+                const targetCategory = $('#' + _this.viewId + ' #targetCategory').val()
                 if (!targetCategory) {
-                    layui.layer.alert('请输入目标分类')
+                    layui.layer.alert('请输入新分类名')
                     return
                 }
                 const limitScore = $('#' + _this.viewId + ' #limitScore').val()
@@ -84,6 +127,11 @@
                     },
                     success: function(res){
                         layui.layer.msg(res.msg)
+                        if (res.code == 0) {
+                            if (submitCallback) {
+                                submitCallback()
+                            } 
+                        }
                     },
                     error: function(res, msg){
                         layui.layer.msg(msg)
@@ -159,50 +207,87 @@
     <table class="table1">
         <tr>
             <td class="vertical-center">
-
-                {{# if (d.compareAudio != null) { }}
-
                 待比较的音频：
                 <audio controls>
                     <source src="{{d.compareAudio.audioPath}}" type="audio/wav">
                     <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
                     您的浏览器不支持 HTML5 audio 标签。
                 </audio>
-
-                {{# } }}
-
             </td>
-            <td>
-                比对目录：
-                <select class="customSelect" id="compareCategory">
-                    {{# layui.each(d.categoryList, function(index,item){ }}
-                    <option value="{{item.name}}">{{item.name}}</option>
-                    {{# }) }}
-                </select>
-            </td>
-            <td>
-                <button type="submit" class="layui-btn" id="startCompareAudio">开始比对</button>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="3">
-                <button type="submit" class="layui-btn" id="openReportResult">打开报告结果</button>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <div style="display: flex">
-                    <input type="number" autocomplete="off" id="limitScore" placeholder="请输入待分割值" class="layui-input" style="width: auto;">
-                    <button type="submit" class="layui-btn" id="clearLimitScore">清空分割值</button>
-                </div>
-            </td>
-            <td>
-                <input type="text" autocomplete="on" id="targetCategory" placeholder="请输入目标分类名称" class="layui-input" style="width: auto;">
-            </td>
-            <td>
-                <button type="submit" class="layui-btn" id="changeCategory">将分割值及以上的音频转入目标分类</button>
-            </td>
-        </tr>
     </table>
+    
+    
+    <div id="smartwizard">
+        <ul class="nav">
+            <li class="nav-item">
+                <a class="nav-link" href="#step-1">
+                    <div class="num">1</div>
+                    选择分类
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#step-2">
+                    <span class="num">2</span>
+                    比对分割
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#step-3">
+                    <span class="num">3</span>
+                    新分类名
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content" >
+            <div id="step-1" class="tab-pane" role="tabpanel" aria-labelledby="step-1">
+                <table class="table1">
+                    <tr>
+                        <td>
+                            比对目录：
+                            <select class="customSelect" id="compareCategory">
+                                {{# layui.each(d.categoryList, function(index,item){ }}
+                                <option value="{{item.name}}">{{item.name}}</option>
+                                {{# }) }}
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div id="step-2" class="tab-pane" role="tabpanel" aria-labelledby="step-2">
+                <table class="table1">
+                    <tr>
+                        <td>
+                            <button type="submit" class="layui-btn" id="startCompareAudio">开始比对</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <button type="submit" class="layui-btn" id="openReportResult">打开报告结果</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div style="display: flex;justify-content: center">
+                                <input type="number" autocomplete="off" id="limitScore" placeholder="请输入待分割值" class="layui-input" style="width: auto;">
+                                <button type="submit" class="layui-btn" id="clearLimitScore">清空分割值</button>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div id="step-3" class="tab-pane" role="tabpanel" aria-labelledby="step-3">
+                <table class="table1">
+                    <tr>
+                        <td>
+                            <input type="text" autocomplete="on" id="targetCategory" placeholder="请输入目标分类名称" class="layui-input" style="width: auto;">
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+    </div>
+    
 
 </script>

@@ -380,17 +380,19 @@
                 const _this = this
                 console.log(id)
                 _this.compareAudio = this.audioList.find(i => i.id == id)
-                
+
                 const compare = ReferenceAudioCompareSpace.getReferenceAudioCompare('audioCompareView', _this.compareAudio)
 
                 const index = layer.open({
                     type: 1,
-                    area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
+                    area: ['1000px', '800px'],
                     content: `<div id="audioCompareView"></div>`,
-                    btn: ['确定', '取消'],
+                    btn: ['确认', '关闭'],
                     yes: function(){
-                        refreshListData('referenceAudioList')
-                        layui.layer.close(index)
+                        compare.submit(() => {
+                            _this.loadData()
+                            layui.layer.close(index)
+                        })
                     }
                 });
 

@@ -8,7 +8,7 @@ class ReferenceCategoryService:
         exists = ReferenceCategoryService.exists_category_name(target_category)
         if exists > 0:
             return
-        if target_category == 'default' or target_category == '无效':
+        if target_category == 'default':
             return
         ReferenceCategoryDao.insert_category(ObjInferenceCategory(name=target_category))
 
