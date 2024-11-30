@@ -164,7 +164,7 @@
                 const dialogId = layer.open({
                     type: 1,
                     area: [SysConfig.defaultDialogWidth, SysConfig.defaultDialogHeight],
-                    content: `<div id="longTextDealWithView"></div>`,
+                    content: `<div id="longTextDealWithView" class="view-body"></div>`,
                     btn: ['关闭'],
                     yes: function(){
                         layui.layer.close(dialogId)
