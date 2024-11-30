@@ -334,7 +334,7 @@ class C_ObjReferenceAudioCompareTask {
         data = data || {};
         this.id = data.id ? data.id : 0;// 自增编号
         this.audioId = data.audioId || 0;// 音频id
-        this.categoryName = data.categoryName || '';// 比对目录名称
+        this.categoryNames = data.categoryNames || '';// 比对目录名称
         this.status = data.status || 0;// 任务状态：0 待执行 1 执行中 2 已完成 3 失败
         this.remark = data.remark || '';// 备注
         this.createTime = data.createTime ? new Date(data.createTime) : null;// 创建时间,

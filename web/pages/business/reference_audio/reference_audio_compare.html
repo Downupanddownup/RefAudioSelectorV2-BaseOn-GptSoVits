@@ -62,6 +62,13 @@
 
                 const _this = this
 
+                xmSelect.render({
+                    el: `#${_this.viewId} #compareCategory`,
+                    data:_this.categoryList.map(category => {
+                        return {name: category.name, value: category.name}
+                    })
+                })
+
                 createXmSelect('#' + _this.viewId + ' #targetCategory', _this.categoryList.map(category => {
                     return {
                         name: category.name,
@@ -104,10 +111,10 @@
                     
                     if (stepDirection === "forward") {
                         if (_this.currentStepIndex == 0) {
-                            const compareCategory = $('#' + _this.viewId + ' #compareCategory').val()
-                            if (!compareCategory) {
+                            const compareCategories = xmSelect.get('#'+_this.viewId+' #compareCategory', true).getValue('value')
+                            if (compareCategories.length === 0) {
                                 layui.layer.alert('请先选择比对分类')
-                                return false
+                                return
                             }
                         } else if (_this.currentStepIndex == 1) {
                             const limitScore = $('#' + _this.viewId + ' #limitScore').val()
@@ -161,8 +168,8 @@
                     layui.layer.alert('请先选择音频文件')
                     return
                 }
-                const compareCategory = $('#' + _this.viewId + ' #compareCategory').val()
-                if (!compareCategory) {
+                const compareCategories = xmSelect.get('#'+_this.viewId+' #compareCategory', true).getValue('value')
+                if (compareCategories.length === 0) {
                     layui.layer.alert('请先选择比对分类')
                     return
                 }
@@ -171,7 +178,7 @@
                     type: 'post',
                     data: {
                         audioId: _this.compareAudio.id,
-                        categoryName:compareCategory
+                        categoryNames:compareCategories.map(item => `'${item}'`).join(','),
                     },
                     success: function(res){
                         layer.msg(res.msg)
@@ -259,13 +266,8 @@
             <div id="step-1" class="tab-pane" role="tabpanel" aria-labelledby="step-1" style="height: 300px">
                 <table class="table1">
                     <tr>
-                        <td>
-                            比对目录：
-                            <select class="customSelect" id="compareCategory">
-                                {{# layui.each(d.categoryList, function(index,item){ }}
-                                <option value="{{item.name}}">{{item.name}}</option>
-                                {{# }) }}
-                            </select>
+                        <td style="display: flex;justify-content: center">
+                            <div id="compareCategory" style="width: 200px"></div>
                         </td>
                     </tr>
                 </table>

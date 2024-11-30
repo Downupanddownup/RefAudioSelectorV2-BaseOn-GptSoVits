@@ -7,11 +7,11 @@ class ReferenceAudioCompareDao:
     @staticmethod
     def insert_task(task: ObjReferenceAudioCompareTask) -> int:
         sql = '''
-            INSERT INTO tab_obj_reference_audio_compare_task(AudioId,CategoryName,Status,Remark,CreateTime) VALUES (?,?,?,?,datetime('now'))
+            INSERT INTO tab_obj_reference_audio_compare_task(AudioId,CategoryNames,Status,Remark,CreateTime) VALUES (?,?,?,?,datetime('now'))
             '''
         return DBSlaveSQLExecutor.insert(sql, (
             task.audio_id,
-            task.category_name,
+            task.category_names,
             task.status,
             task.remark
         ))
@@ -31,7 +31,7 @@ class ReferenceAudioCompareDao:
             task_list.append(ObjReferenceAudioCompareTask(
                 id=data.get('Id'),
                 audio_id=data.get('AudioId'),
-                category_name=data.get('CategoryName'),
+                category_names=data.get('CategoryNames'),
                 status=data.get('Status'),
                 remark=data.get('Remark'),
                 create_time=data.get('CreateTime')
@@ -76,7 +76,7 @@ class ReferenceAudioCompareDao:
             task_list.append(ObjReferenceAudioCompareTask(
                 id=data.get('Id'),
                 audio_id=data.get('AudioId'),
-                category_name=data.get('CategoryName'),
+                category_names=data.get('CategoryNames'),
                 status=data.get('Status'),
                 remark=data.get('Remark'),
                 create_time=data.get('CreateTime')

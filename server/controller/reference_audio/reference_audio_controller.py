@@ -121,16 +121,16 @@ async def get_audio_category_list(request: Request):
 async def start_compare_audio(request: Request):
     form_data = await request.form()
     audio_id = form_data.get('audioId')
-    category_name = form_data.get('categoryName')
+    category_names = form_data.get('categoryNames')
 
-    if ValidationUtils.is_empty(audio_id) or ValidationUtils.is_empty(category_name):
+    if ValidationUtils.is_empty(audio_id) or ValidationUtils.is_empty(category_names):
         return ResponseResult(code=1, msg='参数错误')
 
     global p_similarity
     if p_similarity is not None:
         return ResponseResult(code=1, msg='正在比较音频，请稍后再试')
 
-    task = ObjReferenceAudioCompareTask(audio_id=audio_id, category_name=category_name)
+    task = ObjReferenceAudioCompareTask(audio_id=audio_id, category_names=category_names)
     task_id = ReferenceAudioCompareService.insert_task(task)
 
     cmd = f'"{python_exec}" server/tool/speaker_verification/voice_similarity.py '

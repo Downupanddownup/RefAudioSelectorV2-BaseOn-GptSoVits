@@ -19,8 +19,7 @@
                     },
                     success: function (data) {
                         if (data.code == 0) {
-                            const list = data.data ? data.data.map(i => new C_ObjReferenceAudioCompareDetail(i)) : []
-                            _this.compareAudioDetailList = list
+                            _this.compareAudioDetailList = data.data ? data.data.map(i => new C_ObjReferenceAudioCompareDetail(i)) : []
                             _this.render()
                         } else {
                             layui.layer.msg(data.msg)

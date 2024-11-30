@@ -102,7 +102,7 @@ def init_slave_table(db_path):
         CREATE TABLE IF NOT EXISTS tab_obj_reference_audio_compare_task (
             Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, -- SQLite使用INTEGER PRIMARY KEY AUTOINCREMENT
             AudioId INTEGER, -- MySQL的int(11)在SQLite中可以简单地用INTEGER表示
-            CategoryName TEXT, -- MySQL的varchar在SQLite中可以用TEXT表示
+            CategoryNames TEXT, -- MySQL的varchar在SQLite中可以用TEXT表示
             Status INTEGER, -- 任务状态：0 待执行 1 执行中 2 已完成 3 失败
             Remark TEXT, -- 备注
             CreateTime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP -- SQLite支持CURRENT_TIMESTAMP

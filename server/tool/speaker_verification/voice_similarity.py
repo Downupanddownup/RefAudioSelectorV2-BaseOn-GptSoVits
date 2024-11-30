@@ -32,11 +32,11 @@ def compare_audio_and_generate_report(task_id: int):
         return
 
     compare_audio_list = ReferenceAudioService.find_list(ObjReferenceAudioFilter({
-        'category': task.category_name
+        'categories': task.category_names
     }))
 
     if len(compare_audio_list) == 0:
-        log_config.logger.error(f'category:{task.category_name} not found')
+        log_config.logger.error(f'category:{task.category_names} not found')
         ReferenceAudioCompareService.update_task_to_fail(task_id)
         return
 

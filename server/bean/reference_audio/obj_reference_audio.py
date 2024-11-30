@@ -43,6 +43,7 @@ class ObjReferenceAudioFilter(Filter):
         self.audio_name = form_data.get('audio_name')
         self.content = form_data.get('content')
         self.category = form_data.get('category')
+        self.categories = form_data.get('categories')
         self.valid = str_to_int(form_data.get('valid'),0)
         self.language = form_data.get('language')
         self.category_list_str = form_data.get('category_list_str')
@@ -64,6 +65,8 @@ class ObjReferenceAudioFilter(Filter):
         if not ValidationUtils.is_empty(self.category):
             sql += f" and category = ? "
             condition.append(f"{self.category}")
+        if not ValidationUtils.is_empty(self.categories):
+            sql += f" and category in ({self.categories}) "
         if self.valid == 1:
             sql += f" and valid_or_not = 1 "
         if not ValidationUtils.is_empty(self.category_list_str):
