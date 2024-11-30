@@ -93,6 +93,7 @@ function createXmSelect(el, dataList, callback) {
         radio: true,
         clickClose: true,
         filterable: true,
+        height: 'auto',
         create: function(val, arr){
             if(arr.length === 0){
                 return {

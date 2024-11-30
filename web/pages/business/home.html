@@ -63,6 +63,9 @@
 
             switchTab(tab, params) {
                 const _this = this
+
+                params = params || {}
+                
                 $('button[data-tab]').removeClass('active')
                 $('button[data-tab='+tab+']').addClass('active')
                 

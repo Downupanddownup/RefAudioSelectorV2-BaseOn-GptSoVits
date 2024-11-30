@@ -9,6 +9,7 @@
                 this.compareAudio = compareAudio
                 this.categoryList = []
                 this.currentStepIndex = 0
+                this.targetCategory = null
             }
             
             loadData() {
@@ -51,9 +52,25 @@
                     })
 
                     _this.initSteps()
+                    _this.initSelect()
                     
                 });
                 return _this
+            }
+
+            initSelect(){
+
+                const _this = this
+
+                createXmSelect('#' + _this.viewId + ' #targetCategory', _this.categoryList.map(category => {
+                    return {
+                        name: category.name,
+                        selected: false
+                    }
+                }), data => {
+                    _this.targetCategory = data.arr[0].value
+                })
+
             }
 
             initSteps(){
@@ -107,8 +124,7 @@
 
             submit(submitCallback){
                 const _this = this
-                const targetCategory = $('#' + _this.viewId + ' #targetCategory').val()
-                if (!targetCategory) {
+                if (!_this.targetCategory) {
                     layui.layer.alert('请输入新分类名')
                     return
                 }
@@ -123,7 +139,7 @@
                     data: {
                         audioId: _this.compareAudio.id,
                         limitScore: limitScore,
-                        targetCategory:targetCategory
+                        targetCategory:_this.targetCategory
                     },
                     success: function(res){
                         layui.layer.msg(res.msg)
@@ -217,7 +233,7 @@
     </table>
     
     
-    <div id="smartwizard">
+    <div id="smartwizard" class="view-fill-height">
         <ul class="nav">
             <li class="nav-item">
                 <a class="nav-link" href="#step-1">
@@ -240,7 +256,7 @@
         </ul>
 
         <div class="tab-content" >
-            <div id="step-1" class="tab-pane" role="tabpanel" aria-labelledby="step-1">
+            <div id="step-1" class="tab-pane" role="tabpanel" aria-labelledby="step-1" style="height: 300px">
                 <table class="table1">
                     <tr>
                         <td>
@@ -254,7 +270,7 @@
                     </tr>
                 </table>
             </div>
-            <div id="step-2" class="tab-pane" role="tabpanel" aria-labelledby="step-2">
+            <div id="step-2" class="tab-pane" role="tabpanel" aria-labelledby="step-2" style="height: 300px">
                 <table class="table1">
                     <tr>
                         <td>
@@ -276,11 +292,11 @@
                     </tr>
                 </table>
             </div>
-            <div id="step-3" class="tab-pane" role="tabpanel" aria-labelledby="step-3">
+            <div id="step-3" class="tab-pane" role="tabpanel" aria-labelledby="step-3" style="height: 300px">
                 <table class="table1">
                     <tr>
-                        <td>
-                            <input type="text" autocomplete="on" id="targetCategory" placeholder="请输入目标分类名称" class="layui-input" style="width: auto;">
+                        <td style="display: flex;justify-content: center;height: ">
+                            <div id="targetCategory" style="width: 200px"></div>
                         </td>
                     </tr>
                 </table>
