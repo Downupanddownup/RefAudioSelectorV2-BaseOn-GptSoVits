@@ -238,7 +238,7 @@ class InferenceTaskDao:
     def get_task_audio_list(task_filter: ObjInferenceTaskAudioFilter) -> list[ObjInferenceTaskAudio]:
         # 查询所有记录的SQL语句
         select_sql = '''
-            SELECT * FROM tab_obj_inference_task_audio where 1 = 1
+            SELECT * FROM tab_obj_inference_task_audio ta where 1 = 1
             '''
         condition_sql, condition = task_filter.make_sql()
 

@@ -91,7 +91,7 @@ class ResultEvaluationService:
         return result_list
 
     @staticmethod
-    def find_one_by_id(result_audio_id: int):
+    def find_one_by_id(result_audio_id: int) -> ObjInferenceTaskResultAudio:
         if not result_audio_id:
             return None
         audio_filter = ObjInferenceTaskResultAudioFilter({"id": result_audio_id})

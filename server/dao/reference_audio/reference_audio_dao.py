@@ -144,39 +144,29 @@ class ReferenceAudioDao:
 
 
     @staticmethod
-    def update_audio_score_by_task_result_id(result_audio_id: int):
+    def update_audio_score_by_id(reference_audio_id: int):
         sql = f'''
-            UPDATE tab_obj_reference_audio a
-            SET a.Score = (
+            UPDATE tab_obj_reference_audio
+            SET Score = (
                 SELECT COALESCE(MAX(d.Score), 0)
                 FROM tab_obj_inference_task_audio c
                 INNER JOIN tab_obj_inference_task_result_audio d ON c.Id = d.AudioId
-                WHERE c.AudioId = a.Id AND d.Id = ?
+                WHERE c.AudioId = ?
             )
-            WHERE EXISTS (
-                SELECT 1
-                FROM tab_obj_inference_task_audio c
-                INNER JOIN tab_obj_inference_task_result_audio d ON c.Id = d.AudioId
-                WHERE c.AudioId = a.Id AND d.Id = ?
-            );
+            WHERE Id = ?
         '''
-        return DBSlaveSQLExecutor.execute_update(sql, (result_audio_id,result_audio_id))
+        return DBSlaveSQLExecutor.execute_update(sql, (reference_audio_id,reference_audio_id))
 
     @staticmethod
-    def update_audio_long_text_score_by_task_result_id(result_audio_id: int):
+    def update_audio_long_text_score_by_id(reference_audio_id: int):
         sql = f'''
-            UPDATE tab_obj_reference_audio a
-            SET a.LongTextScore = (
+            UPDATE tab_obj_reference_audio
+            SET LongTextScore = (
                 SELECT COALESCE(MAX(d.LongTextScore), 0)
                 FROM tab_obj_inference_task_audio c
                 INNER JOIN tab_obj_inference_task_result_audio d ON c.Id = d.AudioId
-                WHERE c.AudioId = a.Id AND d.Id = ?
+                WHERE c.AudioId = ?
             )
-            WHERE EXISTS (
-                SELECT 1
-                FROM tab_obj_inference_task_audio c
-                INNER JOIN tab_obj_inference_task_result_audio d ON c.Id = d.AudioId
-                WHERE c.AudioId = a.Id AND d.Id = ?
-            );
+            WHERE Id = ?
         '''
-        return DBSlaveSQLExecutor.execute_update(sql, (result_audio_id,result_audio_id))
+        return DBSlaveSQLExecutor.execute_update(sql, (reference_audio_id,reference_audio_id))

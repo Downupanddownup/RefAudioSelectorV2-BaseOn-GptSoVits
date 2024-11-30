@@ -6,8 +6,10 @@ from typing import Dict
 
 import librosa
 
+from server.bean.inference_task.obj_inference_task_audio import ObjInferenceTaskAudioFilter
 from server.bean.reference_audio.obj_reference_audio import ObjReferenceAudio, ObjReferenceAudioFilter
 from server.dao.data_base_manager import db_config
+from server.dao.inference_task.inference_task_dao import InferenceTaskDao
 from server.dao.reference_audio.reference_audio_dao import ReferenceAudioDao
 from server.common.log_config import logger
 from server.util.util import get_file_size, calculate_md5, zip_directory, write_text_to_file
@@ -179,11 +181,29 @@ class ReferenceAudioService:
 
     @staticmethod
     def update_audio_score_by_task_result_id(result_audio_id: int):
-        return ReferenceAudioDao.update_audio_score_by_task_result_id(result_audio_id)
+
+        task_audio_list = InferenceTaskDao.get_task_audio_list(ObjInferenceTaskAudioFilter({
+            'result_audio_id': result_audio_id
+        }))
+        
+        if len(task_audio_list) == 0:
+            return 0
+        reference_audio_id = task_audio_list[0].audio_id
+        
+        return ReferenceAudioDao.update_audio_score_by_id(reference_audio_id)
 
     @staticmethod
     def update_audio_long_text_score_by_task_result_id(result_audio_id: int):
-        return ReferenceAudioDao.update_audio_long_text_score_by_task_result_id(result_audio_id)
+
+        task_audio_list = InferenceTaskDao.get_task_audio_list(ObjInferenceTaskAudioFilter({
+            'result_audio_id': result_audio_id
+        }))
+
+        if len(task_audio_list) == 0:
+            return 0
+        reference_audio_id = task_audio_list[0].audio_id
+        
+        return ReferenceAudioDao.update_audio_long_text_score_by_id(reference_audio_id)
 
     @staticmethod
     def generate_audio_list_zip(audio_list: list[ObjReferenceAudio]):

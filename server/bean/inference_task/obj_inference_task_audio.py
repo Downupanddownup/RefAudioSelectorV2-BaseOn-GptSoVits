@@ -29,6 +29,7 @@ class ObjInferenceTaskAudioFilter(Filter):
         self.id = form_data.get('id')
         self.ids = form_data.get('ids')
         self.task_id = form_data.get('task_id')
+        self.result_audio_id = form_data.get('result_audio_id')
 
     def make_sql(self) -> []:
         sql = ''
@@ -43,5 +44,9 @@ class ObjInferenceTaskAudioFilter(Filter):
         if not ValidationUtils.is_empty(self.task_id):
             sql += f" and taskId = ? "
             condition.append(f"{self.task_id}")
+        
+        if not ValidationUtils.is_empty(self.result_audio_id):
+            sql += f" and exists (select 1 from tab_obj_inference_task_result_audio where AudioId = ta.Id and Id = ? ) "
+            condition.append(f"{self.result_audio_id}")
 
         return sql, tuple(condition)
