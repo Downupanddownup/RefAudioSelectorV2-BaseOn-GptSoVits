@@ -143,7 +143,7 @@
                     cols: [[
                         {field:'index', width:'5%', title: '序号', type: 'numbers'},
                         {field:'audioName', width:'10%', title: '音频名称', templet: function(d){
-                                return `<div data-audio-name="${d.id}" style="cursor: pointer">${d.audioName}</div>`;
+                                return `<div data-audio-name="${d.id}" class="highlight-on-hover">${d.audioName}</div>`;
                             }},
                         {field:'category', width:'8%', title: '音频分类', templet: function(d){
                                 
@@ -173,8 +173,16 @@
                                 </div>
                                 `
                             }},
+                        {field:'isManualCalib', width:'8%', title: '人工校准', templet: function(d){
+                                const checked = d.isManualCalib ? 'checked' : ''
+                                return `  <label class="custom-switch">
+                                            <input type="checkbox" ${checked} lay-ignore data-change-manuial-calib="${d.id}"/>
+                                            <span class="slider round"></span>
+                                          </label>`
+                            }},
                         {field:'language', width:'8%', title: '音频语种', templet: function(d){
-                                return SysConfig.languageList.find(i => i.code === d.language)?.name;
+                                const language = SysConfig.languageList.find(i => i.code === d.language)?.name;
+                                return `<div data-audio-language="${d.id}" class="highlight-on-hover">${language}</div>`;
                             }},
                         {field:'audioLength', width:'10%', title: '音频时长', sort: true, templet: function(d){
                                 return d.audioLength.toFixed(1);
@@ -210,6 +218,17 @@
 
                         $('#' + _this.viewId + ' div[data-audio-name]').on('click', function() {
                             const audioId = $(this).attr('data-audio-name')
+                            _this.audioList.forEach(i => {
+                                if (i.id == audioId) {
+                                    const audioElement = $('#' + _this.viewId + ' audio[data-audio="' + audioId + '"]')[0]
+                                    console.log('audioElement',audioElement)
+                                    audioController.dispatchClickEvent(audioElement)
+                                }
+                            })
+                        })
+
+                        $('#' + _this.viewId + ' div[data-audio-language]').on('click', function() {
+                            const audioId = $(this).attr('data-audio-language')
                             _this.audioList.forEach(i => {
                                 if (i.id == audioId) {
                                     const audioElement = $('#' + _this.viewId + ' audio[data-audio="' + audioId + '"]')[0]
@@ -266,6 +285,13 @@
                             const value = $(this).val()
                             _this.updateAudioCategory(id, value)
                         })
+
+                        $('#' + _this.viewId + ' input[data-change-manuial-calib]').on('change', function(){
+                            const id = $(this).attr('data-change-manuial-calib')
+                            const checked = $(this).is(':checked')
+                            const isManualCalib = checked ? 1 : 0
+                            _this.updateAudioIsManualCalib(id, isManualCalib)
+                        })
                         
                         _this.initScore()
 
@@ -294,6 +320,28 @@
                     });           
                 })
 
+            }
+
+            updateAudioIsManualCalib(audioId, isManualCalib) {
+                const _this = this
+                $.customAjax({
+                    url: BaseUrl+'audio/update_audio_is_manual_calib',
+                    type: 'post',
+                    data:{
+                        id: audioId,
+                        isManualCalib: isManualCalib
+                    },
+                    success: function(res){
+                        if (res.code == 0) {
+                            _this.audioList.find(i => i.id == audioId).isManualCalib = isManualCalib
+                        } else {
+                            layui.layer.msg(res.msg)
+                        }
+                    },
+                    error: function(res, msg){
+                        layui.layer.msg(msg)
+                    }
+                })
             }
 
             updateAudioCategory(audioId, category) {

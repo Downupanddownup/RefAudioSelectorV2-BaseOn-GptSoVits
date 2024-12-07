@@ -168,6 +168,10 @@ class ReferenceAudioService:
         return ReferenceAudioDao.update_audio_remark(audio_id, remark)
 
     @staticmethod
+    def update_audio_is_manual_calib(audio_id: int, is_manual_calib: int):
+        return ReferenceAudioDao.update_audio_is_manual_calib(audio_id, is_manual_calib)
+
+    @staticmethod
     def delete_reference_audio(audio_id: int):
         return ReferenceAudioDao.delete_reference_audio(audio_id)
 
@@ -261,3 +265,5 @@ class ReferenceAudioService:
                 audio = item
                 break
         return audio
+
+

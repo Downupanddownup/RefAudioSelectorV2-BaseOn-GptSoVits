@@ -123,6 +123,14 @@ class ReferenceAudioDao:
         return DBSlaveSQLExecutor.execute_update(sql, (remark, audio_id))
 
     @staticmethod
+    def update_audio_is_manual_calib(audio_id: int, is_manual_calib: int):
+        sql = f'''
+        UPDATE tab_obj_reference_audio SET IsManualCalib = ? WHERE Id = ?
+        '''
+        return DBSlaveSQLExecutor.execute_update(sql, (is_manual_calib, audio_id))
+
+
+    @staticmethod
     def delete_reference_audio(audio_id: int):
         sql = f'''
         DELETE FROM tab_obj_reference_audio WHERE Id = ?
@@ -131,7 +139,7 @@ class ReferenceAudioDao:
     @staticmethod
     def update_reference_audio(audio: ObjReferenceAudio) -> int:
         sql = f'''
-        UPDATE tab_obj_reference_audio SET AudioName=?,Content=?,Language=?,Category=?,Remark=? WHERE Id = ? 
+        UPDATE tab_obj_reference_audio SET AudioName=?,Content=?,Language=?,Category=?,Remark=?,IsManualCalib=? WHERE Id = ? 
         '''
         return DBSlaveSQLExecutor.execute_update(sql, (
             audio.audio_name,
@@ -139,6 +147,7 @@ class ReferenceAudioDao:
             audio.language,
             audio.category,
             audio.remark,
+            audio.is_manual_calib,
             audio.id
         ))
 

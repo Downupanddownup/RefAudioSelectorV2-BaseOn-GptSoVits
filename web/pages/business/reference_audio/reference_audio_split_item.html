@@ -69,6 +69,10 @@
           obj.find('#remark').on('blur',function(){
             _this.newAudio.remark = $(this).val()
           })
+
+          obj.find('#isManualCalib').on('blur',function(){
+            _this.newAudio.isManualCalib = $(this).is(':checked') ? 1 : 0
+          })
           
           createXmSelect('#' + _this.viewId + ' #category', _this.categoryList.map(category => {
             return {
@@ -206,6 +210,7 @@
         formData.append('content', _this.newAudio.content)
         formData.append('category', _this.newAudio.category)
         formData.append('remark', _this.newAudio.remark)
+        formData.append('isManualCalib', _this.newAudio.isManualCalib)
         try {
           const response = await fetch(BaseUrl+'audio/add_reference_audio', {
             method: 'POST',
@@ -312,8 +317,15 @@
               </td>
             </tr>
             <tr>
+              <td>是否人工校准：</td>
+              <td>
+                <label class="custom-switch">
+                  <input type="checkbox" id="isManualCalib" {{= d.newAudio.isManualCalib ? 'checked':'' }} lay-ignore/>
+                  <span class="slider round"></span>
+                </label>
+              </td>
               <td>音频备注：</td>
-              <td colspan="5">
+              <td colspan="3">
                 <textarea placeholder="音频内容" class="layui-textarea" id="remark">{{d.newAudio.remark}}</textarea>
               </td>
             </tr>

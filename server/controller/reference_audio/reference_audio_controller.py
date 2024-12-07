@@ -158,6 +158,7 @@ async def update_reference_audio(request: Request):
         language=form_data.get('language'),
         category=form_data.get('category'),
         remark=form_data.get('remark'),
+        is_manual_calib=form_data.get('isManualCalib'),
     )
 
     if audio.id < 1:
@@ -237,6 +238,21 @@ async def update_audio_remark(request: Request):
     if audio_id < 1:
         return ResponseResult(code=1, msg='参数错误')
     ReferenceAudioService.update_audio_remark(audio_id, remark)
+
+    return ResponseResult()
+
+
+@router.post("/update_audio_is_manual_calib")
+async def update_audio_is_manual_calib(request: Request):
+    form_data = await request.form()
+
+    audio_id = str_to_int(form_data.get('id'), 0)
+
+    is_manual_calib = form_data.get('isManualCalib')
+
+    if audio_id < 1:
+        return ResponseResult(code=1, msg='参数错误')
+    ReferenceAudioService.update_audio_is_manual_calib(audio_id, is_manual_calib)
 
     return ResponseResult()
 

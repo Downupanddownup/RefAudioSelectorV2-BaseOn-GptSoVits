@@ -171,6 +171,7 @@
                 }
 
                 _this.audio.remark = obj.find('#remark').val()
+                _this.audio.isManualCalib = obj.find('#isManualCalib').is(':checked') ? 1 : 0
                 
                 if (_this.audio.id > 0) {
                     $.customAjax({
@@ -183,6 +184,7 @@
                             language: _this.audio.language,
                             category: _this.audio.category,
                             remark: _this.audio.remark,
+                            isManualCalib: _this.audio.isManualCalib,
                         },
                         success: function (data) {
                             if (data.code == 0) {
@@ -222,6 +224,7 @@
                 formData.append('language', _this.audio.language)
                 formData.append('category', _this.audio.category)
                 formData.append('remark', _this.audio.remark)
+                formData.append('isManualCalib', _this.audio.isManualCalib)
 
                 fetch(BaseUrl + 'audio/add_reference_audio', {
                     method: 'POST',
@@ -322,6 +325,23 @@
             <td>音频内容：</td>
             <td colspan="5">
                 <textarea placeholder="音频内容" class="layui-textarea" id="content">{{d.audio.content}}</textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>是否人工校准：</td>
+            <td>
+                <label class="custom-switch">
+                    <input type="checkbox" id="isManualCalib" {{= d.audio.isManualCalib ? 'checked':'' }} lay-ignore/>
+                    <span class="slider round"></span>
+                </label>
+            </td>
+            <td>文件大小：</td>
+            <td>
+                {{formatFileSize(d.audio.fileSize)}}
+            </td>
+            <td>md5值：</td>
+            <td>
+                {{d.audio.md5Value}}
             </td>
         </tr>
     </table>
