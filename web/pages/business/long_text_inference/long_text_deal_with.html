@@ -35,6 +35,7 @@
                 this.subTexts = []
                 this.playAudioIndex = -1
                 this.audioId = 'playLongTextAudio'
+                this.C_ObjInferenceText$1 = null
             }
 
             setTextObj(C_ObjInferenceText$1){
@@ -45,6 +46,7 @@
                     this.subTexts = this.processText().map((item,index) => new C_TextItem(index, item, _this.textLanguage))
                     this.playAudioIndex = -1
                 }
+                this.C_ObjInferenceText$1 = C_ObjInferenceText$1
             }
             
             playAudio(obj, audioUrl, currentIndex, mediaType) {
@@ -94,7 +96,14 @@
                     currentIndex: _this.playAudioIndex,
                     audioStartCallback: index => {
                         obj.find('span[data-long-text-index]').removeClass('selected')
-                        obj.find('span[data-long-text-index='+index+']').addClass('selected')
+                        // 添加选中状态到指定索引的元素
+                        const selectedElement = obj.find('span[data-long-text-index=' + index + ']');
+                        selectedElement.addClass('selected');
+
+                        // 将选中的元素滚动到可滚动区域的中间
+                        selectedElement[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                        localStorage.setItem('text_'+_this.C_ObjInferenceText$1.id, index);
                         // 当前音频播放完成后，递增索引并播放下一个音频
                         console.log('音频开始播放：'+index);
                         _this.playAudioIndex = index;
@@ -284,7 +293,11 @@
                 const _this = this
                 const obj = $('#' + _this.viewId)
 
-                _this.setting.playAudio(obj, _this.url, 0, RasApiSpace.getInstance().mediaType)
+                let currentIndex = localStorage.getItem('text_'+_this.textObj.id);
+                
+                currentIndex = currentIndex ? parseInt(currentIndex) : 0;
+
+                _this.setting.playAudio(obj, _this.url, currentIndex, RasApiSpace.getInstance().mediaType)
             }
 
             // 定义一个函数来按顺序播放多个音频流
