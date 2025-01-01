@@ -76,6 +76,12 @@ class TTSPlayer {
         // 创建一个 Audio 元素
         const audioElement =  _this.audioElement;
 
+        // 如果已经存在 MediaSource，先关闭并清除
+        if (audioElement.src) {
+            URL.revokeObjectURL(audioElement.src); // 释放旧的 URL 对象
+            audioElement.src = ''; // 清空音频源
+        }
+
         // 创建 MediaSource 实例
         const mediaSource = new MediaSource();
         audioElement.src = URL.createObjectURL(mediaSource);
