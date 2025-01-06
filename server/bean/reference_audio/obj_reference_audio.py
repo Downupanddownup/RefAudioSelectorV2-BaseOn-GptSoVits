@@ -68,7 +68,7 @@ class ObjReferenceAudioFilter(Filter):
         if not ValidationUtils.is_empty(self.categories):
             sql += f" and category in ({self.categories}) "
         if self.valid == 1:
-            sql += f" and valid_or_not = 1 "
+            sql += f" and ValidOrNot = 1 "
         if not ValidationUtils.is_empty(self.category_list_str):
             sql += f" and category in ({self.category_list_str}) "
         if not ValidationUtils.is_empty(self.language):
