@@ -207,15 +207,23 @@ function initLayuiTable(listId, config) {
         initSortEvent(){
             const _this = this
             if (_this.isOpenSortByServer) {
+                console.log('开启服务端排序'+listId)
                 //排序
                 layui.table.on(`sort(${listId})`, function(obj){ //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
+                    
+                    console.log('排序', obj)
+                    
+                    const where = layui.table.getOptions(listId).where
 
                     _this.pageParams[_this.orderName] = obj.field;  //当前排序的字段名
                     _this.pageParams[_this.descName] = obj.type;   //当前排序类型：desc（降序）、asc（升序）、null（空对象，默认排序）
 
+                    where[_this.orderName] = obj.field;  //当前排序的字段名
+                    where[_this.descName] = obj.type;   //当前排序类型：desc（降序）、asc（升序）、null（空对象，默认排序）
+
                     layui.table.reload(listId, {
                         initSort: obj //记录初始排序，如果不设的话，将无法标记表头的排序状态。
-                        ,where: _this.pageParams
+                        ,where: where
                     });
 
                 });

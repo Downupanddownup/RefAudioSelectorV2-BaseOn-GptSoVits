@@ -47,7 +47,7 @@ async def get_inference_task_list(request: Request):
     if task_list is not None and len(task_list) > 0:
         for task in task_list:
             task.result_audio_count = ResultEvaluationService.find_count(ObjInferenceTaskResultAudioFilter({
-                'task_id': task.id
+                'taskId': task.id
             }))
 
     return ResponseResult(data=task_list, count=count)

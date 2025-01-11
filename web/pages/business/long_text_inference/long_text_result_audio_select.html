@@ -5,11 +5,31 @@
             constructor(viewId, audio) {
                 this.viewId = viewId
                 this.audioList = []
+                this.taskList = []
                 this.selectedAudio = new C_ObjInferenceTaskResultAudio(audio)
             }
 
             getSelectedAudio(){
                 return this.selectedAudio
+            }
+
+            loadData(){
+                const _this = this
+                $.customAjax({
+                    url: BaseUrl+'task/get_inference_task_list',
+                    type: 'post',
+                    success: function(res){
+                        if (res.code == 0) {
+                            _this.taskList = res.data ? res.data.map(i => new C_ObjInferenceTask(i)) : []
+                            _this.render()
+                        } else {
+                            layui.layer.msg(res.msg)
+                        }
+                    },
+                    error: function(res, msg){
+                        layui.layer.msg(msg)
+                    }
+                })
             }
 
             render() {
@@ -33,15 +53,9 @@
             getSearchParams(){
                 const _this = this
                 const obj = $('#'+_this.viewId)
-                const searchAudioName = obj.find('#searchAudioName').val()
-                const searchCategory = obj.find('#searchCategory').val()
-                const searchLanguage = obj.find('#searchLanguage').val()
-                const searchContent = obj.find('#searchContent').val()
+                const taskId = obj.find('#taskId').val()
                 return {
-                    audio_name: searchAudioName,
-                    category: searchCategory,
-                    language: searchLanguage,
-                    content: searchContent,
+                    taskId: taskId,
                 }
             }
 
@@ -249,7 +263,7 @@
 <script id="longTextResultAudioSelectTemplate" type="text/html">
     <table class="table3" id="audioListSearch">
         <tr>
-            <td>音频名称：</td>
+            <!--<td>音频名称：</td>
             <td><input type="text" autocomplete="off" id="searchAudioName" placeholder="音频名称" class="layui-input" style="width: auto;"></td>
             <td>音频分类：</td>
             <td><input type="text" autocomplete="off" id="searchCategory" placeholder="音频分类" class="layui-input" style="width: auto;"></td>
@@ -264,7 +278,16 @@
                 </select>
             </td>
             <td>音频内容：</td>
-            <td><input type="text" autocomplete="off" id="searchContent" placeholder="音频内容" class="layui-input" style="width: auto;"></td>
+            <td><input type="text" autocomplete="off" id="searchContent" placeholder="音频内容" class="layui-input" style="width: auto;"></td>-->
+            <td>选择任务：</td>
+            <td>
+                <select class="customSelect" id="taskId">
+                    <option value="0">请选择</option>
+                    {{# layui.each(d.taskList, function(index, item){ }}
+                    <option value="{{item.id}}">{{item.taskName}}</option>
+                    {{# }) }}
+                </select>
+            </td>
             <td colspan="2">
                 <button type="submit" class="layui-btn layui-btn-sm" id="searchAudio">搜索</button>
             </td>

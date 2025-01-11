@@ -316,7 +316,7 @@ class C_ObjInferenceTaskResultAudioFilter {
         this.includeSort = data.includeSort || 0;// 包含排序
         this.audioSort = data.audioSort || 'audioLength';// 音频排序
         this.audioUpDown = data.audioUpDown || 'desc';// 音频排序方式
-        this.visualization = data.visualization || 'close';// 音频可视化 close、 waveform, spectrogram, all
+        this.visualization = data.visualization || 'spectrogram';// 音频可视化 close、 waveform, spectrogram, all
     }
 }
 

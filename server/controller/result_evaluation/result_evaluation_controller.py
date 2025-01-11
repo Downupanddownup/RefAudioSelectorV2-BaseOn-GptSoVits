@@ -33,8 +33,10 @@ async def get_result_evaluation_list(request: Request):
     form_data = await request.form()
     audio_filter = ObjInferenceTaskResultAudioFilter(form_data)
 
+    audio_filter.status = 1
     count = ResultEvaluationService.find_count(audio_filter)
-    audio_list = ResultEvaluationService.find_whole_list(audio_filter)
+    # audio_list = ResultEvaluationService.find_whole_list(audio_filter)
+    audio_list = ResultEvaluationService.find_list2(audio_filter)
 
     return ResponseResult(data=audio_list, count=count)
 

@@ -152,7 +152,7 @@ class RasApiMonitor:
     def inference_audio_from_api_post(params: InferenceParams):
         url = f'{RasApiMonitor.get_api_service_url()}/ras'
         json_data = json.dumps(params.to_dict())
-        print(json_data)
+        logger.info(f"json_data: {json_data}")
         # 发起GET请求
         response = requests.post(url, data=json_data, headers={'Content-Type': 'application/json'}, stream=True)
 
