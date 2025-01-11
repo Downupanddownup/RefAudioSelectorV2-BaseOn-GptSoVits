@@ -368,19 +368,19 @@ def generate_audio_files_for_group(role: Role, task_result_audio_list: list[ObjI
 
                 task_result_audio.path = audio_file_path
 
+                # 直接计算音频文件的时长（单位：秒）
+                task_result_audio.audio_length = librosa.get_duration(filename=task_result_audio.path)
+
+                ResultEvaluationService.batch_update_task_result_audio_status_file_length([task_result_audio])
+
+
             except Exception as e:
                 task_result_audio.status = 0
+                ResultEvaluationService.batch_update_task_result_audio_status_file_length([task_result_audio])
                 logger.error(f"生成音频文件失败: {e}")
 
             has_generated_count += 1
             logger.info(f"进程ID: {os.getpid()}, 进度: {has_generated_count}/{all_count}")
-
-        for task_result_audio in task_result_audio_list:
-            if task_result_audio.status == 1:
-                # 直接计算音频文件的时长（单位：秒）
-                task_result_audio.audio_length = librosa.get_duration(filename=task_result_audio.path)
-
-        ResultEvaluationService.batch_update_task_result_audio_status_file_length(task_result_audio_list)
 
         end_time = time.perf_counter()  # 获取计时终点
         elapsed_time = end_time - start_time  # 计算执行耗时
