@@ -159,6 +159,15 @@
 
       }
 
+      async mergeSplitAudio() {
+        const _this = this
+        
+        const timeRanges = _this.regions.map(region => ({ start: region.start, end: region.end }))
+
+        _this.resultBlob = await mergeSlices(_this.blob, timeRanges)
+
+      }
+
       initWaveform(audioBlob){
         const _this = this
         
@@ -183,8 +192,11 @@
       
       check() {
         const _this = this
-        if (_this.resultBlob == null) {
+       /* if (_this.resultBlob == null) {
           throw '请先提取结果音频'
+        }*/
+        if (_this.regions.length < 1) {
+          throw '请先选择要合并的音频片段'
         }
         if (!_this.newAudio.audioName) {
           throw '请输入音频名称'
@@ -203,6 +215,7 @@
       async submit() {
         const _this = this
         _this.check()
+        await _this.mergeSplitAudio()
         const formData = new FormData()
         formData.append('file', _this.resultBlob)
         formData.append('audioName', _this.newAudio.audioName)
@@ -286,14 +299,14 @@
                 <div id="regionsDiv-{{d.viewId}}" class="container"></div>
               </td>
             </tr>
-            <tr>
+            <!--<tr>
               <td>
                 <button type="submit" class="layui-btn layui-btn-sm" id="splitAudio">提取音频</button>
               </td>
               <td colspan="5">
                 <div id="audioDiv"></div>
               </td>
-            </tr>
+            </tr>-->
             <tr>
               <td>音频名称：</td>
               <td><input type="text" autocomplete="off" id="audioName" value="{{d.newAudio.audioName}}-{{d.index}}" placeholder="音频名称" class="layui-input" style="width: auto;"></td>

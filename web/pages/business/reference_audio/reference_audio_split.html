@@ -95,7 +95,14 @@
         // 加载层
         const loadIndex = layui.layer.load(0);
         for (const item of _this.items) {
-          await item.submit()
+          try {
+            await item.submit()
+          } catch (error) {
+            console.log('submit',error)
+            layui.layer.alert(error ? error.message : '未知错误')
+            layui.layer.close(loadIndex)
+            return
+          }
         }
        
         if (successFun) {
