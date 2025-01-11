@@ -124,7 +124,8 @@
 
                     obj.find('#remark').on('blur', function() {
                         const value = $(this).val()
-                        _this.updateRemark(value)
+                        console.log('准备修改',value)
+                        _this.updateRemark(_this.C_ObjInferenceTaskResultAudio$1.id,value)
                     })
                     
                     _this.initScore()

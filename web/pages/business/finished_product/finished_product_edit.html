@@ -187,7 +187,7 @@
                             top_p:_this.product.topP,
                             temperature:_this.product.temperature,
                             speed:_this.product.speed,
-                            inp_refs:_this.product.taskInpRefsAudioList.map(r => r.audioPath),
+                            inp_refs:_this.product.sound_fusion_list.map(r => r.audioPath),
                         }, () => {
                             layui.layer.msg('参数设置成功')
                         })
