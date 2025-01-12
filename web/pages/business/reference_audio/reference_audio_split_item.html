@@ -83,6 +83,10 @@
             _this.newAudio.category = data.arr[0].value
           })
 
+          setTips(`div[id="waveform-${_this.viewId}"]`,'长按鼠标可选择切分区域')
+          setTips(`button[id="playRegions"]`,'点击可播放当前选择的所有切分区域构成的子音频')
+          
+
           
         });
         return _this
@@ -131,6 +135,9 @@
           _this.regions = _this.regions.filter(region => region.id !== regionId)
           _this.regionsDiv()
         })
+
+        setTips(`i[data-region-delete]`,'点击删除当前切分区域')
+        setTips(`div[id="regionsDiv-${_this.viewId}"] .item`,'长按可拖拽当前区域')
 
       }
 

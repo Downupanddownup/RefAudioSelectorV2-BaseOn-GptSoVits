@@ -53,6 +53,13 @@
 
                     _this.initSteps()
                     _this.initSelect()
+
+                    setTips(`div[id="compareCategory"]`,'选择需要对比的参考音频分类，可多选')
+                    setTips(`button[id="startCompareAudio"]`,'点击后，将执行音频相似度分析任务')
+                    setTips(`button[id="openReportResult"]`,'点击后，打开音频相似度对比结果列表')
+                    setTips(`input[id="limitScore"]`,'用于切分的分割值，在此值（含）以上的音频将转入新的分类中')
+                    setTips(`button[id="clearLimitScore"]`,'清空分割值')
+                    setTips(`div[id="targetCategory"]`,'新分类的名称，可以选择当前已有的，也支持创建新的分类')
                     
                 });
                 return _this
