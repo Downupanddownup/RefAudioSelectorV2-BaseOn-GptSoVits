@@ -137,6 +137,19 @@
                     setTips('div[id="longTextScore"]','对长文测试结果进行打分')
                     setTips('textarea[id="remark"]','对长文测试结果添加备注')
                     
+                    setTips('select[id="gsvVersion"]',SysConfig.tippyDesc.gptSovitsVersion)
+                    setTips('button[id="modelManager"]','打开模型管理目录，将GptSoVits微调得到的两类模型按照版本放入到此目录下')
+                    setTips('select[id="gptModel"]',SysConfig.tippyDesc.gptModelName)
+                    setTips('button[data-refresh-model]','点击后重新加载模型列表')
+                    setTips('select[id="vitsModel"]',SysConfig.tippyDesc.vitsModelName)
+                    setTips('input[id="topK"]',SysConfig.tippyDesc.topK)
+                    setTips('input[id="topP"]',SysConfig.tippyDesc.topP)
+                    setTips('input[id="temperature"]',SysConfig.tippyDesc.temperature)
+                    setTips('input[id="textDelimiter"]',SysConfig.tippyDesc.textDelimiter)
+                    setTips('input[id="speed"]',SysConfig.tippyDesc.speed)
+                    setTips('button[id="audioSelect"]','选择参考音频，可以影响模型推理的音色和语气效果')
+                    setTips('button[id="inpRefsAudioSelect"]',SysConfig.tippyDesc.inpRefsList)
+                    
                 });
                 return _this
             }
