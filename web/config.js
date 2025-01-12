@@ -47,6 +47,46 @@ const SysConfig = (function () {
         }
     ]
     
+    const kpt = `
+         <div style="color: yellow">以下内容说明来自官方文档：</div>
+         <a style="color: white" href="https://www.yuque.com/baicaigongchang1145haoyuangong/ib3g1e/xyyqrfwiu3e2bgyk" target="_blank">
+         关于top_p,top_k和temperature
+         这三个值都是用来控制采样的。在推理的时候要挑出一个最好的token，但机器并不知道哪个是最好的。于是先按照top_k挑出前几个token，top_p在top_k的基础上筛选token。最后temperature控制随机性输出。
+         比如总共有100个token，top_k设置5，top_p设置0.6，temperature设置为0.5。那么就会从100个token中先挑出5个概率最大的token，这五个token的概率分别是（0.3，0.3，0.2，0.2，0.1），那么再挑出累加概率不超过0.6的token（0.3和0.3），
+         再从这两个token中随机挑出一个token输出，其中前一个token被挑选到的几率更大。以此类推
+        </a>
+    `
+    
+    const temperature = `
+    <div style="color: yellow">以下内容说明来自deepseek：</div>
+    <div style="color: white">temperature 控制生成随机性：0-1 更确定，1 为默认，1+ 更随机。</div>
+    ${kpt}
+    `
+    
+    const topK = `
+    <div style="color: yellow">以下内容说明来自deepseek：</div>
+    <div style="color: white">topK 控制候选词数量：按概率排序，仅从最高 K 个词中采样，K 越小输出越集中，K 越大输出越多样。</div>
+    ${kpt}
+    `
+    
+    const topP = `
+    <div style="color: yellow">以下内容说明来自deepseek：</div>
+    <div style="color: white">topP（核采样）控制候选词范围：按概率排序，仅从累积概率超过 P 的最高概率词中采样（P 取值范围 0-1），P 越小输出越集中，P 越大输出越多样。</div>
+    ${kpt}
+    `
+    
+    const tippyDesc = {
+        'gptSovitsVersion': 'GptSoVits模型版本',
+        'gptModelName': 'Gpt模型名称',
+        'vitsModelName': 'SoVits模型名称',
+        'topK': topK,
+        'topP': topP,
+        'temperature': temperature,
+        'textDelimiter': '文本分隔符，GptSoVits模型不适合一次性推理长文本，设置此参数可将推送文本在api服务端进行二次切分',
+        'speed': '设置音频语速，1为默认',
+        'inpRefsList': '融合音频',
+     }
+    
     const defaultGptSovitsVersion = 'v2'
     const defaultTopK = 12
     const defaultTopP = 0.6
@@ -58,6 +98,7 @@ const SysConfig = (function () {
     const defaultDialogHeight = '95%'
     
     return {
+        tippyDesc: tippyDesc,
         languageList: languageList,
         defaultGptSovitsVersion: defaultGptSovitsVersion,
         defaultTopK: defaultTopK,

@@ -223,6 +223,39 @@
           obj.find('button[data-refresh-model]').on('click', function() {
             _this.reloadModelList()
           })
+
+          setTips('input[id="taskName"]','设置此对比任务名称')
+          setTips('select[id="compareType"]','选择需要对比的GptSoVits模型参数类型')
+          setTips('div[id="audioCategory"]','选择需要参与对比的参考音频分类，选择后此类别下的所有3-10s内的参考音频将参与推理')
+          setTips('button[data-add]','添加新的参数对比组')
+          setTips('button[data-delete]','删除当前对比组')
+          
+          setTips('select[data-params-gsv-version]',SysConfig.tippyDesc.gptSovitsVersion)
+          setTips('select[data-params-gpt-model]',SysConfig.tippyDesc.gptModelName)
+          setTips('select[data-params-vits-model]',SysConfig.tippyDesc.vitsModelName)
+          setTips('input[data-params-top-k]',SysConfig.tippyDesc.topK)
+          setTips('input[data-params-top-p]',SysConfig.tippyDesc.topP)
+          setTips('input[data-params-temperature]',SysConfig.tippyDesc.temperature)
+          setTips('input[data-params-speed]',SysConfig.tippyDesc.speed)
+          setTips('input[data-params-text-delimiter]',SysConfig.tippyDesc.textDelimiter)
+          setTips('button[data-inp-refs-audio-select]',SysConfig.tippyDesc.inpRefsList)
+          
+          
+
+          setTips('select[id="gsvVersion"]',SysConfig.tippyDesc.gptSovitsVersion)
+          setTips('button[id="modelManager"]','打开模型管理目录，将GptSoVits微调得到的两类模型按照版本放入到此目录下')
+          setTips('select[id="gptModel"]',SysConfig.tippyDesc.gptModelName)
+          setTips('button[data-refresh-model]','点击后重新加载模型列表')
+          setTips('select[id="vitsModel"]',SysConfig.tippyDesc.vitsModelName)
+          setTips('input[id="topK"]',SysConfig.tippyDesc.topK)
+          setTips('input[id="topP"]',SysConfig.tippyDesc.topP)
+          setTips('input[id="temperature"]',SysConfig.tippyDesc.temperature)
+          setTips('input[id="textDelimiter"]',SysConfig.tippyDesc.textDelimiter)
+          setTips('input[id="speed"]',SysConfig.tippyDesc.speed)
+
+          setTips('button[id="audioSelect"]','选择需要参与推理的参考音频')
+          setTips('button[id="inpRefsAudioSelect"]',SysConfig.tippyDesc.inpRefsList)
+          setTips('button[id="textManager"]','选择需要推理的文本')
           
         });
       }
