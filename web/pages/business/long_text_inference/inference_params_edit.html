@@ -129,6 +129,13 @@
                     })
                     
                     _this.initScore()
+
+                    setTips('button[id="resultAudioSelect"]','从推理结果音频中，选择需要进行长文测试的音频')
+                    setTips('button[id="setInferenceParams"]','点击后，如果未启动api服务，会将其启动，并将当前页面的推理参数，设置到api服务中')
+                    setTips('button[id="startInference"]','打开长文推理界面')
+                    setTips('button[id="joinProduct"]','对于满意的参数组合，可以加入成品管理')
+                    setTips('div[id="longTextScore"]','对长文测试结果进行打分')
+                    setTips('textarea[id="remark"]','对长文测试结果添加备注')
                     
                 });
                 return _this

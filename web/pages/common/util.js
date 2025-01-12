@@ -154,6 +154,9 @@ function setTips(el, content) {
         inertia: true,
         arrow: true,
         theme: 'material',
+        zIndex: 9999999999,
+        // showOnCreate: true,
+        appendTo: document.body,
         // delay: [500, 200]
     });
 }
@@ -162,7 +165,7 @@ function refreshListData(listId){
     // 数据重载 - 仅与数据相关的属性(options)能参与到重载中
     layui.table.reloadData(listId, {
         // where: {}, // 数据异步请求时携带的字段集 --- 属性设置有效，因属于数据相关属性
-        scrollPos: true, // 设定重载数据或切换分页时的滚动条的位置状态 --- 属性设置有效
+        scrollPos: 'fixed', // 设定重载数据或切换分页时的滚动条的位置状态 --- 属性设置有效
     });
 }
 
@@ -170,7 +173,7 @@ function reloadListDataBySearchParams(listId,params){
     // 数据重载 - 仅与数据相关的属性(options)能参与到重载中
     layui.table.reloadData(listId, {
         where: params, // 数据异步请求时携带的字段集 --- 属性设置有效，因属于数据相关属性
-        scrollPos: true, // 设定重载数据或切换分页时的滚动条的位置状态 --- 属性设置有效
+        scrollPos: 'fixed', // 设定重载数据或切换分页时的滚动条的位置状态 --- 属性设置有效
     });
 }
 
@@ -224,6 +227,7 @@ function initLayuiTable(listId, config) {
                     layui.table.reload(listId, {
                         initSort: obj //记录初始排序，如果不设的话，将无法标记表头的排序状态。
                         ,where: where
+                        ,scrollPos: 'fixed', // 设定重载数据或切换分页时的滚动条的位置状态 --- 属性设置有效
                     });
 
                 });

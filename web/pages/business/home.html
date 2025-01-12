@@ -31,6 +31,17 @@
                     _this.loadRoleName()
                     
                     _this.checkApiStatus()
+
+                    setTips('button[data-tab="1"]','参考音频管理界面')
+                    setTips('button[data-tab="2"]','基于各类GptSoVits参数，执行推理效果对比')
+                    setTips('button[data-tab="3"]','测试推理结果音频的效果，并打分')
+                    setTips('button[data-tab="4"]','以结果评测为基础，执行长文效果测试，并打分')
+                    setTips('button[data-tab="5"]','长文测试效果不错的参数组合，可以加入成品，支持导出')
+                    setTips('button[id="rasApiStatus"]','用于启动或关闭GptSoVits的api服务')
+                    setTips('button[id="rasApiSetting"]','点击可查看api接口地址和当前推理模式')
+                    setTips('button[id="rasApiSetting"]','点击可查看api接口地址和当前推理模式')
+                    setTips('button[id="aboutProject"]','显示此项目信息')
+                    setTips('div[id="roleList"]','切换或创建角色，创建角色时，使用【分类-名称】的格式编写，并选择下方分类即可创建')
                 });
                 return _this
             }
@@ -379,7 +390,7 @@
                 <div class="info-button">
                     <div id="roleList" style="width: 150px;color: #333"></div>
                 </div>
-                <button type="button" class="layui-btn layui-btn-sm layui-bg-blue">关于</button>
+                <button type="button" class="layui-btn layui-btn-sm layui-bg-blue" id="aboutProject">关于</button>
             </div>
         </div>
         <div id="tabContentView"></div>

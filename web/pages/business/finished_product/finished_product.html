@@ -359,6 +359,24 @@
                             _this.openDownloadOneDialog(HomePage.currentRole.name + '-' + product.name, id)
                         })
 
+                        setTips('input[id="searchAudioName"]','基于成品名称搜索')
+                        setTips('input[id="searchCategory"]','音频名称')
+                        setTips('button[id="searchProduct"]','基于当前条件执行搜索')
+                        setTips('button[id="addProduct"]','添加新的成品')
+                        setTips('button[id="batchDownload"]','批量导出选中的成品')
+
+                        setTips('th[data-field="index"] span','排列序号')
+                        setTips('th[data-field="name"] span','成品名称')
+                        setTips('th[data-field="category"] span','成品分类')
+                        setTips('th[data-field="gptSovitsVersion"] span','GptSoVits版本类别')
+                        setTips('th[data-field="audioPlay"] span','参考音频')
+                        setTips('th[data-field="sound_fusion_list_length"] span','添加融合音频的数量')
+                        setTips('th[data-field="gptModelName"] span','Gpt模型名称')
+                        setTips('th[data-field="vitsModelName"] span','SoVits模型名称')
+
+                        setTips('button[data-go-to-edit]','编辑成品')
+                        setTips('button[data-go-to-download]','导出成品')
+
                     },
                     error: function(res, msg){
                         console.log(res, msg)
@@ -391,7 +409,7 @@
             <td colspan="2">
                 <button type="submit" class="layui-btn layui-btn-sm" id="searchProduct">搜索</button>
                 <button type="submit" class="layui-btn layui-btn-sm" id="addProduct">新增</button>
-                <button type="submit" class="layui-btn layui-btn-sm" id="productTTS">推理</button>
+<!--                <button type="submit" class="layui-btn layui-btn-sm" id="productTTS">推理</button>-->
                 <button type="submit" class="layui-btn layui-btn-sm" id="batchDownload">导出</button>
             </td>
         </tr>

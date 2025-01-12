@@ -295,6 +295,33 @@
                         
                         _this.initScore()
 
+                        setTips('input[id="searchAudioName"]','基于音频名称，模糊搜索，可回车触发')
+                        setTips('select[id="searchCategory"]','可选择音频分类')
+                        setTips('input[id="searchContent"]','基于音频文本内容，模糊搜索，可回车触发')
+                        setTips('button[id="searchAudio"]','点击执行搜索')
+                        setTips('button[id="addAudio"]','添加一条新的参考音频')
+                        setTips('button[id="importAudio"]','基于GptSoVits的list文件，批量导入音频')
+                        setTips('button[id="exportAudio"]','基于当前查询的音频结果，导出音频，注意，list路径只包含了相对路径，需要手动更改')
+                        setTips('button[id="soundFusionManager"]','打开融合音频管理界面')
+                        setTips('button[id="addCategory"]','添加新的参考音频分类')
+
+                        setTips('th[data-field="index"] span','排列编号')
+                        setTips('th[data-field="audioName"] span','导入系统时，音频文件的名称')
+                        setTips('th[data-field="category"] span','音频分类，用于后续筛选音频')
+                        setTips('th[data-field="audioPlay"] span','单击音频名称，或播放按钮，可播放音频')
+                        setTips('th[data-field="content"] span','音频对应的文字内容，可以直接修改')
+                        setTips('th[data-field="isManualCalib"] span','文本内容是AI提取，还是已经经过人工确认')
+                        setTips('th[data-field="language"] span','基于gsv设定支持的类型设置，初始导入时，取list中语种字段')
+                        setTips('th[data-field="audioLength"] span','音频时长，单位秒')
+                        setTips('th[data-field="score"] span','在结果评测tab下，设置的此参考音频中分值最高的评分')
+                        setTips('th[data-field="longTextScore"] span','在长文测试tab下，设置的此参考音频中分值最高的评分')
+                        setTips('th[data-field="remark"] span','参考音频备注，可直接修改')
+                        setTips('button[data-go-to-edit]','可直接修改音频')
+                        setTips('button[data-go-to-compare]','可基于此参考音频，执行音频相似度分析，进而分类')
+                        setTips('button[data-go-to-split]','可基于此参考音频，执行切分，获得子音频，不会修改此音频')
+                        setTips('button[data-go-to-result]','可查询基于此参考音频生产的推理任务结果音频')
+                        setTips('button[data-go-to-delete]','删除此参考音频，无法恢复')
+
                     },
                     error: function(res, msg){
                         console.log(res, msg)
@@ -792,7 +819,7 @@
                 </select>
             </td>
             <td>音频内容：</td>
-            <td><input type="text" autocomplete="off" id="searchContent" placeholder="音频内容" class="layui-input" style="width: auto;"></td>
+            <td><input type="text" autocomplete="off" id="searchContent" placeholder="音频内容，回车搜索" class="layui-input" style="width: auto;"></td>
             <td colspan="2">
                 <button type="submit" class="layui-btn layui-btn-sm" id="searchAudio">搜索</button>
                 <button type="submit" class="layui-btn layui-btn-sm" id="addAudio">新增</button>

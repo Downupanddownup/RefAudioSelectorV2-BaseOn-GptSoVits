@@ -151,7 +151,7 @@
                                 }
                                 return '否'
                             }},
-                        {field:'conclusion', width:'10%', title: '备注', templet: function(d){
+                        {field:'conclusion', width:'10%', title: '结论', templet: function(d){
                                 return `
                                 <div class="view-body">
                                   <input value="${d.conclusion}" class="layui-input" data-conclusion-id="${d.id}">
@@ -169,7 +169,7 @@
                                     html.push(`<button type="button" class="layui-btn layui-btn-sm" data-task-go-to-result="${d.id}">结果评测</button>`)
                                 } else {
                                     html.push(`<button type="button" class="layui-btn layui-btn-sm" data-task-start-inference="${d.id}">开始执行</button>`)
-                                    html.push(`<button type="button" class="layui-btn layui-btn-sm" data-task-start-analysis="${d.id}">分析结果</button>`)
+                                    html.push(`<button type="button" class="layui-btn layui-btn-sm" data-task-start-analysis="${d.id}">结果分析</button>`)
                                 }
                                 html.push(`<button type="button" class="layui-btn layui-btn-sm" data-task-result-audio="${d.id}">结果</button>`)
                                 return html.join(' ');
@@ -221,6 +221,30 @@
                             const taskId = $(this).attr('data-task-result-audio')
                             _this.lookTaskResultAudioList(taskId)
                         })
+
+
+                        setTips('input[id="searchTaskName"]','任务名称，模糊搜索')
+                        setTips('select[id="searchCompareType"]','对比的GptSoVits参数类型')
+                        setTips('select[id="searchInferenceStatus"]','推理任务的执行状态')
+                        setTips('button[id="searchTask"]','点击按当前条件搜索任务')
+                        setTips('button[id="createInferenceTask"]','创建参数对比任务')
+                        setTips('button[id="modelManager"]','点击打开GptSoVits模型管理目录')
+
+                        setTips('th[data-field="index"] span','排列编号')
+                        setTips('th[data-field="taskName"] span','对比任务名称')
+                        setTips('th[data-field="compareType"] span','对比任务的变量类型')
+                        setTips('th[data-field="resultAudioCount"] span','对比任务下产生的结果音频数量')
+                        setTips('th[data-field="inferenceStatus"] span','对比任务当前的推理状态')
+                        setTips('th[data-field="executeTextSimilarity"] span','文本相似度分析任务，点击结果分析后执行，用于对比推理文本和推理结果音频在asr后的文本的相似度分值')
+                        setTips('th[data-field="executeAudioSimilarity"] span','音频相似度分析任务，点击结果分析后执行，用于对比参考音频和推理结果音频之间的相似度分值')
+                        setTips('th[data-field="conclusion"] span','可以记录对比任务的结论')
+
+                        setTips('button[data-task-edit]','编辑任务内容')
+                        setTips('button[data-task-look]','查看任务内容')
+                        setTips('button[data-task-go-to-result]','跳转结果评测页面')
+                        setTips('button[data-task-start-inference]','点击执行音频推理，时间较长，可查看cmd窗口观察推理进度')
+                        setTips('button[data-task-start-analysis]','非必须，点击执行文本相似度分析和音频相似度分析，结果仅作参考')
+                        setTips('button[data-task-result-audio]','推理结果音频列表，具体评测请前往结果评测tab')
 
                     },
                     error: function(res, msg){
