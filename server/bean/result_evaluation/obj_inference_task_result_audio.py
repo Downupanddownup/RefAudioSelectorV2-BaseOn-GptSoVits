@@ -88,7 +88,7 @@ class ObjInferenceTaskResultAudioFilter(Filter):
     def __init__(self, form_data):
         super().__init__(form_data)
         self.id = form_data.get('id')
-        self.task_id = form_data.get('taskId')
+        self.task_id = str_to_int(form_data.get('taskId'),0)
         self.reference_audio_id = form_data.get('referenceAudioId')
         self.compare_param_ids = form_data.get('compareParamIds')
         self.audio_ids = form_data.get('audioIds')
@@ -115,7 +115,7 @@ class ObjInferenceTaskResultAudioFilter(Filter):
         if not ValidationUtils.is_empty(self.reference_audio_id):
             sql += f" and exists (select 1 from tab_obj_inference_task_audio where id = r.audioId and audioId = ? ) "
             condition.append(f"{self.reference_audio_id}")
-        if not ValidationUtils.is_empty(self.task_id):
+        if self.task_id > 0:
             sql += f" and taskId = ? "
             condition.append(f"{self.task_id}")
         if not ValidationUtils.is_empty(self.compare_param_ids):

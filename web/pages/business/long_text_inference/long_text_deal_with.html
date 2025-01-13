@@ -52,6 +52,11 @@
             playAudio(obj, audioUrl, currentIndex, mediaType) {
                 const _this = this
                 
+                if (!RasApiSpace.getInstance().isOpen()) {
+                    layui.layer.alert('请先启动api服务')
+                    return
+                }
+                
                 currentIndex = parseInt(currentIndex)
                 // 创建一个 Audio 元素
                 const audioElement =  document.getElementById(_this.audioId); // 使用已有的 audio 元素

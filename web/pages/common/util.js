@@ -170,12 +170,20 @@ function refreshListData(listId){
 }
 
 function reloadListDataBySearchParams(listId,params){
+    const where = layui.table.getOptions(listId).where
+    copyProperties(params, where)
     // 数据重载 - 仅与数据相关的属性(options)能参与到重载中
     layui.table.reloadData(listId, {
-        where: params, // 数据异步请求时携带的字段集 --- 属性设置有效，因属于数据相关属性
+        where: where, // 数据异步请求时携带的字段集 --- 属性设置有效，因属于数据相关属性
         scrollPos: 'fixed', // 设定重载数据或切换分页时的滚动条的位置状态 --- 属性设置有效
     });
 }
+
+function copyProperties(source, target) {
+    Object.assign(target, source);
+    return target;
+}
+
 
 
 function initLayuiTable(listId, config) {

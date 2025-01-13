@@ -42,7 +42,8 @@ class InferenceTaskService:
         InferenceTaskService.check_inference_task(task)
         if task.compare_type == 'refer_audio':
             reference_audio_list = ReferenceAudioService.find_list(ObjReferenceAudioFilter({
-                'category_list_str': ','.join(f'"{p.audio_category}"' for p in task.param_list)
+                'category_list_str': ','.join(f'"{p.audio_category}"' for p in task.param_list),
+                'valid': '1'
             }))
             task.audio_list = [ObjInferenceTaskAudio(
                 audio_id=audio.id,
@@ -134,7 +135,8 @@ class InferenceTaskService:
         InferenceTaskService.check_inference_task(task)
         if task.compare_type == 'refer_audio':
             reference_audio_list = ReferenceAudioService.find_list(ObjReferenceAudioFilter({
-                'category_list_str': ','.join(f'"{p.audio_category}"' for p in task.param_list)
+                'category_list_str': ','.join(f'"{p.audio_category}"' for p in task.param_list),
+                'valid': '1'
             }))
             task.audio_list = [ObjInferenceTaskAudio(
                 audio_id=audio.id,
