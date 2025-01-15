@@ -16,10 +16,10 @@ class ObjReferenceAudio(BaseModel):
         self.language = language  # 音频语种
         self.category = category  # 音频分类
         self.audio_length = audio_length  # 音频时长
-        self.valid_or_not = valid_or_not # 是否有效 1 有效 0 无效
-        self.md5_value = md5_value # md5值
-        self.is_manual_calib = is_manual_calib # 是否人工校准 1 是； 0 否
-        self.file_size = file_size # 文件大小
+        self.valid_or_not = valid_or_not  # 是否有效 1 有效 0 无效
+        self.md5_value = md5_value  # md5值
+        self.is_manual_calib = is_manual_calib  # 是否人工校准 1 是； 0 否
+        self.file_size = file_size  # 文件大小
         self.score = score  # 评分
         self.long_text_score = long_text_score  # 长文评分
         self.remark = remark  # 备注
@@ -43,8 +43,9 @@ class ObjReferenceAudioFilter(Filter):
         self.audio_name = form_data.get('audio_name')
         self.content = form_data.get('content')
         self.category = form_data.get('category')
+        self.isManual_calib = str_to_int(form_data.get('isManualCalib'), -1)
         self.categories = form_data.get('categories')
-        self.valid = str_to_int(form_data.get('valid'),0)
+        self.valid = str_to_int(form_data.get('valid'), 0)
         self.language = form_data.get('language')
         self.category_list_str = form_data.get('category_list_str')
 
@@ -65,6 +66,9 @@ class ObjReferenceAudioFilter(Filter):
         if not ValidationUtils.is_empty(self.category):
             sql += f" and category = ? "
             condition.append(f"{self.category}")
+        if self.isManual_calib > -1:
+            sql += f" and IsManualCalib = ? "
+            condition.append(f"{self.isManual_calib}")
         if not ValidationUtils.is_empty(self.categories):
             sql += f" and category in ({self.categories}) "
         if self.valid == 1:
