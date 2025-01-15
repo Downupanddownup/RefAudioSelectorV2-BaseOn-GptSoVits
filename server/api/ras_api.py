@@ -78,7 +78,10 @@ async def set_default_params(request: Request):
     temp_stream_mode = json_post_raw.get("stream_mode", None)
     temp_media_type = json_post_raw.get("media_type", None)
     
+    logger.info(f'stream_mode={temp_stream_mode}；media_type={temp_media_type}')
+    
     if temp_stream_mode is not None:
+        temp_stream_mode = int(temp_stream_mode)
         # 流式返回模式
         if temp_stream_mode == 1:
             api.stream_mode = "normal"
