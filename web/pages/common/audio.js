@@ -74,7 +74,20 @@ const TTSPlayer = (function () {
             if (_this.currentIndex >= _this.requestBodies.length) {
                 _this.hasLoadFinished = true
             }
-            this.loadFirstAudioChunk(audioChunk.requestBody, () => _this.playNextAudio());
+            
+            if ('wav' === _this.mediaType) {
+                console.log('开始加载第一段音频:'+index)
+                const audioData = await this.fetchTTSStream(audioChunk.requestBody);
+                this.audioQueue.push({
+                    audioData: audioData,
+                    index: index
+                }); // 将音频数据加入队列
+                console.log('完成第一段音频加载:'+index)
+                _this.playNextAudio()
+            } else {
+                this.loadFirstAudioChunk(audioChunk.requestBody, () => _this.playNextAudio());
+            }
+            
             await _this.loadNextAudioChunks()
             await _this.loadNextAudioChunks()
         }
