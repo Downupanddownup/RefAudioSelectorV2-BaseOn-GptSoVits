@@ -5,6 +5,15 @@ const RasApiSpace = (function ()  {
             this.status = 'close'
             this.streamMode = 1// 是否启动流式推理：1 是， 0 否
             this.mediaType = 'aac'//音频格式
+            console.log(2322)
+            if ( localStorage.getItem('streamMode')) {
+                console.log(2322,localStorage.getItem('streamMode'))
+                this.streamMode = parseInt(localStorage.getItem('streamMode'))
+            }
+            if ( localStorage.getItem('mediaType')) {
+                this.mediaType = localStorage.getItem('mediaType')
+            }
+            console.log(2322,this)
         }
         
         isOpen(){

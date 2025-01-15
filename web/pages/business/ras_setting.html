@@ -25,8 +25,8 @@
                     })
 
                     obj.find('input[name=streamMode]').on('change', function() {
-                        _this.streamMode = $(this).val() == 1
-                        if (_this.streamMode) {
+                        _this.streamMode = $(this).val()
+                        if (_this.streamMode == 1) {
                             _this.mediaType = 'aac'
                         } else {
                             _this.mediaType = 'wav'
@@ -47,6 +47,9 @@
 
                 RasApiSpace.getInstance().streamMode = _this.streamMode
                 RasApiSpace.getInstance().mediaType = _this.mediaType
+
+                localStorage.setItem('streamMode', String(_this.streamMode));
+                localStorage.setItem('mediaType', String(_this.mediaType));
                 
                 RasApiSpace.getInstance().setDefaultParams({}, () => {
                     layui.layer.msg('参数设置成功')

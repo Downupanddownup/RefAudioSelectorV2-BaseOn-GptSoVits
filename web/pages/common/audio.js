@@ -69,8 +69,7 @@ const TTSPlayer = (function () {
             if (!audioChunk) {
                 return
             }
-
-            _this.audioStartCallback(index)
+          
             if (_this.currentIndex >= _this.requestBodies.length) {
                 _this.hasLoadFinished = true
             }
@@ -83,9 +82,10 @@ const TTSPlayer = (function () {
                     index: index
                 }); // 将音频数据加入队列
                 console.log('完成第一段音频加载:'+index)
-                _this.playNextAudio()
+                _this.playNextAudio(false)
             } else {
-                this.loadFirstAudioChunk(audioChunk.requestBody, () => _this.playNextAudio());
+                _this.audioStartCallback(index)
+                this.loadFirstAudioChunk(audioChunk.requestBody, () => _this.playNextAudio(true));
             }
             
             await _this.loadNextAudioChunks()
@@ -239,7 +239,7 @@ const TTSPlayer = (function () {
 
         // 播放下一段音频
         // 播放下一段音频
-        playNextAudio() {
+        playNextAudio(needLoadNext) {
             const _this = this;
 
             if (_this.isDestory) {
@@ -275,7 +275,9 @@ const TTSPlayer = (function () {
                     _this.audioElement.play().then(() => {
                         // console.log('开始播放:' + index);
                         _this.audioStartCallback(index)
-                        _this.loadNextAudioChunks(); // 播放时继续加载下一段音频
+                        if (needLoadNext) {
+                            _this.loadNextAudioChunks(); // 播放时继续加载下一段音频
+                        }
                     }).catch(error => {
                         console.error('播放失败:', error);
                     });
@@ -283,7 +285,7 @@ const TTSPlayer = (function () {
                     // 播放结束后继续播放下一段
                     _this.audioElement.addEventListener('ended', async () => {
                         _this.isPlaying = false;
-                        _this.playNextAudio(); // 播放下一段
+                        _this.playNextAudio(true); // 播放下一段
                     }, { once: true });
                 }
             }, checkInterval); // 每隔 100 毫秒检查一次队列
