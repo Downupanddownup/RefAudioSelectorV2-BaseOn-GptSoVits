@@ -49,7 +49,7 @@ class C_ObjFinishedProductManager {
         this.id = data.id || 0; // 自增编号
         this.name = data.name || ''; // 成品名称
         this.category = data.category || ''; // 分类
-        this.gptSovitsVersion = data.gptSovitsVersion || ''; // 模型版本
+        this.gptSovitsVersion = data.gptSovitsVersion || SysConfig.defaultGptSovitsVersion; // 模型版本
         this.gptModelName = data.gptModelName || ''; // GPT模型名称
         this.gptModelPath = data.gptModelPath || ''; // GPT模型路径
         this.vitsModelName = data.vitsModelName || ''; // Vits模型名称
@@ -60,11 +60,11 @@ class C_ObjFinishedProductManager {
         this.content = data.content || ''; // 音频内容
         this.language = data.language || ''; // 音频语种
         this.audioLength = data.audioLength || 0; // 音频时长
-        this.topK = data.topK || 0.0; // top_k值
-        this.topP = data.topP || 0.0; // top_p值
-        this.temperature = data.temperature || 0.0; // 温度
-        this.textDelimiter = data.textDelimiter || ''; // 文本分隔符
-        this.speed = data.speed || 0.0; // 语速
+        this.topK = data.topK || SysConfig.defaultTopK; // top_k值
+        this.topP = data.topP || SysConfig.defaultTopP; // top_p值
+        this.temperature = data.temperature || SysConfig.defaultTemperature; // 温度
+        this.textDelimiter = data.textDelimiter || SysConfig.defaultTextDelimiter; // 文本分隔符
+        this.speed = data.speed || SysConfig.defaultSpeed; // 语速
         this.inpRefs = data.inpRefs || ''; // 融合音频，json字符串
         this.sound_fusion_list = data.sound_fusion_list ? data.sound_fusion_list.map(item => new C_ObjSoundFusionAudio(item)) : [];//融合音频
         this.score = data.score || 0; // 评分

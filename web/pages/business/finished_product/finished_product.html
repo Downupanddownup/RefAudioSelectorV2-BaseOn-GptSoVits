@@ -233,10 +233,10 @@
             getSearchParams(){
                 const _this = this
                 const obj = $('#'+_this.viewId)
-                const searchAudioName = obj.find('#searchAudioName').val()
+                const searchName = obj.find('#searchName').val()
                 const searchCategory = obj.find('#searchCategory').val()
                 return {
-                    name: searchAudioName,
+                    name: searchName,
                     category: searchCategory,
                 }
             }
@@ -359,7 +359,7 @@
                             _this.openDownloadOneDialog(HomePage.currentRole.name + '-' + product.name, id)
                         })
 
-                        setTips('input[id="searchAudioName"]','基于成品名称搜索')
+                        setTips('input[id="searchName"]','基于成品名称搜索')
                         setTips('input[id="searchCategory"]','音频名称')
                         setTips('button[id="searchProduct"]','基于当前条件执行搜索')
                         setTips('button[id="addProduct"]','添加新的成品')
@@ -401,10 +401,10 @@
     <table class="search-table" id="searchHeader">
         <tr>
             <td>名称：</td>
-            <td><input type="text" autocomplete="off" id="searchAudioName" placeholder="音频名称" class="layui-input" style="width: auto;"></td>
+            <td><input type="text" autocomplete="off" id="searchName" placeholder="名称" class="layui-input" style="width: auto;"></td>
             <td>分类：</td>
             <td>
-                <input type="text" autocomplete="off" id="searchCategory" placeholder="音频名称" class="layui-input" style="width: auto;">
+                <input type="text" autocomplete="off" id="searchCategory" placeholder="分类" class="layui-input" style="width: auto;">
             </td>
             <td colspan="2">
                 <button type="submit" class="layui-btn layui-btn-sm" id="searchProduct">搜索</button>

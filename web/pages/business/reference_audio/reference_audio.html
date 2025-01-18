@@ -102,11 +102,13 @@
                 const searchAudioName = obj.find('#searchAudioName').val()
                 const searchCategory = obj.find('#searchCategory').val()
                 const searchIsManualCalib = obj.find('#searchIsManualCalib').val()
+                const searchValid = obj.find('#searchValid').val()
                 const searchContent = obj.find('#searchContent').val()
                 return {
                     audio_name: searchAudioName,
                     category: searchCategory,
                     isManualCalib: searchIsManualCalib,
+                    valid: searchValid,
                     content: searchContent,
                 }
             }
@@ -304,6 +306,7 @@
                         setTips('input[id="searchAudioName"]','基于音频名称，模糊搜索，可回车触发')
                         setTips('select[id="searchCategory"]','可选择音频分类')
                         setTips('select[id="searchIsManualCalib"]','选择是仅AI提取，还是人工校验过')
+                        setTips('select[id="searchValid"]','参考音频时长是否在3-10s之间')
                         setTips('input[id="searchContent"]','基于音频文本内容，模糊搜索，可回车触发')
                         setTips('button[id="searchAudio"]','点击执行搜索')
                         setTips('button[id="addAudio"]','添加一条新的参考音频')
@@ -692,6 +695,7 @@
                         _this.extractReferenceFile(index)
                     }
                 });
+                setTips('input[id="listFile"]','请输入训练GptSoVits模型时，使用的list文件路径。如果此文件是从网络下载的，那请务必同时下载对应wav格式音频，并且修正list文件中的音频路径')
             }
 
             extractReferenceFile(index){
@@ -826,6 +830,13 @@
             <td>
                 <select class="customSelect" id="searchIsManualCalib">
                     <option value="-1">请选择是否人工校准</option>
+                    <option value="1">是</option>
+                    <option value="0">否</option>
+                </select>
+            </td>
+            <td>
+                <select class="customSelect" id="searchValid">
+                    <option value="-1">是否有效</option>
                     <option value="1">是</option>
                     <option value="0">否</option>
                 </select>
