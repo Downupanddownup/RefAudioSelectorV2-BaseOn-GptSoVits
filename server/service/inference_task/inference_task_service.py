@@ -183,7 +183,7 @@ class InferenceTaskService:
                 result = True
                 for task_cell in task_cell_list:
                     result = result and generate_audio_files_parallel(task_cell, num_processes)
-                RasApiMonitor.stop_service()
+                # RasApiMonitor.stop_service()
                 if result:
                     InferenceTaskService.change_inference_task_inference_status_to_finish_if_all_finish(task.id)
             else:

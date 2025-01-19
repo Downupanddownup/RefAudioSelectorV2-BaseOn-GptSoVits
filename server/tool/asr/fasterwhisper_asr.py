@@ -10,6 +10,49 @@ from faster_whisper import WhisperModel
 from tqdm import tqdm
 
 from server.tool.asr.config import check_fw_local_models
+from server.common.log_config import logger
+import server.common.config_params as params
+
+class FasterWhisperLanguageModel:
+    def __init__(self):
+        self.model = init()
+
+    def generate(self, path):
+        try:
+            segments, info = self.model.transcribe(
+                audio          = path,
+                beam_size      = 5,
+                vad_filter     = True,
+                vad_parameters = dict(min_silence_duration_ms=700),
+                language       = None)
+            text = ''
+            for segment in segments:
+                text += segment.text
+            return text
+        except:
+            logger.error(traceback.format_exc())
+
+def init():
+    # 获取当前脚本所在的绝对路径
+    current_dir = os.getcwd()
+    # 计算上上级目录的绝对路径
+    api_dir = os.path.join(current_dir, params.gsv2_dir)
+    model_path = os.path.join(api_dir, 'tools/asr/models/faster-whisper-large-v3')
+    print('模型加载路径',model_path)
+    # 规范化路径
+    normalized_path = os.path.normpath(model_path)
+    
+    # 转换为绝对路径
+    absolute_path = os.path.abspath(normalized_path)
+    
+    print("规范化路径:", normalized_path)
+    print("绝对路径:", absolute_path)
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    precision = 'float16' if torch.cuda.is_available() else 'float32'
+    try:
+        return WhisperModel(absolute_path, device=device, compute_type=precision)
+    except:
+        return print(traceback.format_exc())
 
 language_code_list = [
     "af", "am", "ar", "as", "az", 

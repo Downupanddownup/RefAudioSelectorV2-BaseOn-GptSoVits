@@ -6,6 +6,7 @@ import os
 sys.path.append(os.getcwd())
 
 from server.tool.asr.funasr_asr import LanguageModel
+from server.tool.asr.fasterwhisper_asr import FasterWhisperLanguageModel
 from server.bean.result_evaluation.obj_inference_task_result_audio import ObjInferenceTaskResultAudio
 from server.service.inference_task.inference_task_service import InferenceTaskService
 from server.service.result_evaluation.result_evaluation_service import ResultEvaluationService
@@ -37,12 +38,14 @@ def asr_task(task_id: int):
     for result_audio in task_result_audio_list:
         if result_audio.status != 1 or not result_audio.obj_text or not result_audio.obj_text.text_language:
             continue
-        if result_audio.obj_text.text_language.lower() in ['zh', 'yue']:
+        if result_audio.obj_text.text_language.lower() in ['all_zh','zh', 'yue']:
             if zh_model is None:
                 zh_model = LanguageModel(result_audio.obj_text.text_language)
             asr_text = zh_model.generate(result_audio.path)
         else:
-            continue
+            if whisper_model is None:
+                whisper_model = FasterWhisperLanguageModel()
+            asr_text = whisper_model.generate(result_audio.path)
         detail = ObjInferenceTaskResultAudio(
             id=result_audio.id,
             asr_text=asr_text

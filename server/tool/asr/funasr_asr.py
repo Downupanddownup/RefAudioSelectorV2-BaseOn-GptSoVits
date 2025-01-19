@@ -7,6 +7,7 @@ from funasr import AutoModel
 sys.path.append(os.getcwd())
 
 from server.common.log_config import logger
+import server.common.config_params as params
 
 
 class LanguageModel:
@@ -26,7 +27,12 @@ class LanguageModel:
 
 
 def init(language):
-    model_dir = 'server/tool/asr/models/'
+    # model_dir = 'server/tool/asr/models/'
+    # 获取当前脚本所在的绝对路径
+    current_dir = os.getcwd()
+    # 计算上上级目录的绝对路径
+    api_dir = os.path.join(current_dir, params.gsv2_dir)
+    model_dir = api_dir+'/tools/asr/models/'
     path_vad = model_dir + 'speech_fsmn_vad_zh-cn-16k-common-pytorch'
     path_punc = model_dir + 'punc_ct-transformer_zh-cn-common-vocab272727-pytorch'
     path_vad = path_vad if os.path.exists(path_vad) else "iic/speech_fsmn_vad_zh-cn-16k-common-pytorch"
