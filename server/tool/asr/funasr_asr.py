@@ -39,7 +39,7 @@ def init(language):
     path_punc = path_punc if os.path.exists(path_punc) else "iic/punc_ct-transformer_zh-cn-common-vocab272727-pytorch"
     vad_model_revision = punc_model_revision = "v2.0.4"
 
-    if (language == "zh"):
+    if (language == "zh" or language == "all_zh"):
         path_asr = model_dir + 'speech_paraformer-large_asr_nat-zh-cn-16k-common-vocab8404-pytorch'
         path_asr = path_asr if os.path.exists(
             path_asr) else "iic/speech_paraformer-large_asr_nat-zh-cn-16k-common-vocab8404-pytorch"
