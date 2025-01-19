@@ -26,6 +26,9 @@
        ![](readmeimage/image_LV7lyDVdOx.png)
 3. 主体流程
     1. 下载整合包：
+       通过百度网盘分享的文件：RAS2整合包
+       链接：https://pan.baidu.com/s/1R-T_1y1Nyqbq8pBaHxk9Cw?pwd=i8ep
+       提取码：i8ep
     2. 解压后，在RefAudioSelectorV2-BaseOn-GptSoVits目录下，双击server\_api.bat文件启动项目
     3. 按照【分类-名称】创建角色，比如，男性-张三
 
