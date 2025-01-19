@@ -15,7 +15,7 @@ class LanguageModel:
         if not language:
             raise ValueError(f'Unsupported language: {language}')
         language = language.lower()
-        if language.lower() not in ['zh', 'yue']:
+        if language.lower() not in ['all_zh','zh', 'yue']:
             raise ValueError(f'Unsupported language: {language}')
         self.model = init(language)
 
