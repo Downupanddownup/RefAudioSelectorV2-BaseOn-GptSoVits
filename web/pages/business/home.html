@@ -26,6 +26,10 @@
                         _this.openRasApiSettingDialog()
                     })
                     
+                    $('#aboutProject').on('click', function () {
+                        _this.openAboutProjectDialog()
+                    })
+                    
                     _this.initTab()
                     
                     _this.loadRoleName()
@@ -54,6 +58,68 @@
                     type: 1,
                     area: ['800px', '300px'],
                     content: `<div id="rasSettingView"></div>`,
+                    btn: ['关闭'],
+                    yes: function(){
+                        layui.layer.close(dialogIndex)
+                    }
+                });
+
+
+                dialog.render()
+            }
+
+            openAboutProjectDialog() {
+                const _this = this
+                
+                const html =  `
+<table style="width: 100%;height: 100%;text-align: center">
+    <tr>
+        <td>
+           项目名称：
+        </td>
+        <td>
+           RefAudioSelector
+        </td>
+    </tr>
+    <tr>
+        <td>
+           项目介绍：
+        </td>
+        <td>
+           用于快速筛选最佳的模型推理参数
+        </td>
+    </tr>
+    <tr>
+        <td>
+           项目文档：
+        </td>
+        <td>
+          <a href="https://www.wolai.com/x1AVSzBUCn4EF4HYNvdfrF" target="_blank">https://www.wolai.com/x1AVSzBUCn4EF4HYNvdfrF</a>
+        </td>
+    </tr>
+    <tr>
+        <td>
+           项目地址：
+        </td>
+        <td>
+            <a href="https://github.com/Downupanddownup/RefAudioSelectorV2-BaseOn-GptSoVits" target="_blank">https://github.com/Downupanddownup/RefAudioSelectorV2-BaseOn-GptSoVits</a>
+        </td>
+    </tr>
+    <tr>
+        <td>
+           GptSoVits项目地址：
+        </td>
+        <td>
+           <a href="https://github.com/RVC-Boss/GPT-SoVITS" target="_blank">https://github.com/RVC-Boss/GPT-SoVITS</a>
+        </td>
+    </tr>
+</table>
+                `
+
+                const dialogIndex = layer.open({
+                    type: 1,
+                    area: ['800px', '300px'],
+                    content: html,
                     btn: ['关闭'],
                     yes: function(){
                         layui.layer.close(dialogIndex)
