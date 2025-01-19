@@ -8,9 +8,18 @@ from scipy.spatial.distance import cosine
 sys.path.append(os.getcwd())
 
 from server.common.log_config import logger
+import server.common.config_params as params
+
+# bert_path = "server/tool/text_comparison/models/chinese-roberta-wwm-ext-large"
+
+# 获取当前脚本所在的绝对路径
+current_dir = os.getcwd()
+# 计算上上级目录的绝对路径
+api_dir = os.path.join(current_dir, params.gsv2_dir)
+bert_path = os.path.join(api_dir, 'GPT_SoVITS/pretrained_models/chinese-roberta-wwm-ext-large')
 
 bert_path = os.environ.get(
-    "bert_path", "server/tool/text_comparison/models/chinese-roberta-wwm-ext-large"
+    "bert_path", bert_path
 )
 
 # Set device to GPU if available, else CPU
