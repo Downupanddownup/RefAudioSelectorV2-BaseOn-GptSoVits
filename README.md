@@ -28,7 +28,8 @@
        通过百度网盘分享的文件：RAS2整合包
        链接：https://pan.baidu.com/s/1R-T_1y1Nyqbq8pBaHxk9Cw?pwd=i8ep
        提取码：i8ep
-       此整合包，内嵌了fasterwhisper-large-v3模型，所以体积较大
+       此整合包，内嵌了fasterwhisper-large-v3模型，所以体积较大 
+       说明文档（github不开代理无法显示图片）：https://www.wolai.com/x1AVSzBUCn4EF4HYNvdfrF
     2. 解压后，在RefAudioSelectorV2-BaseOn-GptSoVits目录下，双击server\_api.bat文件启动项目
     3. 按照【分类-名称】创建角色，比如，男性-张三
 
