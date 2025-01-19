@@ -1,5 +1,4 @@
 # RefAudioSelectorV2-BaseOn-GptSoVits
-# RefAudioSelectorV2说明
 
 1. 为什么开发这个项目
 
