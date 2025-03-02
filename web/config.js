@@ -111,7 +111,7 @@ const SysConfig = (function () {
     }
 })()
 
-const BaseUrl = `http://localhost:8000/`
+const BaseUrl = `http://localhost:${window.location.port}/`
 const RasApiUrl = (() => {
     const url = window.location.href;
     const params = new URLSearchParams(url.split('?')[1]);
@@ -119,5 +119,5 @@ const RasApiUrl = (() => {
 
     console.log('API Port:', apiPort);
 
-    return `http://localhost:${8001}/`;
+    return `http://localhost:${apiPort}/`;
 })()
