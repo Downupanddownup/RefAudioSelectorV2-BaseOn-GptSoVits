@@ -150,6 +150,16 @@
             _this.task.compareParams[index].speed = $(this).val()
           })
           
+          obj.find('select[data-params-sample-steps]').on('change', function(){
+            const index = $(this).data('params-sample-steps')
+            _this.task.compareParams[index].sampleSteps = $(this).val()
+          })
+          
+          obj.find('select[data-params-if-sr]').on('change', function(){
+            const index = $(this).data('params-if-sr')
+            _this.task.compareParams[index].ifSr = $(this).val()
+          })
+          
           obj.find('input[data-params-text-delimiter]').on('blur', function(){
             const index = $(this).data('params-text-delimiter')
             _this.task.compareParams[index].textDelimiter = $(this).val()
@@ -200,6 +210,14 @@
             _this.task.speed = $(this).val()
           })
           
+          obj.find('#sampleSteps').on('change', function(){
+            _this.task.sampleSteps = $(this).val()
+          })
+          
+          obj.find('#ifSr').on('change', function(){
+            _this.task.ifSr = $(this).val()
+          })
+          
           obj.find('#other').on('blur', function(){
             _this.task.otherParameters = $(this).val()
           })
@@ -237,6 +255,8 @@
           setTips('input[data-params-top-p]',SysConfig.tippyDesc.topP)
           setTips('input[data-params-temperature]',SysConfig.tippyDesc.temperature)
           setTips('input[data-params-speed]',SysConfig.tippyDesc.speed)
+          setTips('input[data-sample-steps]',SysConfig.tippyDesc.sampleSteps)
+          setTips('input[data-if-sr]',SysConfig.tippyDesc.ifSr)
           setTips('input[data-params-text-delimiter]',SysConfig.tippyDesc.textDelimiter)
           setTips('button[data-inp-refs-audio-select]',SysConfig.tippyDesc.inpRefsList)
           
@@ -252,6 +272,8 @@
           setTips('input[id="temperature"]',SysConfig.tippyDesc.temperature)
           setTips('input[id="textDelimiter"]',SysConfig.tippyDesc.textDelimiter)
           setTips('input[id="speed"]',SysConfig.tippyDesc.speed)
+          setTips('input[id="sampleSteps"]',SysConfig.tippyDesc.sampleSteps)
+          setTips('input[id="ifSr"]',SysConfig.tippyDesc.ifSr)
 
           setTips('button[id="audioSelect"]','选择需要参与推理的参考音频')
           setTips('button[id="inpRefsAudioSelect"]',SysConfig.tippyDesc.inpRefsList)
@@ -519,6 +541,8 @@
                 <option {{isTrue(d.task.compareType=="top_p",'selected','')}} value="top_p">top_p值</option>
                 <option {{isTrue(d.task.compareType=="temperature",'selected','')}} value="temperature">temperature值</option>
                 <option {{isTrue(d.task.compareType=="speed",'selected','')}} value="speed">speed值</option>
+                <option {{isTrue(d.task.compareType=="sample_steps",'selected','')}} value="sample_steps">采样步数</option>
+                <option {{isTrue(d.task.compareType=="if_sr",'selected','')}} value="if_sr">是否超分</option>
                 <option {{isTrue(d.task.compareType=="text_delimiter",'selected','')}} value="text_delimiter">文本分隔符</option>
                 <option {{isTrue(d.task.compareType=="inp_refs",'selected','')}} value="inp_refs">音色融合</option>
                 <option {{isTrue(d.task.compareType=="kpt",'selected','')}} value="kpt">top_k、top_p、temperature</option>
@@ -641,6 +665,40 @@
             <td>
               <input type="number" autocomplete="off" data-params-speed="{{index}}" placeholder="speed值" 
                      class="layui-input" style="width: auto;" value="{{item.speed}}">
+            </td>
+            <td>
+              <button type="button" class="layui-btn layui-btn-sm" data-add="{{index}}"><i class="layui-icon"></i></button>
+              <button type="button" class="layui-btn layui-btn-sm" data-delete="{{index}}"><i class="layui-icon"></i></button>
+            </td>
+          </tr>
+            {{# } else if (d.task.compareType == 'sample_steps') { }}
+          <tr>
+            <td>
+              第{{index+1}}组：
+            </td>
+            <td>
+              <select class="customSelect" data-params-sample-steps="{{index}}">
+              <option {{isTrue(32==item.sampleSteps,'selected','')}} value="32">32</option>
+              <option {{isTrue(16==item.sampleSteps,'selected','')}} value="16">16</option>
+              <option {{isTrue(8==item.sampleSteps,'selected','')}} value="8">8</option>
+              <option {{isTrue(4==item.sampleSteps,'selected','')}} value="4">4</option>
+            </select>
+            </td>
+            <td>
+              <button type="button" class="layui-btn layui-btn-sm" data-add="{{index}}"><i class="layui-icon"></i></button>
+              <button type="button" class="layui-btn layui-btn-sm" data-delete="{{index}}"><i class="layui-icon"></i></button>
+            </td>
+          </tr>
+            {{# } else if (d.task.compareType == 'if_sr') { }}
+          <tr>
+            <td>
+              第{{index+1}}组：
+            </td>
+            <td>
+              <select class="customSelect" data-params-if-sr="{{index}}">
+              <option {{isTrue(0==item.ifSr,'selected','')}} value="0">否</option>
+              <option {{isTrue(1==item.ifSr,'selected','')}} value="1">是</option>
+            </select>
             </td>
             <td>
               <button type="button" class="layui-btn layui-btn-sm" data-add="{{index}}"><i class="layui-icon"></i></button>
@@ -791,9 +849,26 @@
                                class="layui-input" style="width: auto;" value="{{item.speed}}">
                       </td>
                       <td>
+                        采样步数：<select class="customSelect" data-params-sample-steps="{{index}}">
+                          <option {{isTrue(32==item.sampleSteps,'selected','')}} value="32">32</option>
+                          <option {{isTrue(16==item.sampleSteps,'selected','')}} value="16">16</option>
+                          <option {{isTrue(8==item.sampleSteps,'selected','')}} value="8">8</option>
+                          <option {{isTrue(4==item.sampleSteps,'selected','')}} value="4">4</option>
+                        </select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        是否超分：<select class="customSelect" data-params-if-sr="{{index}}">
+                        <option {{isTrue(0==item.ifSr,'selected','')}} value="0">否</option>
+                        <option {{isTrue(1==item.ifSr,'selected','')}} value="1">是</option>
+                      </select>
+                      </td>
+                      <td>
                         已选中待融合音频数量：<span data-inp-refs-select-count="{{index}}">{{item.inpRefsAudioList.length}}</span>
                         <button type="button" class="layui-btn layui-btn-sm" data-inp-refs-audio-select="{{index}}">音频选择</button>
                       </td>
+                      <td></td>
                     </tr>
                   </table>
                 </td>
@@ -964,11 +1039,39 @@
             {{# } }}
           </td>
           <td>
+            采样步数：
           </td>
           <td>
+
+            {{# if (d.task.compareType == 'sample_steps' || d.task.compareType == 'all') { }}
+            已作为对比变量
+            {{# } else { }}
+
+            <select class="customSelect" id="sampleSteps">
+              <option {{isTrue(32==d.task.sampleSteps,'selected','')}} value="32">32</option>
+              <option {{isTrue(16==d.task.sampleSteps,'selected','')}} value="16">16</option>
+              <option {{isTrue(8==d.task.sampleSteps,'selected','')}} value="8">8</option>
+              <option {{isTrue(4==d.task.sampleSteps,'selected','')}} value="4">4</option>
+            </select>
+
+            {{# } }}
           </td>
         </tr>
         <tr>
+          <td>是否超分：</td>
+          <td>
+
+            {{# if (d.task.compareType == 'if_sr' || d.task.compareType == 'all') { }}
+            已作为对比变量
+            {{# } else { }}
+
+            <select class="customSelect" id="ifSr">
+              <option {{isTrue(0==d.task.ifSr,'selected','')}} value="0">否</option>
+              <option {{isTrue(1==d.task.ifSr,'selected','')}} value="1">是</option>
+            </select>
+
+            {{# } }}
+          </td>
           <td>参考音频：</td>
           <td>
 
@@ -995,8 +1098,6 @@
 
            {{# } }}
          </td>
-          <td></td>
-          <td></td>
         </tr>
         <tr>
           <td>推理文本：</td>
