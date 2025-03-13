@@ -65,6 +65,8 @@ class C_ObjFinishedProductManager {
         this.temperature = data.temperature || SysConfig.defaultTemperature; // 温度
         this.textDelimiter = data.textDelimiter || SysConfig.defaultTextDelimiter; // 文本分隔符
         this.speed = data.speed || SysConfig.defaultSpeed; // 语速
+        this.sampleSteps = data.sampleSteps || SysConfig.defaultSampleSteps; // 采样步数
+        this.ifSr = data.ifSr || SysConfig.defaultIfSr; // 是否超分
         this.inpRefs = data.inpRefs || ''; // 融合音频，json字符串
         this.sound_fusion_list = data.sound_fusion_list ? data.sound_fusion_list.map(item => new C_ObjSoundFusionAudio(item)) : [];//融合音频
         this.score = data.score || 0; // 评分
@@ -111,6 +113,8 @@ class C_ObjInferenceTask {//推理任务
         this.temperature = data.temperature || SysConfig.defaultTemperature; // 温度
         this.textDelimiter = data.textDelimiter || SysConfig.defaultTextDelimiter; // 文本分隔符
         this.speed = data.speed || SysConfig.defaultSpeed; // 语速
+        this.sampleSteps = data.sampleSteps || SysConfig.defaultSampleSteps; // 采样步数
+        this.ifSr = data.ifSr || SysConfig.defaultIfSr; // 是否超分
         this.otherParameters = data.otherParameters || ''; // 其余参数
         this.inferenceStatus = data.inferenceStatus || 0; // 推理状态 0 待推理 1 推理中 2 推理完成
         this.executeTextSimilarity = data.executeTextSimilarity || 0;//是否已执行文本相似度 0 否 1 是
@@ -151,6 +155,12 @@ class C_ObjInferenceTask {//推理任务
         }
         if (['speed','all'].includes(compareType)) {
             this.speed = param.speed
+        }
+        if (['sample_steps','all'].includes(compareType)) {
+            this.sampleSteps = param.sampleSteps
+        }
+        if (['if_sr','all'].includes(compareType)) {
+            this.ifSr = param.ifSr
         }
         if (['inp_refs','all'].includes(compareType)) {
             this.taskInpRefsAudioList = param.inpRefsAudioList
@@ -211,6 +221,8 @@ class C_ObjInferenceTaskCompareParams {//推理任务中，对比的变量
         this.temperature = data.temperature || 1.0; // 温度
         this.textDelimiter = data.textDelimiter || ''; // 文本分隔符
         this.speed = data.speed || 1.0; // 语速
+        this.sampleSteps = data.sampleSteps || 32; // 采样步数
+        this.ifSr = data.ifSr || 0; // 是否超分
         this.otherParameters = data.otherParameters || ''; // 其余参数
         this.createTime = data.createTime ? new Date(data.createTime) : null; // 创建时间, 默认为当前时间
         this.inpRefsAudioList = data.inpRefsList ? data.inpRefsList.map(item => new C_ObjInferenceTaskSoundFusionAudio(item)) : [];
@@ -241,6 +253,12 @@ class C_ObjInferenceTaskCompareParams {//推理任务中，对比的变量
         if (compareType == 'speed') {
             return `语速：${this.speed}`
         }
+        if (compareType == 'sample_steps') {
+            return `采样步数：${this.sampleSteps}`
+        }
+        if (compareType == 'if_sr') {
+            return `是否超分：${this.ifSr==1?'是':'否'}`
+        }
         if (compareType == 'inp_refs') {
             return `融合音频：第${this.index}组`
         }
@@ -253,7 +271,7 @@ class C_ObjInferenceTaskCompareParams {//推理任务中，对比的变量
         if (compareType == 'all') {
             return `版本:${this.gptSovitsVersion};gpt模型:${this.gptModelName};vits模型:${this.vitsModelName};
             top_k:${this.topK};top_p:${this.topP};temperature:${this.temperature};
-            文本分隔符:${this.textDelimiter};语速:${this.speed}
+            文本分隔符:${this.textDelimiter};语速:${this.speed};采样步数：${this.sampleSteps};是否超分：${this.ifSr==1?'是':'否'}
             `
         }
         return '--'

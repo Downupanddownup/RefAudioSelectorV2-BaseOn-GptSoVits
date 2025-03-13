@@ -93,6 +93,8 @@ const SysConfig = (function () {
     const defaultTemperature = 0.6
     const defaultTextDelimiter = `,.;?!、，。？！；：…"`
     const defaultSpeed = 1.0
+    const defaultSampleSteps = 32 //采样步数
+    const defaultIfSr = 0 //0 不超分 1 超分
     
     const defaultDialogWidth = '95%'
     const defaultDialogHeight = '95%'
@@ -106,6 +108,8 @@ const SysConfig = (function () {
         defaultTemperature: defaultTemperature,
         defaultTextDelimiter: defaultTextDelimiter,
         defaultSpeed: defaultSpeed,
+        defaultSampleSteps: defaultSampleSteps,
+        defaultIfSr: defaultIfSr,
         defaultDialogWidth: defaultDialogWidth,
         defaultDialogHeight: defaultDialogHeight
     }

@@ -33,6 +33,8 @@ class ObjFinishedProductManager(BaseModel):
                  temperature: float = None,  # 温度
                  text_delimiter: str = None,  # 文本分隔符
                  speed: float = None,  # 语速
+                 sampleSteps: int = None,  # 采样步数
+                 ifSr: int = None,  # 是否超分
                  inp_refs: str = None,  # 融合音频，json字符串
                  score: int = None,  # 评分
                  remark: str = None,  # 备注
@@ -56,6 +58,8 @@ class ObjFinishedProductManager(BaseModel):
         self.temperature = temperature  # 温度
         self.text_delimiter = text_delimiter  # 文本分隔符
         self.speed = speed  # 语速
+        self.sampleSteps = sampleSteps  # 采样步数
+        self.ifSr = ifSr  # 是否超分
         self.inp_refs = inp_refs  # 融合音频，json字符串
         self.sound_fusion_list = []  # 融合音频
         self.score = score  # 评分

@@ -55,6 +55,8 @@ class InferenceTaskDao:
                 temperature=data.get('Temperature'),
                 text_delimiter=data.get('TextDelimiter'),
                 speed=data.get('Speed'),
+                sampleSteps=data.get('SampleSteps'),
+                ifSr=data.get('IfSr'),
                 other_parameters=data.get('OtherParameters'),
                 inference_status=data.get('InferenceStatus'),
                 execute_text_similarity=data.get('ExecuteTextSimilarity'),
@@ -67,7 +69,7 @@ class InferenceTaskDao:
     @staticmethod
     def insert_inference_task(task: ObjInferenceTask) -> int:
         sql = '''
-            INSERT INTO tab_obj_inference_task(TaskName,CompareType,GptSovitsVersion,GptModelName,VitsModelName,TopK,TopP,Temperature,TextDelimiter,Speed,OtherParameters,InferenceStatus,ExecuteTextSimilarity,ExecuteAudioSimilarity,Conclusion,CreateTime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'))
+            INSERT INTO tab_obj_inference_task(TaskName,CompareType,GptSovitsVersion,GptModelName,VitsModelName,TopK,TopP,Temperature,TextDelimiter,Speed,SampleSteps,IfSr,OtherParameters,InferenceStatus,ExecuteTextSimilarity,ExecuteAudioSimilarity,Conclusion,CreateTime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'))
             '''
         return DBSlaveSQLExecutor.insert(sql, (
             task.task_name,
@@ -80,6 +82,8 @@ class InferenceTaskDao:
             task.temperature,
             task.text_delimiter,
             task.speed,
+            task.sampleSteps,
+            task.ifSr,
             task.other_parameters,
             task.inference_status,
             task.execute_text_similarity,
@@ -90,7 +94,7 @@ class InferenceTaskDao:
     @staticmethod
     def batch_insert_task_param(param_list: list[ObjInferenceTaskCompareParams]) -> int:
         sql = '''
-        INSERT INTO tab_obj_inference_task_compare_params(TaskId,AudioCategory,GptSovitsVersion,GptModelName,VitsModelName,TopK,TopP,Temperature,TextDelimiter,Speed,OtherParameters,CreateTime) VALUES (?,?,?,?,?,?,?,?,?,?,?,datetime('now'))
+        INSERT INTO tab_obj_inference_task_compare_params(TaskId,AudioCategory,GptSovitsVersion,GptModelName,VitsModelName,TopK,TopP,Temperature,TextDelimiter,Speed,SampleSteps,IfSr,OtherParameters,CreateTime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'))
         '''
         return DBSlaveSQLExecutor.batch_execute(sql, [(
             x.task_id,
@@ -103,13 +107,15 @@ class InferenceTaskDao:
             x.temperature,
             x.text_delimiter,
             x.speed,
+            x.sampleSteps,
+            x.ifSr,
             x.other_parameters
         ) for x in param_list])
 
     @staticmethod
     def insert_task_param(param: ObjInferenceTaskCompareParams) -> int:
         sql = '''
-            INSERT INTO tab_obj_inference_task_compare_params(TaskId,AudioCategory,GptSovitsVersion,GptModelName,VitsModelName,TopK,TopP,Temperature,TextDelimiter,Speed,OtherParameters,CreateTime) VALUES (?,?,?,?,?,?,?,?,?,?,?,datetime('now'))
+            INSERT INTO tab_obj_inference_task_compare_params(TaskId,AudioCategory,GptSovitsVersion,GptModelName,VitsModelName,TopK,TopP,Temperature,TextDelimiter,Speed,SampleSteps,IfSr,OtherParameters,CreateTime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'))
             '''
         return DBSlaveSQLExecutor.insert(sql, (
             param.task_id,
@@ -122,6 +128,8 @@ class InferenceTaskDao:
             param.temperature,
             param.text_delimiter,
             param.speed,
+            param.sampleSteps,
+            param.ifSr,
             param.other_parameters
         ))
 
@@ -202,6 +210,8 @@ class InferenceTaskDao:
                 temperature=data.get('Temperature'),
                 text_delimiter=data.get('TextDelimiter'),
                 speed=data.get('Speed'),
+                sampleSteps=data.get('SampleSteps'),
+                ifSr=data.get('IfSr'),
                 other_parameters=data.get('OtherParameters'),
                 create_time=data.get('CreateTime')
             ))
@@ -308,6 +318,8 @@ class InferenceTaskDao:
             Temperature=?,
             TextDelimiter=?,
             Speed=?,
+            SampleSteps=?,
+            IfSr=?,
             OtherParameters=?
              WHERE Id = ? 
             '''
@@ -322,6 +334,8 @@ class InferenceTaskDao:
             task.temperature,
             task.text_delimiter,
             task.speed,
+            task.sampleSteps,
+            task.ifSr,
             task.other_parameters,
             task.id
         ))

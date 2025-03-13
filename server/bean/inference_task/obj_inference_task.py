@@ -11,11 +11,13 @@ class ObjInferenceTask(BaseModel):
     def __init__(self, id=None, task_name=None, compare_type=None, gpt_sovits_version=None,
                  gpt_model_name=None, vits_model_name=None, top_k=None,
                  top_p=None, temperature=None, text_delimiter=None,
-                 speed=None, other_parameters=None, create_time=None,
+                 speed=None, sampleSteps=None, ifSr=None,
+                 other_parameters=None, create_time=None,
                  inference_status=0, execute_text_similarity=0, execute_audio_similarity=0,
                  conclusion: str = None,
                  audio_list: list[ObjInferenceTaskAudio] = None, param_list: list[ObjInferenceTaskCompareParams] = None,
-                 text_list: list[ObjInferenceTaskText] = None, inp_refs_list: list[ObjInferenceTaskSoundFusionAudio] = None):
+                 text_list: list[ObjInferenceTaskText] = None,
+                 inp_refs_list: list[ObjInferenceTaskSoundFusionAudio] = None):
         self.id = id  # 主键ID，允许从外部传入
         self.task_name = task_name  # 任务名称
         self.compare_type = compare_type  # 比较类型
@@ -27,6 +29,8 @@ class ObjInferenceTask(BaseModel):
         self.temperature = temperature  # 温度
         self.text_delimiter = text_delimiter  # 文本分隔符
         self.speed = speed  # 语速
+        self.sampleSteps = sampleSteps  # 采样步数
+        self.ifSr = ifSr  # 是否超分
         self.other_parameters = other_parameters  # 其余参数
         self.inference_status = inference_status  # 推理状态 0 待推理 1 推理中 2 推理完成
         self.execute_text_similarity = execute_text_similarity  # 是否已执行文本相似度 0 否 1 是
@@ -67,7 +71,7 @@ class ObjInferenceTaskFilter(Filter):
         if not ValidationUtils.is_empty(self.id):
             sql += f" and id = ? "
             condition.append(f"{self.id}")
-        
+
         if not ValidationUtils.is_empty(self.ids):
             sql += f" and id in ({self.ids}) "
 

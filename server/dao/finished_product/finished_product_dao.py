@@ -59,6 +59,8 @@ class FinishedProductDao:
                 temperature=data.get('Temperature'),
                 text_delimiter=data.get('TextDelimiter'),
                 speed=data.get('Speed'),
+                sampleSteps=data.get('SampleSteps'),
+                ifSr=data.get('IfSr'),
                 inp_refs=data.get('InpRefs'),
                 score=data.get('Score'),
                 remark=data.get('Remark'),
@@ -69,7 +71,7 @@ class FinishedProductDao:
     @staticmethod
     def add_finished_product(product: ObjFinishedProductManager) -> int:
         sql = '''
-            INSERT INTO tab_obj_finished_product_manager(Name,Category,GptSovitsVersion,GptModelName,GptModelPath,VitsModelName,VitsModelPath,AudioId,AudioName,AudioPath,Content,Language,AudioLength,TopK,TopP,Temperature,TextDelimiter,Speed,InpRefs,Score,Remark,CreateTime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'))
+            INSERT INTO tab_obj_finished_product_manager(Name,Category,GptSovitsVersion,GptModelName,GptModelPath,VitsModelName,VitsModelPath,AudioId,AudioName,AudioPath,Content,Language,AudioLength,TopK,TopP,Temperature,TextDelimiter,Speed,SampleSteps,IfSr,InpRefs,Score,Remark,CreateTime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,datetime('now'))
             '''
         return DBSlaveSQLExecutor.insert(sql, (
             product.name,
@@ -90,6 +92,8 @@ class FinishedProductDao:
             product.temperature,
             product.text_delimiter,
             product.speed,
+            product.sampleSteps,
+            product.ifSr,
             product.inp_refs,
             product.score,
             product.remark
@@ -98,7 +102,7 @@ class FinishedProductDao:
     @staticmethod
     def update_finished_product(product: ObjFinishedProductManager) -> int:
         sql = '''
-            UPDATE tab_obj_finished_product_manager SET Name=?,Category=?,GptSovitsVersion=?,GptModelName=?,GptModelPath=?,VitsModelName=?,VitsModelPath=?,AudioId=?,AudioName=?,AudioPath=?,Content=?,Language=?,AudioLength=?,TopK=?,TopP=?,Temperature=?,TextDelimiter=?,Speed=?,InpRefs=?,Score=?,Remark=? WHERE Id = ? 
+            UPDATE tab_obj_finished_product_manager SET Name=?,Category=?,GptSovitsVersion=?,GptModelName=?,GptModelPath=?,VitsModelName=?,VitsModelPath=?,AudioId=?,AudioName=?,AudioPath=?,Content=?,Language=?,AudioLength=?,TopK=?,TopP=?,Temperature=?,TextDelimiter=?,Speed=?,SampleSteps=?,IfSr=?,InpRefs=?,Score=?,Remark=? WHERE Id = ? 
             '''
         return DBSlaveSQLExecutor.execute_update(sql, (
             product.name,
@@ -119,6 +123,8 @@ class FinishedProductDao:
             product.temperature,
             product.text_delimiter,
             product.speed,
+            product.sampleSteps,
+            product.ifSr,
             product.inp_refs,
             product.score,
             product.remark,
