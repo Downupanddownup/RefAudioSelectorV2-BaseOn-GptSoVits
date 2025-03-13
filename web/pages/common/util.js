@@ -145,6 +145,9 @@ function createXmSelect(el, dataList, callback) {
 }
 
 function setTips(el, content) {
+    if (!SysConfig.openTips) {
+        return
+    }
     tippy(el, {
         content:content,
         allowHTML:true,

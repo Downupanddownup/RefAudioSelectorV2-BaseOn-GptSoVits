@@ -1,5 +1,7 @@
 const SysConfig = (function () {
     
+    const openTips = true //是否开启提示
+    
     const languageList = [
         {
             name: '中文(all_zh)',
@@ -111,7 +113,8 @@ const SysConfig = (function () {
         defaultSampleSteps: defaultSampleSteps,
         defaultIfSr: defaultIfSr,
         defaultDialogWidth: defaultDialogWidth,
-        defaultDialogHeight: defaultDialogHeight
+        defaultDialogHeight: defaultDialogHeight,
+        openTips: openTips
     }
 })()
 
