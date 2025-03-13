@@ -15,6 +15,7 @@ import server.common.config_params as params
 # 获取当前脚本所在的绝对路径
 current_dir = os.getcwd()
 
+print('gsv2_dir', params.gsv2_dir)
 # 计算上上级目录的绝对路径
 api_dir = os.path.join(current_dir, params.gsv2_dir)
 
@@ -77,9 +78,9 @@ async def set_default_params(request: Request):
 
     temp_stream_mode = json_post_raw.get("stream_mode", None)
     temp_media_type = json_post_raw.get("media_type", None)
-    
+
     logger.info(f'stream_mode={temp_stream_mode}；media_type={temp_media_type}')
-    
+
     if temp_stream_mode is not None:
         temp_stream_mode = int(temp_stream_mode)
         # 流式返回模式
@@ -131,7 +132,9 @@ async def tts_endpoint(request: Request):
         top_p=params.top_p,
         temperature=params.temperature,
         speed=params.speed,
-        inp_refs=params.inp_refs
+        inp_refs=params.inp_refs,
+        sample_steps=32,
+        if_sr=True
     )
 
 
@@ -174,7 +177,9 @@ async def tts_endpoint(
         top_p=params.top_p,
         temperature=params.temperature,
         speed=params.speed,
-        inp_refs=params.inp_refs
+        inp_refs=params.inp_refs,
+        sample_steps=32,
+        if_sr=True
     )
 
 

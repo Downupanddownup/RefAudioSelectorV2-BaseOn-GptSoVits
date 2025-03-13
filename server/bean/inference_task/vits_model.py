@@ -17,6 +17,7 @@ class VitsModel(BaseModel):
     def create_dir():
         os.makedirs(VitsModel.get_base_v1_dir(), exist_ok=True)
         os.makedirs(VitsModel.get_base_v2_dir(), exist_ok=True)
+        os.makedirs(VitsModel.get_base_v3_dir(), exist_ok=True)
 
     @staticmethod
     def get_base_v1_dir():
@@ -25,3 +26,7 @@ class VitsModel(BaseModel):
     @staticmethod
     def get_base_v2_dir():
         return f'{db_config.get_role_model_dir()}/SoVITS_weights_v2'
+
+    @staticmethod
+    def get_base_v3_dir():
+        return f'{db_config.get_role_model_dir()}/SoVITS_weights_v3'

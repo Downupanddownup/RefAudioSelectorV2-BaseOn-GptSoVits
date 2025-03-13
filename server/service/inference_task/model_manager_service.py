@@ -9,10 +9,13 @@ class ModelManagerService:
         GptModel.create_dir()
         v1_file_list = read_files_with_suffix(GptModel.get_base_v1_dir(), '.ckpt')
         v2_file_list = read_files_with_suffix(GptModel.get_base_v2_dir(), '.ckpt')
+        v3_file_list = read_files_with_suffix(GptModel.get_base_v3_dir(), '.ckpt')
         gpt_model_list = [GptModel(version='v1', name=os.path.basename(file_path), path=file_path) for file_path in
                           v1_file_list]
         gpt_model_list = gpt_model_list + [GptModel(version='v2', name=os.path.basename(file_path), path=file_path) for
                                            file_path in v2_file_list]
+        gpt_model_list = gpt_model_list + [GptModel(version='v3', name=os.path.basename(file_path), path=file_path) for
+                                           file_path in v3_file_list]
         return gpt_model_list
 
     @staticmethod
@@ -20,10 +23,13 @@ class ModelManagerService:
         VitsModel.create_dir()
         v1_file_list = read_files_with_suffix(VitsModel.get_base_v1_dir(), '.pth')
         v2_file_list = read_files_with_suffix(VitsModel.get_base_v2_dir(), '.pth')
+        v3_file_list = read_files_with_suffix(VitsModel.get_base_v3_dir(), '.pth')
         vits_model_list = [VitsModel(version='v1', name=os.path.basename(file_path), path=file_path) for file_path in
                            v1_file_list]
         vits_model_list = vits_model_list + [VitsModel(version='v2', name=os.path.basename(file_path), path=file_path)
                                              for file_path in v2_file_list]
+        vits_model_list = vits_model_list + [VitsModel(version='v3', name=os.path.basename(file_path), path=file_path)
+                                             for file_path in v3_file_list]
         return vits_model_list
 
     @staticmethod
