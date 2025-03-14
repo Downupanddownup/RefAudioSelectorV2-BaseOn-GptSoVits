@@ -73,6 +73,8 @@ async def set_default_params(request: Request):
         top_p=json_post_raw.get("top_p", None),
         temperature=json_post_raw.get("temperature", None),
         speed=json_post_raw.get("speed", None),
+        sample_steps=json_post_raw.get("sample_steps", None),
+        if_sr=json_post_raw.get("if_sr", None),
         inp_refs=json_post_raw.get("inp_refs", []),
     ))
 
@@ -117,6 +119,8 @@ async def tts_endpoint(request: Request):
         top_p=json_post_raw.get("top_p", None),
         temperature=json_post_raw.get("temperature", None),
         speed=json_post_raw.get("speed", None),
+        sample_steps=json_post_raw.get("sample_steps", None),
+        if_sr=json_post_raw.get("if_sr", None),
         inp_refs=json_post_raw.get("inp_refs", [])
     ))
     print(params)
@@ -133,8 +137,8 @@ async def tts_endpoint(request: Request):
         temperature=params.temperature,
         speed=params.speed,
         inp_refs=params.inp_refs,
-        sample_steps=32,
-        if_sr=True
+        sample_steps=params.sample_steps,
+        if_sr=params.if_sr
     )
 
 
@@ -150,6 +154,8 @@ async def tts_endpoint(
         top_p: float = None,
         temperature: float = None,
         speed: float = None,
+        sample_steps: int = None,
+        if_sr: bool = None,
         inp_refs: list = Query(default=[])
 ):
     params = inference_params_manager.get_real_params(InferenceParams(
@@ -161,6 +167,8 @@ async def tts_endpoint(
         top_p=top_p,
         temperature=temperature,
         speed=speed,
+        sample_steps=sample_steps,
+        if_sr=if_sr,
         inp_refs=inp_refs
     ))
     print(params)
@@ -178,8 +186,8 @@ async def tts_endpoint(
         temperature=params.temperature,
         speed=params.speed,
         inp_refs=params.inp_refs,
-        sample_steps=32,
-        if_sr=True
+        sample_steps=params.sample_steps,
+        if_sr=params.if_sr
     )
 
 

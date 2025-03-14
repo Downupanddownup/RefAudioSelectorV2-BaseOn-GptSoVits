@@ -146,6 +146,12 @@ const RasApiSpace = (function ()  {
             if (params.speed) {
                 data.speed = params.speed
             }
+            if (params.sample_steps) {
+                data.sample_steps = params.sample_steps
+            }
+            if (params.if_sr == 0 || params.if_sr == 1) {
+                data.if_sr = params.if_sr == 1
+            }
             if (params.inp_refs) {//是个列表
                 data.inp_refs = params.inp_refs
             }

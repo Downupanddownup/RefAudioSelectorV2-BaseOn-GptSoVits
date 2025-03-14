@@ -109,6 +109,14 @@
                         _this.product.speed = $(this).val()
                     })
 
+                    obj.find('#sampleSteps').on('change', function(){
+                        _this.product.sampleSteps = $(this).val()
+                    })
+
+                    obj.find('#ifSr').on('change', function(){
+                        _this.product.ifSr = $(this).val()
+                    })
+
                     obj.find('#content').on('blur', function(){
                         _this.product.content = $(this).val()
                     })
@@ -164,6 +172,8 @@
                     setTips('input[id="temperature"]',SysConfig.tippyDesc.temperature)
                     setTips('input[id="textDelimiter"]',SysConfig.tippyDesc.textDelimiter)
                     setTips('input[id="speed"]',SysConfig.tippyDesc.speed)
+                    setTips('select[id="sampleSteps"]',SysConfig.tippyDesc.sampleSteps)
+                    setTips('select[id="ifSr"]',SysConfig.tippyDesc.ifSr)
                     setTips('button[id="audioSelect"]','选择参考音频，可以影响模型推理的音色和语气效果')
                     setTips('button[id="inpRefsAudioSelect"]',SysConfig.tippyDesc.inpRefsList)
 
@@ -209,6 +219,8 @@
                             top_p:_this.product.topP,
                             temperature:_this.product.temperature,
                             speed:_this.product.speed,
+                            sample_steps:_this.product.sampleSteps,
+                            if_sr:_this.product.ifSr,
                             inp_refs:_this.product.sound_fusion_list.map(r => r.audioPath),
                         }, () => {
                             layui.layer.msg('参数设置成功')
@@ -503,6 +515,26 @@
             <td>
                 <input type="number" autocomplete="off" id="speed" placeholder="speed值" class="layui-input" style="width: auto;" value="{{d.product.speed}}">
             </td>
+            <td>采样步数：</td>
+            <td>
+                <select class="customSelect" id="sampleSteps">
+                    <option {{isTrue(32==d.product.sampleSteps,'selected','')}} value="32">32</option>
+                    <option {{isTrue(16==d.product.sampleSteps,'selected','')}} value="16">16</option>
+                    <option {{isTrue(8==d.product.sampleSteps,'selected','')}} value="8">8</option>
+                    <option {{isTrue(4==d.product.sampleSteps,'selected','')}} value="4">4</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>是否超分：</td>
+            <td>
+                <select class="customSelect" id="ifSr">
+                    <option {{isTrue(0==d.product.ifSr,'selected','')}} value="0">否</option>
+                    <option {{isTrue(1==d.product.ifSr,'selected','')}} value="1">是</option>
+                </select>
+            </td>
+            <td></td>
+            <td></td>
             <td></td>
             <td></td>
         </tr>

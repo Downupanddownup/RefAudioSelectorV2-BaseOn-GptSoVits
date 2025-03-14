@@ -27,6 +27,8 @@ class InferenceParams:
                  top_p: float = 1.0,
                  temperature: float = 1.0,
                  speed: float = 1.0,
+                 sample_steps: int = 32,
+                 if_sr: int = 0,
                  inp_refs: list[str] = []
                  ):
         self.refer_wav_path = refer_wav_path
@@ -39,6 +41,8 @@ class InferenceParams:
         self.top_p = top_p
         self.temperature = temperature
         self.speed = speed
+        self.sample_steps = sample_steps
+        self.if_sr = if_sr
         self.inp_refs = inp_refs
 
     def to_dict(self):
@@ -53,6 +57,8 @@ class InferenceParams:
             "top_p": self.top_p,
             "temperature": self.temperature,
             "speed": self.speed,
+            "sample_steps": self.sample_steps,
+            "if_sr": self.if_sr == 1,
             "inp_refs": self.inp_refs
         }
 

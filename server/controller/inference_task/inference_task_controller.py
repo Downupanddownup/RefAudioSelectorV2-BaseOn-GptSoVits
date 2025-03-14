@@ -66,6 +66,8 @@ def get_inference_task_from_json(form_data: dict) -> ObjInferenceTask:
         temperature=form_data.get('temperature'),
         text_delimiter=form_data.get('textDelimiter'),
         speed=form_data.get('speed'),
+        sample_steps=form_data.get('sampleSteps'),
+        if_sr=form_data.get('ifSr'),
         other_parameters=form_data.get('otherParameters'),
     )
 
@@ -123,6 +125,8 @@ def get_inference_task_from_json(form_data: dict) -> ObjInferenceTask:
             temperature=param.get('temperature'),
             text_delimiter=param.get('textDelimiter'),
             speed=param.get('speed'),
+            sample_steps=form_data.get('sampleSteps'),
+            if_sr=form_data.get('ifSr'),
             other_parameters=param.get('otherParameters'),
             inp_refs_list=param_inp_refs_list
         ))

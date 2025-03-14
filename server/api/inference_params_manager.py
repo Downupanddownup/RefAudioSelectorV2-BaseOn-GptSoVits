@@ -2,10 +2,18 @@ from server.util.util import str_to_int, str_to_float
 
 
 class InferenceParams:
-    def __init__(self, refer_wav_path: str = None, prompt_text: str = None
-                 , prompt_language: str = None, cut_punc: str = None
-                 , top_k: int = None, top_p: float = None, temperature: float = None,
-                 speed: float = None, inp_refs: list = None):
+    def __init__(self, 
+                 refer_wav_path: str = None, 
+                 prompt_text: str = None,
+                 prompt_language: str = None,
+                 cut_punc: str = None,
+                 top_k: int = None, 
+                 top_p: float = None, 
+                 temperature: float = None,
+                 speed: float = None,
+                 sample_steps: int = None,
+                 if_sr: bool = None,
+                 inp_refs: list = None):
         self.refer_wav_path = refer_wav_path
         self.prompt_text = prompt_text
         self.prompt_language = prompt_language
@@ -14,6 +22,8 @@ class InferenceParams:
         self.top_p = str_to_float(top_p, None)
         self.temperature = str_to_float(temperature, None)
         self.speed = str_to_float(speed, None)
+        self.sample_steps = sample_steps
+        self.if_sr = if_sr
         self.inp_refs = inp_refs
     
     def __str__(self):
@@ -49,6 +59,10 @@ class InferenceParamsManager:
             self.default_params.temperature = default_params.temperature
         if default_params.speed is not None:
             self.default_params.speed = default_params.speed
+        if default_params.sample_steps is not None:
+            self.default_params.sample_steps = default_params.sample_steps
+        if default_params.if_sr is not None:
+            self.default_params.if_sr = default_params.if_sr
         if default_params.inp_refs is not None:
             self.default_params.inp_refs = default_params.inp_refs
 
@@ -62,6 +76,8 @@ class InferenceParamsManager:
             top_p=get_params(web_params.top_p, self.default_params.top_p, 1.0),
             temperature=get_params(web_params.temperature, self.default_params.temperature, 1.0),
             speed=get_params(web_params.speed, self.default_params.speed, 1.0),
+            sample_steps=get_params(web_params.sample_steps, self.default_params.sample_steps, 32),
+            if_sr=get_params(web_params.if_sr, self.default_params.if_sr, False),
             inp_refs=get_params(web_params.inp_refs, self.default_params.inp_refs, []),
         )
 

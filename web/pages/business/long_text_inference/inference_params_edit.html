@@ -13,6 +13,8 @@
                 this.temperature = data.temperature || SysConfig.defaultTemperature; // 温度
                 this.textDelimiter = data.textDelimiter || SysConfig.defaultTextDelimiter; // 文本分隔符
                 this.speed = data.speed || SysConfig.defaultSpeed; // 语速
+                this.sampleSteps = data.sampleSteps || SysConfig.defaultSampleSteps; // 采样步数
+                this.ifSr = data.ifSr || SysConfig.defaultIfSr; // 是否超分
                 this.inp_refs = data.inp_refs || []; // 融合音频
             }
         }
@@ -97,6 +99,14 @@
                     obj.find('#speed').on('blur', function(){
                         _this.config.speed = $(this).val()
                     })
+
+                    obj.find('#sampleSteps').on('change', function(){
+                        _this.config.sampleSteps = $(this).val()
+                    })
+
+                    obj.find('#ifSr').on('change', function(){
+                        _this.config.ifSr = $(this).val()
+                    })
                     
                     obj.find('#setInferenceParams').on('click', function() {
                         _this.setInferenceParams()
@@ -147,6 +157,8 @@
                     setTips('input[id="temperature"]',SysConfig.tippyDesc.temperature)
                     setTips('input[id="textDelimiter"]',SysConfig.tippyDesc.textDelimiter)
                     setTips('input[id="speed"]',SysConfig.tippyDesc.speed)
+                    setTips('select[id="sampleSteps"]',SysConfig.tippyDesc.sampleSteps)
+                    setTips('select[id="ifSr"]',SysConfig.tippyDesc.ifSr)
                     setTips('button[id="audioSelect"]','选择参考音频，可以影响模型推理的音色和语气效果')
                     setTips('button[id="inpRefsAudioSelect"]',SysConfig.tippyDesc.inpRefsList)
                     
@@ -281,6 +293,8 @@
                                 topP:_this.config.topP,
                                 temperature:_this.config.temperature,
                                 speed:_this.config.speed,
+                                sampleSteps:_this.config.sampleSteps,
+                                ifSr:_this.config.ifSr,
                                 score:_this.C_ObjInferenceTaskResultAudio$1?.longTextScore || 0,
                                 remark:_this.C_ObjInferenceTaskResultAudio$1?.remark || '',
                                 inpRefs:_this.taskInpRefsAudioList,
@@ -407,6 +421,8 @@
                             _this.config.temperature = objTask.temperature
                             _this.config.textDelimiter = objTask.textDelimiter
                             _this.config.speed = objTask.speed
+                            _this.config.sampleSteps = objTask.sampleSteps
+                            _this.config.ifSr = objTask.ifSr
                             _this.C_ObjReferenceAudio$1 = objAudio.getObjReferenceAudio()
                             _this.taskInpRefsAudioList = objTask.taskInpRefsAudioList
                             
@@ -434,6 +450,8 @@
                             top_p:_this.config.topP,
                             temperature:_this.config.temperature,
                             speed:_this.config.speed,
+                            sample_steps:_this.config.sampleSteps,
+                            if_sr:_this.config.ifSr,
                             inp_refs:_this.taskInpRefsAudioList.map(r => r.audioPath),
                         }, () => {
                             layui.layer.msg('参数设置成功')
@@ -550,26 +568,44 @@
                 <input type="number" autocomplete="off" id="speed" placeholder="speed值" class="layui-input" style="width: auto;" value="{{d.config.speed}}">
 
             </td>
+            <td>采样步数：</td>
+            <td>
+
+                <select class="customSelect" id="sampleSteps">
+                    <option {{isTrue(32==d.config.sampleSteps,'selected','')}} value="32">32</option>
+                    <option {{isTrue(16==d.config.sampleSteps,'selected','')}} value="16">16</option>
+                    <option {{isTrue(8==d.config.sampleSteps,'selected','')}} value="8">8</option>
+                    <option {{isTrue(4==d.config.sampleSteps,'selected','')}} value="4">4</option>
+                </select>
+
+            </td>
+        </tr>
+        <tr>
+            <td>是否超分：</td>
+            <td>
+                <select class="customSelect" id="ifSr">
+                    <option {{isTrue(0==d.config.ifSr,'selected','')}} value="0">否</option>
+                    <option {{isTrue(1==d.config.ifSr,'selected','')}} value="1">是</option>
+                </select>
+            </td>
             <td>参考音频：</td>
             <td>
 
                 {{# if (d.C_ObjReferenceAudio$1 != null) { }}
 
-                    <audio controls class="custom-audio" title="【{{d.C_ObjReferenceAudio$1.category}}】{{d.C_ObjReferenceAudio$1.content}}">
-                        <source src="{{d.C_ObjReferenceAudio$1.audioPath}}" type="audio/wav">
-                        <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
-                        您的浏览器不支持 HTML5 audio 标签。
-                    </audio>
-                
+                <audio controls class="custom-audio" title="【{{d.C_ObjReferenceAudio$1.category}}】{{d.C_ObjReferenceAudio$1.content}}">
+                    <source src="{{d.C_ObjReferenceAudio$1.audioPath}}" type="audio/wav">
+                    <!-- 提供备用内容，比如浏览器不支持<audio>标签时显示的信息 -->
+                    您的浏览器不支持 HTML5 audio 标签。
+                </audio>
+
                 {{# } }}
-                
+
                 <button type="button" class="layui-btn layui-btn-sm" id="audioSelect">选择</button>
 
             </td>
-        </tr>
-        <tr>
             <td>融合音频：</td>
-            <td colspan="5">
+            <td>
                 已选中待融合音频数量：<span id="inpRefsAudioSelectedCount">{{d.taskInpRefsAudioList.length}}</span>
                 <button type="button" class="layui-btn layui-btn-sm" id="inpRefsAudioSelect">音频选择</button>
             </td>

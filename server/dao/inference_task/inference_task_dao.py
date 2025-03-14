@@ -55,8 +55,8 @@ class InferenceTaskDao:
                 temperature=data.get('Temperature'),
                 text_delimiter=data.get('TextDelimiter'),
                 speed=data.get('Speed'),
-                sampleSteps=data.get('SampleSteps'),
-                ifSr=data.get('IfSr'),
+                sample_steps=data.get('SampleSteps'),
+                if_sr=data.get('IfSr'),
                 other_parameters=data.get('OtherParameters'),
                 inference_status=data.get('InferenceStatus'),
                 execute_text_similarity=data.get('ExecuteTextSimilarity'),
@@ -82,8 +82,8 @@ class InferenceTaskDao:
             task.temperature,
             task.text_delimiter,
             task.speed,
-            task.sampleSteps,
-            task.ifSr,
+            task.sample_steps,
+            task.if_sr,
             task.other_parameters,
             task.inference_status,
             task.execute_text_similarity,
@@ -107,8 +107,8 @@ class InferenceTaskDao:
             x.temperature,
             x.text_delimiter,
             x.speed,
-            x.sampleSteps,
-            x.ifSr,
+            x.sample_steps,
+            x.if_sr,
             x.other_parameters
         ) for x in param_list])
 
@@ -128,8 +128,8 @@ class InferenceTaskDao:
             param.temperature,
             param.text_delimiter,
             param.speed,
-            param.sampleSteps,
-            param.ifSr,
+            param.sample_steps,
+            param.if_sr,
             param.other_parameters
         ))
 
@@ -210,8 +210,8 @@ class InferenceTaskDao:
                 temperature=data.get('Temperature'),
                 text_delimiter=data.get('TextDelimiter'),
                 speed=data.get('Speed'),
-                sampleSteps=data.get('SampleSteps'),
-                ifSr=data.get('IfSr'),
+                sample_steps=data.get('SampleSteps'),
+                if_sr=data.get('IfSr'),
                 other_parameters=data.get('OtherParameters'),
                 create_time=data.get('CreateTime')
             ))
@@ -334,8 +334,8 @@ class InferenceTaskDao:
             task.temperature,
             task.text_delimiter,
             task.speed,
-            task.sampleSteps,
-            task.ifSr,
+            task.sample_steps,
+            task.if_sr,
             task.other_parameters,
             task.id
         ))
