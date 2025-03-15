@@ -53,6 +53,8 @@ class ObjInferenceTaskResultAudio(BaseModel):
         top_p = self.obj_task.top_p
         temperature = self.obj_task.temperature
         speed = self.obj_task.speed
+        sample_steps = self.obj_task.sample_steps
+        if_sr = self.obj_task.if_sr
         inp_refs_list = self.obj_task.inp_refs_list
         if compare_type in ['text_delimiter', 'all']:
             cut_punc = self.obj_param.text_delimiter
@@ -62,6 +64,10 @@ class ObjInferenceTaskResultAudio(BaseModel):
             temperature = self.obj_param.temperature
         if compare_type in ['speed', 'all']:
             speed = self.obj_param.speed
+        if compare_type in ['sample_steps', 'all']:
+            sample_steps = self.obj_param.sample_steps
+        if compare_type in ['if_sr', 'all']:
+            if_sr = self.obj_param.if_sr
         if compare_type in ['inp_refs', 'all']:
             inp_refs_list = self.obj_param.inp_refs_list
 
@@ -76,6 +82,8 @@ class ObjInferenceTaskResultAudio(BaseModel):
             top_p=top_p,
             temperature=temperature,
             speed=speed,
+            sample_steps=sample_steps,
+            if_sr=if_sr,
             inp_refs=[p.audio_path for p in inp_refs_list] if inp_refs_list else []
         )
 

@@ -58,7 +58,7 @@ class InferenceParams:
             "temperature": self.temperature,
             "speed": self.speed,
             "sample_steps": self.sample_steps,
-            "if_sr": self.if_sr == 1,
+            "if_sr": int(self.if_sr) == 1,
             "inp_refs": self.inp_refs
         }
 

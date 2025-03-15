@@ -35,6 +35,8 @@ class InferenceParams:
                 f"top_p:{self.top_p}, "
                 f"temperature:{self.temperature}, "
                 f"speed:{self.speed}, "
+                f"sample_steps:{self.sample_steps}, "
+                f"if_sr:{self.if_sr}, "
                 f"inp_refs:{self.inp_refs}")
 
 

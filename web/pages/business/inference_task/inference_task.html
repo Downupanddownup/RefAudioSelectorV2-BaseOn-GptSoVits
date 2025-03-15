@@ -171,7 +171,7 @@
                         {field:'conclusion', width:'10%', title: '结论', templet: function(d){
                                 return `
                                 <div class="view-body">
-                                  <input value="${d.conclusion}" class="layui-input" data-conclusion-id="${d.id}">
+                                  <input value="${d.conclusion? d.conclusion:''}" class="layui-input" data-conclusion-id="${d.id}">
                                 </div>
                                 `
                             }},
