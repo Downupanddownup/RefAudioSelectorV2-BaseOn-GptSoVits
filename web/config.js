@@ -91,10 +91,13 @@ const SysConfig = (function () {
         'inpRefsList': '融合音频，在【参考音频】tab下，点击【融合音频】进入管理界面,可选项：通过选择多个音频（建议同性），平均融合他们的音色。如不选择此项，音色由参考音频控制。如是微调模型，建议参考音频全部在微调训练集音色内，底模不用管。',
      }
     
-    const defaultGptSovitsVersion = 'v2'
-    const defaultTopK = 12
-    const defaultTopP = 0.6
-    const defaultTemperature = 0.6
+    const defaultGptSovitsVersion = 'v3'
+    // const defaultTopK = 12
+    const defaultTopK = 15
+    // const defaultTopP = 0.6
+    const defaultTopP = 1
+    // const defaultTemperature = 0.6
+    const defaultTemperature = 1
     const defaultTextDelimiter = `,.;?!、，。？！；：…"`
     const defaultSpeed = 1.0
     const defaultSampleSteps = 32 //采样步数

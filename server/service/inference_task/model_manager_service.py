@@ -1,6 +1,7 @@
 import os
 from server.bean.inference_task.gpt_model import GptModel
 from server.bean.inference_task.vits_model import VitsModel
+import server.common.config_params as params
 
 
 class ModelManagerService:
@@ -14,8 +15,18 @@ class ModelManagerService:
                           v1_file_list]
         gpt_model_list = gpt_model_list + [GptModel(version='v2', name=os.path.basename(file_path), path=file_path) for
                                            file_path in v2_file_list]
+
+        current_dir = os.getcwd()
+        api_dir = os.path.join(current_dir, params.gsv2_dir)
+        pretrained_models_dir = os.path.join(api_dir, 'GPT_SoVITS/pretrained_models')
+
+        v3 = GptModel(version='v3', name='s1v3.ckpt', path=os.path.join(pretrained_models_dir, 's1v3.ckpt'))
+        if os.path.exists(v3.path):
+            gpt_model_list.append(v3)
+
         gpt_model_list = gpt_model_list + [GptModel(version='v3', name=os.path.basename(file_path), path=file_path) for
                                            file_path in v3_file_list]
+
         return gpt_model_list
 
     @staticmethod
@@ -28,6 +39,15 @@ class ModelManagerService:
                            v1_file_list]
         vits_model_list = vits_model_list + [VitsModel(version='v2', name=os.path.basename(file_path), path=file_path)
                                              for file_path in v2_file_list]
+
+        current_dir = os.getcwd()
+        api_dir = os.path.join(current_dir, params.gsv2_dir)
+        pretrained_models_dir = os.path.join(api_dir, 'GPT_SoVITS/pretrained_models')
+
+        v3 = VitsModel(version='v3', name='s2Gv3.pth', path=os.path.join(pretrained_models_dir, 's2Gv3.pth'))
+        if os.path.exists(v3.path):
+            vits_model_list.append(v3)
+
         vits_model_list = vits_model_list + [VitsModel(version='v3', name=os.path.basename(file_path), path=file_path)
                                              for file_path in v3_file_list]
         return vits_model_list
