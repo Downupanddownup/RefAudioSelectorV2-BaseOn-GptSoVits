@@ -213,7 +213,7 @@ class C_ObjInferenceTaskCompareParams {//推理任务中，对比的变量
         this.id = data.id ? data.id : 0; // 自增编号
         this.taskId = data.taskId || 0; // 任务id
         this.audioCategory = data.audioCategory || ''; // 音频分类
-        this.gptSovitsVersion = data.gptSovitsVersion || 'v2'; // 模型版本
+        this.gptSovitsVersion = data.gptSovitsVersion || 'v3'; // 模型版本
         this.gptModelName = data.gptModelName || ''; // GPT模型名称
         this.vitsModelName = data.vitsModelName || ''; // Vits模型名称
         this.topK = data.topK || 15; // top_k值
