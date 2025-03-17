@@ -213,16 +213,16 @@ class C_ObjInferenceTaskCompareParams {//推理任务中，对比的变量
         this.id = data.id ? data.id : 0; // 自增编号
         this.taskId = data.taskId || 0; // 任务id
         this.audioCategory = data.audioCategory || ''; // 音频分类
-        this.gptSovitsVersion = data.gptSovitsVersion || 'v3'; // 模型版本
+        this.gptSovitsVersion = data.gptSovitsVersion || SysConfig.defaultGptSovitsVersion; // 模型版本
         this.gptModelName = data.gptModelName || ''; // GPT模型名称
         this.vitsModelName = data.vitsModelName || ''; // Vits模型名称
-        this.topK = data.topK || 15; // top_k值
-        this.topP = data.topP || 1.0; // top_p值
-        this.temperature = data.temperature || 1.0; // 温度
-        this.textDelimiter = data.textDelimiter || ''; // 文本分隔符
-        this.speed = data.speed || 1.0; // 语速
-        this.sampleSteps = data.sampleSteps || 32; // 采样步数
-        this.ifSr = data.ifSr || 0; // 是否超分
+        this.topK = data.topK || SysConfig.defaultTopK; // top_k值
+        this.topP = data.topP || SysConfig.defaultTopP; // top_p值
+        this.temperature = data.temperature || SysConfig.defaultTemperature; // 温度
+        this.textDelimiter = data.textDelimiter || SysConfig.defaultTextDelimiter; // 文本分隔符
+        this.speed = data.speed || SysConfig.defaultSpeed; // 语速
+        this.sampleSteps = data.sampleSteps || SysConfig.defaultSampleSteps; // 采样步数
+        this.ifSr = data.ifSr || SysConfig.defaultIfSr; // 是否超分
         this.otherParameters = data.otherParameters || ''; // 其余参数
         this.createTime = data.createTime ? new Date(data.createTime) : null; // 创建时间, 默认为当前时间
         this.inpRefsAudioList = data.inpRefsList ? data.inpRefsList.map(item => new C_ObjInferenceTaskSoundFusionAudio(item)) : [];
@@ -269,7 +269,7 @@ class C_ObjInferenceTaskCompareParams {//推理任务中，对比的变量
             return `版本:${this.gptSovitsVersion};gpt模型:${this.gptModelName};vits模型:${this.vitsModelName}`
         }
         if (compareType == 'all') {
-            return `版本:${this.gptSovitsVersion};gpt模型:${this.gptModelName};vits模型:${this.vitsModelName};
+            return `版本:${this.gptSovitsVersion};gpt模型:${this.gptModelName};vits模型:${this.vitsModelName};<br>
             top_k:${this.topK};top_p:${this.topP};temperature:${this.temperature};
             文本分隔符:${this.textDelimiter};语速:${this.speed};采样步数：${this.sampleSteps};是否超分：${this.ifSr==1?'是':'否'}
             `
