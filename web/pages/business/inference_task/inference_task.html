@@ -77,6 +77,11 @@
                     limit:50,
                     limits:[50,100,150,200],
                     page: true,
+                    autoSort:false,
+                    initSort: {
+                        field: 'Id', // 按 id 字段排序
+                        type: 'desc' // 降序排序
+                    },
                     parseData: function(res){ //res 即为原始返回的数据
                         console.log('res',res)
                         _this.taskList = res.data ? res.data : []
