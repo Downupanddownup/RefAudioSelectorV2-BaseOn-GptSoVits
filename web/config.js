@@ -1,6 +1,6 @@
 const SysConfig = (function () {
     
-    const openTips = false //是否开启提示
+    const openTips = true //是否开启提示
     
     const languageList = [
         {
