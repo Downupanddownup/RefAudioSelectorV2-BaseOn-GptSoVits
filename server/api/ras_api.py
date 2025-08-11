@@ -38,6 +38,9 @@ sys.argv.extend(["--gpt_path",
 os.environ['g2pw_model_dir'] = os.path.join(api_dir, "GPT_SoVITS/text/G2PWModel")
 os.environ['g2pw_model_source'] = os.path.join(api_dir, "GPT_SoVITS/pretrained_models/chinese-roberta-wwm-ext-large")
 
+os.environ['eres2net_dir'] = os.path.join(api_dir, "GPT_SoVITS/eres2net")
+os.environ['sv_path'] = os.path.join(api_dir, "GPT_SoVITS/pretrained_models/sv/pretrained_eres2netv2w24s4ep4.ckpt")
+
 inference_params_manager = InferenceParamsManager()
 
 # 导入模块中的所有内容
