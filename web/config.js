@@ -106,6 +106,8 @@ const SysConfig = (function () {
     const defaultDialogWidth = '95%'
     const defaultDialogHeight = '95%'
     
+    const versions = ['v1','v2','v3','v2Pro','v2ProPlus']
+    
     return {
         tippyDesc: tippyDesc,
         languageList: languageList,
@@ -119,7 +121,8 @@ const SysConfig = (function () {
         defaultIfSr: defaultIfSr,
         defaultDialogWidth: defaultDialogWidth,
         defaultDialogHeight: defaultDialogHeight,
-        openTips: openTips
+        openTips: openTips,
+        versions: versions
     }
 })()
 

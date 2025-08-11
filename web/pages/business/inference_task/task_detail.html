@@ -572,9 +572,11 @@
                 </td>
                 <td>
                   <select class="customSelect" data-params-gsv-version="{{index}}">
-                    <option {{isTrue('v1'==item.gptSovitsVersion,'selected','')}} value="v1">v1</option>
-                    <option {{isTrue('v2'==item.gptSovitsVersion,'selected','')}} value="v2">v2</option>
-                    <option {{isTrue('v3'==item.gptSovitsVersion,'selected','')}} value="v3">v3</option>
+                    
+                    {{# layui.each(SysConfig.versions, function(index, version){ }}
+                      <option {{isTrue(version==item.gptSovitsVersion,'selected','')}} value="{{version}}">{{version}}</option>
+                    {{# }) }}
+                    
                   </select>
                   <select class="customSelect" data-params-gpt-model="{{index}}">
                     <option value="">请选择</option>
@@ -597,9 +599,11 @@
                 </td>
                 <td>
                   <select class="customSelect" data-params-gsv-version="{{index}}">
-                    <option {{isTrue('v1'==item.gptSovitsVersion,'selected','')}} value="v1">v1</option>
-                    <option {{isTrue('v2'==item.gptSovitsVersion,'selected','')}} value="v2">v2</option>
-                    <option {{isTrue('v3'==item.gptSovitsVersion,'selected','')}} value="v3">v3</option>
+
+                    {{# layui.each(SysConfig.versions, function(index, version){ }}
+                      <option {{isTrue(version==item.gptSovitsVersion,'selected','')}} value="{{version}}">{{version}}</option>
+                    {{# }) }}
+                    
                   </select>
                   <select class="customSelect" data-params-vits-model="{{index}}">
                     <option value="">请选择</option>
@@ -761,9 +765,11 @@
                 </td>
                 <td>
                   gsv版本：<select class="customSelect" data-params-gsv-version="{{index}}">
-                    <option {{isTrue('v1'==item.gptSovitsVersion,'selected','')}} value="v1">v1</option>
-                    <option {{isTrue('v2'==item.gptSovitsVersion,'selected','')}} value="v2">v2</option>
-                    <option {{isTrue('v3'==item.gptSovitsVersion,'selected','')}} value="v3">v3</option>
+
+                  {{# layui.each(SysConfig.versions, function(index, version){ }}
+                    <option {{isTrue(version==item.gptSovitsVersion,'selected','')}} value="{{version}}">{{version}}</option>
+                  {{# }) }}
+                  
                   </select> 
                   GPT：<select class="customSelect" data-params-gpt-model="{{index}}">
                     <option value="">请选择</option>
@@ -799,9 +805,11 @@
                     <tr>
                       <td>
                         gsv版本：<select class="customSelect" data-params-gsv-version="{{index}}">
-                          <option {{isTrue('v1'==item.gptSovitsVersion,'selected','')}} value="v1">v1</option>
-                          <option {{isTrue('v2'==item.gptSovitsVersion,'selected','')}} value="v2">v2</option>
-                          <option {{isTrue('v3'==item.gptSovitsVersion,'selected','')}} value="v3">v3</option>
+
+                        {{# layui.each(SysConfig.versions, function(index, version){ }}
+                          <option {{isTrue(version==item.gptSovitsVersion,'selected','')}} value="{{version}}">{{version}}</option>
+                        {{# }) }}
+                        
                         </select>
                       </td>
                       <td>
@@ -915,9 +923,11 @@
             {{# } else { }}
 
               <select class="customSelect" id="gsvVersion">
-                <option {{isTrue(d.task.gptSovitsVersion=="v1",'selected','')}} value="v1">v1</option>
-                <option {{isTrue(d.task.gptSovitsVersion=="v2",'selected','')}} value="v2">v2</option>
-                <option {{isTrue(d.task.gptSovitsVersion=="v3",'selected','')}} value="v3">v3</option>
+
+                {{# layui.each(SysConfig.versions, function(index, version){ }}
+                  <option {{isTrue(version==d.task.gptSovitsVersion,'selected','')}} value="{{version}}">{{version}}</option>
+                {{# }) }}
+                
               </select>
               <button type="button" class="layui-btn layui-btn-sm" id="modelManager">模型管理</button>
             
