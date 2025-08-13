@@ -12,6 +12,7 @@ from server.dao.data_base_manager import db_config
 from server.service.finished_product.finished_product_service import FinishedProductService
 from server.service.inference_task.model_manager_service import ModelManagerService
 from server.util.util import str_to_int, delete_directory
+from server.util.database_traversal_util import DatabaseTraversalUtil
 
 router = APIRouter(prefix="/product")
 
@@ -25,6 +26,63 @@ async def get_finished_product_list(request: Request):
     audio_list = FinishedProductService.find_list(audio_filter)
 
     return ResponseResult(data=audio_list, count=count)
+
+
+@router.api_route("/get_all_databases_finished_product_list", methods=["GET", "POST"])
+async def get_all_databases_finished_product_list(request: Request):
+    """查询全部分库的音频产品数据
+    
+    返回参数：
+    - total_role_count: 总角色数量
+    - total_product_count: 总音频产品数量
+    - product_list: 音频产品的全部列表
+    """
+    # 确保主数据库已初始化
+    db_config.init_master_db_path()
+
+    # 统计总角色数量
+    role_count_results = DatabaseTraversalUtil.traverse_all_databases(
+        business_function=lambda role: 1  # 每个角色计数为1
+    )
+    total_role_count = len(DatabaseTraversalUtil.get_successful_results(role_count_results))
+
+    # 统计总音频产品数量并收集产品列表
+    all_products = []
+    total_product_count = 0
+
+    product_results = DatabaseTraversalUtil.traverse_all_databases(
+        business_function=lambda role: (
+            # 创建过滤器并查询产品列表
+            (lambda audio_filter: {
+                'count': FinishedProductService.find_count(audio_filter),
+                'list': FinishedProductService.find_list(audio_filter),
+                'category': role.category,
+                'role_name': role.name
+            })(
+                ObjFinishedProductManagerFilter({})
+            )
+        )
+    )
+
+    # 处理查询结果
+    for result in DatabaseTraversalUtil.get_successful_results(product_results):
+        data = result.result
+        total_product_count += data['count']
+        
+        # 使用字典包装的方式添加分类和角色信息
+        for product in data['list']:
+            enhanced_product = {
+                **product.__dict__,  # 原有产品属性
+                'role_category': data['category'],
+                'role_name': data['role_name']
+            }
+            all_products.append(enhanced_product)
+
+    return ResponseResult(data={
+        "total_role_count": total_role_count,
+        "total_product_count": total_product_count,
+        "product_list": all_products
+    })
 
 
 @router.post("/load_finished_product_detail")
