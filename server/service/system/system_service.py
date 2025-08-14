@@ -69,3 +69,21 @@ class SystemService:
         if len(role_list) > 0:
             return role_list[0].role_list[0]
         return None
+
+    @staticmethod
+    def get_role_by_name(role_name: str) -> Role:
+        """
+        根据角色名称查找角色对象
+        
+        Args:
+            role_name (str): 角色名称
+            
+        Returns:
+            Role: 找到的角色对象，如果未找到则返回None
+        """
+        role_list = SystemService.get_role_list()
+        for role_category in role_list:
+            for role in role_category.role_list:
+                if role.name == role_name:
+                    return role
+        return None

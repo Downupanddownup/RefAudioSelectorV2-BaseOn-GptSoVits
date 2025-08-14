@@ -7,6 +7,7 @@ from server.bean.finished_product.finished_product_manager import ObjFinishedPro
     ObjFinishedProductManager
 from server.bean.finished_product.product_param_config_template import ProductParamConfigTemplate
 from server.bean.sound_fusion.obj_sound_fusion_audio import ObjSoundFusionAudio
+from server.common import config_params
 from server.common.response_result import ResponseResult
 from server.dao.data_base_manager import db_config
 from server.service.finished_product.finished_product_service import FinishedProductService
@@ -79,6 +80,7 @@ async def get_all_databases_finished_product_list(request: Request):
             all_products.append(enhanced_product)
 
     return ResponseResult(data={
+        "api_port": config_params.api_port,
         "total_role_count": total_role_count,
         "total_product_count": total_product_count,
         "product_list": all_products

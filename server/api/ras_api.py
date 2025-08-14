@@ -3,12 +3,17 @@ import os
 import signal
 import subprocess
 import uvicorn
+import json
 from fastapi.middleware.cors import CORSMiddleware
 
 print("Current working directory:", os.getcwd())
 # 将项目根目录添加到 sys.path
 sys.path.append(os.getcwd())
 
+from server.dao.data_base_manager import db_config
+from server.service.system.system_service import SystemService
+from server.util.database_switch_util import DatabaseSwitchUtil
+from server.service.finished_product.finished_product_service import FinishedProductService
 from server.api.inference_params_manager import InferenceParamsManager, InferenceParams
 import server.common.config_params as params
 
@@ -62,6 +67,46 @@ app.add_middleware(
 async def status():
     # 发送 SIGINT 信号给当前进程
     return {"message": "server is running"}
+
+
+@app.get("/set_product")
+async def set_product(product_id: int = 0,
+                      role_name: str = None):
+    if product_id < 1:
+        return 'no product'
+
+    print('db_config.db_path',db_config.db_path)
+
+    product = DatabaseSwitchUtil.execute_with_role_name_switch(
+        role_name,
+        lambda: FinishedProductService.find_by_id(product_id)
+    )
+
+    if product is None:
+        return 'no product'
+
+    inference_params_manager.set_default_params(InferenceParams(
+        refer_wav_path=product.audio_path,
+        prompt_text=product.content,
+        prompt_language=product.language,
+        cut_punc=product.text_delimiter,
+        top_k=product.top_k,
+        top_p=product.top_p,
+        temperature=product.temperature,
+        speed=product.speed,
+        sample_steps=product.sample_steps,
+        if_sr=product.if_sr,
+        inp_refs=json.loads(product.inp_refs),
+    ))
+
+    api.stream_mode = "normal"
+    logger.info("流式返回已开启")
+    api.media_type = "wav"
+    logger.info(f"编码格式: {api.media_type}")
+
+    print(inference_params_manager.default_params)
+
+    return 'ok'
 
 
 @app.post("/ras/set_default_params")
@@ -195,4 +240,6 @@ async def tts_endpoint(
 
 
 if __name__ == "__main__":
+    db_config.init_master_db_path()
+    print('db_config.db_path',db_config.db_path)
     uvicorn.run(app, host="0.0.0.0", port=int(params.api_port), workers=1)
