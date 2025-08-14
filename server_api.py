@@ -78,4 +78,4 @@ if __name__ == "__main__":
     role = SystemService.get_valid_role()
     if role:
         db_config.update_db_path(role)
-    uvicorn.run(app, host="127.0.0.1", port=config_params.service_port)
+    uvicorn.run(app, host="0.0.0.0", port=config_params.service_port)
