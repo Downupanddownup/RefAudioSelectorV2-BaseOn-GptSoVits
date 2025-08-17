@@ -103,7 +103,7 @@ async def set_product(product_id: int = 0,
     if  stream_mode_type == 1:
         api.stream_mode = "normal"
         logger.info("流式返回已开启")
-        api.media_type = "ogg"
+        api.media_type = "aac"
         logger.info(f"编码格式: {api.media_type}")
     else:
         api.stream_mode = "close"
@@ -112,6 +112,12 @@ async def set_product(product_id: int = 0,
         logger.info(f"编码格式: {api.media_type}")
 
     print(inference_params_manager.default_params)
+
+    gpt_model_path = product.gpt_model_path
+    sovits_model_path = product.vits_model_path
+
+    logger.info(f"gpt_model_path: {gpt_model_path};sovits_model_path: {sovits_model_path}")
+    change_gpt_sovits_weights(gpt_path=gpt_model_path, sovits_path=sovits_model_path)
 
     return 'ok'
 

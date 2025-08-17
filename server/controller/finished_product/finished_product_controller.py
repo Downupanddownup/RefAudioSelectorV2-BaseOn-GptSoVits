@@ -8,6 +8,7 @@ from server.bean.finished_product.finished_product_manager import ObjFinishedPro
 from server.bean.finished_product.product_param_config_template import ProductParamConfigTemplate
 from server.bean.sound_fusion.obj_sound_fusion_audio import ObjSoundFusionAudio
 from server.common import config_params
+from server.common.ras_api_monitor import RasApiMonitor
 from server.common.response_result import ResponseResult
 from server.dao.data_base_manager import db_config
 from server.service.finished_product.finished_product_service import FinishedProductService
@@ -69,7 +70,7 @@ async def get_all_databases_finished_product_list(request: Request):
     for result in DatabaseTraversalUtil.get_successful_results(product_results):
         data = result.result
         total_product_count += data['count']
-        
+
         # 使用字典包装的方式添加分类和角色信息
         for product in data['list']:
             enhanced_product = {
@@ -79,12 +80,14 @@ async def get_all_databases_finished_product_list(request: Request):
             }
             all_products.append(enhanced_product)
 
-    return ResponseResult(data={
-        "api_port": config_params.api_port,
-        "total_role_count": total_role_count,
-        "total_product_count": total_product_count,
-        "product_list": all_products
-    })
+    if RasApiMonitor.start_service(False, 'wav'):
+        return ResponseResult(data={
+            "api_port": config_params.api_port,
+            "total_role_count": total_role_count,
+            "total_product_count": total_product_count,
+            "product_list": all_products
+        })
+    return ResponseResult(msg="api服务启动失败")
 
 
 @router.post("/load_finished_product_detail")
