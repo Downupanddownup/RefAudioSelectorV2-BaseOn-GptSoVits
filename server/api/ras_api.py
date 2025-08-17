@@ -71,7 +71,8 @@ async def status():
 
 @app.get("/set_product")
 async def set_product(product_id: int = 0,
-                      role_name: str = None):
+                      role_name: str = None,
+                      stream_mode_type: int = 0):
     if product_id < 1:
         return 'no product'
 
@@ -99,10 +100,16 @@ async def set_product(product_id: int = 0,
         inp_refs=json.loads(product.inp_refs),
     ))
 
-    api.stream_mode = "normal"
-    logger.info("流式返回已开启")
-    api.media_type = "wav"
-    logger.info(f"编码格式: {api.media_type}")
+    if  stream_mode_type == 1:
+        api.stream_mode = "normal"
+        logger.info("流式返回已开启")
+        api.media_type = "ogg"
+        logger.info(f"编码格式: {api.media_type}")
+    else:
+        api.stream_mode = "close"
+        logger.info("流式返回已关闭")
+        api.media_type = "wav"
+        logger.info(f"编码格式: {api.media_type}")
 
     print(inference_params_manager.default_params)
 
